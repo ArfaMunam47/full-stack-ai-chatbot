@@ -1,0 +1,42 @@
+{
+  "users": [
+    {
+      "id": "usr_b3ec962d-54cc-479b-95f2-972756dbf7ca",
+      "email": "alex@example.com",
+      "name": "Alex",
+      "salt": "9daae1f10dc7ca51cc6bb82d14dee52e",
+      "passwordHash": "3c8a62ef44c287513659e7f0033cfaf3f6a89918a3ed29e024feb637887102dbe782f6cda95f011652c39864dbbd2b54c720fbb1e936596c3fb73e2596e91f66",
+      "createdAt": "2026-09-03T12:11:42.409Z"
+    }
+  ],
+  "sessions": [
+    {
+      "token": "67a75b7aa8bb3eecea85af838b2d04e7e3586fbb2bc2370824f7c9dc8102406c",
+      "userId": "usr_b3ec962d-54cc-479b-95f2-972756dbf7ca",
+      "createdAt": "2026-09-03T12:11:42.410Z",
+      "expiresAt": "2026-10-03T12:11:42.410Z"
+    }
+  ],
+  "passwordResetCodes": [
+    {
+      "email": "alex@example.com",
+      "code": "637422",
+      "expiresAt": 1788438427498
+    }
+  ],
+  "conversations": [],
+  "messages": [],
+  "memories": [],
+  "userSettings": [
+    {
+      "userId": "usr_b3ec962d-54cc-479b-95f2-972756dbf7ca",
+      "theme": "light",
+      "preferredProvider": "gemini",
+      "preferredModel": "gemini-3.8-flash",
+      "customInstructions": "",
+      "temperature": 0.7,
+      "voiceEnabled": true
+    }
+  ],
+  "usageRecords": []
+}

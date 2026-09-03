@@ -1,0 +1,212 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    
+    /* Soft Editorial Depth — Light Mode */
+    --color-bg-canvas: #FAF7F7;
+    --color-bg-surface: #FFFFFF;
+    --color-bg-subtle: #F6EEEE;
+    --color-bg-muted: #EFE4E4;
+    
+    --color-border-subtle: #E8D7D7;
+    --color-border-strong: #D6BEBE;
+    
+    --color-rose-primary: #C26767;
+    --color-rose-hover: #AA5454;
+    --color-rose-active: #934343;
+    --color-rose-soft: #FDF2F2;
+    --color-rose-badge: #F9E7E7;
+    --color-rose-border: #E8D3D3;
+    
+    --color-text-primary: #282122;
+    --color-text-secondary: #786E70;
+    --color-text-muted: #A39698;
+    
+    --color-code-bg: #1F191B;
+    --color-code-text: #FBF4F4;
+  }
+
+  .dark {
+    /* Soft Editorial Depth — Primary Dark Rose & Deep Charcoal Mode */
+    --color-bg-canvas: #131011;
+    --color-bg-surface: #191416;
+    --color-bg-subtle: #201A1D;
+    --color-bg-muted: #292125;
+    
+    --color-border-subtle: #302427;
+    --color-border-strong: #453438;
+    
+    --color-rose-primary: #C87575;
+    --color-rose-hover: #D88585;
+    --color-rose-active: #B66464;
+    --color-rose-soft: #23191C;
+    --color-rose-badge: #2F2125;
+    --color-rose-border: #4A3338;
+    
+    --color-text-primary: #FAF4F4;
+    --color-text-secondary: #A3989A;
+    --color-text-muted: #766B6D;
+    
+    --color-code-bg: #0E0B0C;
+    --color-code-text: #FBF4F4;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-sans);
+    background-color: var(--color-bg-canvas);
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    height: 100%;
+  }
+
+  #root {
+    height: 100%;
+  }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(209, 122, 122, 0.25);
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(226, 142, 142, 0.25);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(209, 122, 122, 0.4);
+}
+
+/* Markdown Styling */
+.markdown-content {
+  line-height: 1.68;
+  word-break: break-word;
+}
+
+.markdown-content p {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content p:first-child {
+  margin-top: 0;
+}
+
+.markdown-content p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4 {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: inherit;
+}
+
+.markdown-content h1 { font-size: 1.35rem; }
+.markdown-content h2 { font-size: 1.2rem; }
+.markdown-content h3 { font-size: 1.05rem; }
+
+.markdown-content ul {
+  list-style-type: disc;
+  padding-left: 1.35rem;
+  margin-top: 0.4rem;
+  margin-bottom: 0.4rem;
+}
+
+.markdown-content ol {
+  list-style-type: decimal;
+  padding-left: 1.35rem;
+  margin-top: 0.4rem;
+  margin-bottom: 0.4rem;
+}
+
+.markdown-content li {
+  margin-top: 0.2rem;
+  margin-bottom: 0.2rem;
+}
+
+.markdown-content blockquote {
+  border-left: 3px solid var(--color-rose-primary);
+  padding-left: 0.85rem;
+  margin: 0.75rem 0;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+.markdown-content a {
+  color: var(--color-rose-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity 0.15s ease;
+}
+
+.markdown-content a:hover {
+  opacity: 0.8;
+}
+
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+
+.markdown-content th,
+.markdown-content td {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border-subtle);
+  text-align: left;
+}
+
+.markdown-content th {
+  background: var(--color-bg-subtle);
+  font-weight: 600;
+}
+
+.markdown-content code:not(pre code) {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  background: var(--color-rose-soft);
+  color: var(--color-rose-primary);
+  border: 1px solid var(--color-border-subtle);
+}
+
+/* Streaming Cursor Animation */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.streaming-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 15px;
+  background-color: var(--color-rose-primary);
+  margin-left: 3px;
+  vertical-align: -2px;
+  animation: blink 0.9s infinite;
+  border-radius: 1px;
+}

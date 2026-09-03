@@ -1,0 +1,6 @@
+{
+  "name": "Arfa AI",
+  "description": "Arfa AI — a premium personal AI companion for ideas, learning, building, and innovation. Full-stack React + TypeScript + Express app with streaming Gemini and OpenAI responses (automatic failover), persistent conversations, modular long-term memory, secure multi-user auth, and an elegant rose-inspired interface.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
