@@ -4,117 +4,67 @@
 
 **A premium personal AI companion for ideas, learning, building, and innovation.**
 
+![Status](https://img.shields.io/badge/status-Active%20Development-2ea44f?style=flat-square)
+![React](https://img.shields.io/badge/React%2019-TypeScript-3178c6?style=flat-square)
+![Node](https://img.shields.io/badge/Node.js-Express-339933?style=flat-square)
+
 </div>
 
-> A production-grade, full-stack personal AI assistant featuring a sophisticated rose-inspired interface, streaming multi-model responses, modular long-term memory, persistent conversations, and secure multi-user authentication.
+> **Status: 🟢 Active** — Arfa AI is under active development. Features, fixes, and improvements are shipped on an ongoing basis.
 
 ---
 
-## About
-
-Arfa AI is a premium web-based personal AI companion that pairs a curated AI identity — **Arfa** — with a polished, editorial-grade chat experience. Every response is grounded in a structured knowledge profile covering Arfa's core values, interests, learning journey, featured projects, and communication style (see [`server/ai/arfaProfile.ts`](server/ai/arfaProfile.ts)).
-
-The application is built on a **React 19 + TypeScript** frontend and an **Express + TypeScript** backend. It delivers server-side streaming responses from **Google Gemini** and **OpenAI** with seamless provider failover, persistent per-user conversation history, a modular long-term memory system, and complete privacy controls — all presented in an elegant, responsive rose-themed interface with Light, Dark, and System modes.
+**Arfa AI** is a production-grade, full-stack personal AI assistant. It pairs a curated AI persona — **Arfa** — with a polished rose-inspired interface, streaming multi-model responses, modular long-term memory, persistent conversations, and secure multi-user authentication. The frontend is **React 19 + TypeScript**; the backend is **Express + TypeScript** with server-side streaming from **Google Gemini** and **OpenAI**.
 
 ## Core Features
 
-### AI Engine & Chat
-- Token-by-token streaming via Server-Sent Events (SSE)
-- Multi-model support: **Gemini 3.8 Flash**, **Gemini 3.1 Flash Lite**, and **OpenAI GPT-4o**
-- Automatic failover between providers for uninterrupted responses
-- GitHub-flavored Markdown rendering with syntax-highlighted code blocks
-- File & image attachments, voice input (Web Speech API), and on-demand stream stop
+- **AI Engine** — Token-by-token SSE streaming, multi-model support (Gemini 3.8 Flash, Gemini 3.1 Flash Lite, OpenAI GPT-4o), automatic provider failover, GFM Markdown with syntax-highlighted code.
+- **Memory & Personalization** — Curated Arfa knowledge profile ([server/ai/arfaProfile.ts](server/ai/arfaProfile.ts)), long-term memory, and per-user settings for model, temperature, voice, and custom instructions.
+- **Conversations** — Persistent history (Today / Previous 7 Days / Older), search, rename, delete, and auto-generated titles.
+- **Security & Privacy** — Email/password auth with hashed passwords and signed sessions, isolated guest sessions, JSON export, rate limiting, and per-user usage analytics.
+- **Experience** — Refined rose editorial design system with Light / Dark / System themes, landing view, responsive sidebar, and keyboard shortcuts.
 
-### Memory & Personalization
-- Curated **Arfa knowledge profile** keeps responses authentic and consistent
-- Long-term memory across preferences, facts, projects, and instructions
-- Per-user settings: model & provider, temperature, voice, and custom instructions
-
-### Conversations
-- Persistent history organized by **Today / Previous 7 Days / Older**
-- Search, rename, delete, and one-click new conversation
-- Auto-generated titles from your first message
-
-### Security, Privacy & Data
-- Email/password authentication with salted & hashed passwords and signed session tokens
-- Isolated guest sessions with zero cross-user data sharing
-- Full data ownership: JSON **export**, clear/delete conversations, and memory management
-- Rate limiting and per-user usage analytics (requests, tokens, model history)
-
-### Experience & Design
-- Refined rose **soft editorial** design system — Light / Dark / System themes
-- Landing view, responsive sidebar, and keyboard shortcuts
-- Motion-driven micro-interactions for a polished, premium feel
-
-## Architecture
-
-The Express server ([`server.ts`](server.ts)) exposes a REST + SSE API and serves the Vite-built SPA. Chat requests flow through the AI orchestration layer ([`server/ai/aiService.ts`](server/ai/aiService.ts)), which selects the active provider (Gemini or OpenAI), streams tokens back over SSE, and falls back across providers when needed. All user data — accounts, sessions, conversations, memories, settings, and usage metrics — persists to a JSON data store ([`server/db.ts`](server/db.ts)).
-
-```
-Browser (React 19 SPA)
-          │  REST + SSE
-          ▼
-Express API  —  server.ts
-          │
-          ├── Auth & session management
-          ├── Conversation & memory APIs
-          └── AI orchestration  —  server/ai/
-                 ├── systemPrompt + arfaProfile (persona)
-                 ├── Gemini streaming client (primary)
-                 └── OpenAI streaming client (optional / failover)
-          │
-          ▼
-JSON data store  —  data/arfa-store.json
-```
-
-## Technology Stack
+## Tech Stack
 
 | Layer | Technology |
 | --- | --- |
-| Frontend | React 19 · TypeScript · Vite · Tailwind CSS 4 · react-markdown · Motion · lucide-react |
-| Backend | Node.js · Express 4 · TypeScript · Server-Sent Events (SSE) |
-| AI Providers | Google Gemini (`@google/genai`) · OpenAI |
-| Persistence | JSON data store ([`data/arfa-store.json`](data/arfa-store.json)) |
+| Frontend | React 19 · TypeScript · Vite · Tailwind CSS 4 · Motion |
+| Backend | Node.js · Express 4 · Server-Sent Events (SSE) |
+| AI Providers | Google Gemini · OpenAI (optional / failover) |
+| Persistence | JSON data store ([data/arfa-store.json](data/arfa-store.json)) |
 
-## Project Structure
+## Quick Start
 
-```
-.
-├── server/
-│   ├── ai/
-│   │   ├── aiService.ts       # Provider routing & orchestration
-│   │   ├── systemPrompt.ts    # Persona & system prompt builder
-│   │   ├── arfaProfile.ts     # Curated Arfa knowledge profile
-│   │   ├── geminiClient.ts    # Gemini streaming client
-│   │   └── openaiClient.ts    # OpenAI streaming client
-│   └── db.ts                  # Persistence layer
-├── src/
-│   ├── components/            # Chat, modals, sidebar, landing, UI
-│   ├── lib/api.ts             # API client
-│   ├── types.ts               # Shared domain types
-│   └── App.tsx                # Root application
-├── data/                      # JSON data store
-├── server.ts                  # Express server + API routes
-└── index.html
+```bash
+npm install                # install dependencies
+cp .env.example .env       # configure API keys (or set env vars)
+npm run dev                # start development server (hot reload)
 ```
 
-## Environment Variables
+### Environment Variables
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `GEMINI_API_KEY` | ✅ | Google Gemini API key for AI responses |
-| `OPENAI_API_KEY` | — | OpenAI API key (optional; enables GPT-4o routing & failover) |
-| `OPENAI_MODEL` | — | OpenAI model name (defaults to `gpt-4o`) |
+| `GEMINI_API_KEY` | ✅ | Google Gemini API key |
+| `OPENAI_API_KEY` | — | OpenAI key (enables GPT-4o routing & failover) |
+| `OPENAI_MODEL` | — | OpenAI model (defaults to `gpt-4o`) |
 | `DEFAULT_MODEL_PROVIDER` | — | Default provider: `gemini` or `openai` |
-| `SESSION_SECRET` | — | Secret used for signing session tokens |
-| `APP_URL` | — | Public base URL for callbacks & self-referential links |
+| `SESSION_SECRET` | — | Secret for signing session tokens |
+| `APP_URL` | — | Public base URL for callbacks |
 
-## Scripts
+### Scripts
 
 | Script | Purpose |
 | --- | --- |
-| `npm run dev` | Development server (Vite + Express, hot reload) |
-| `npm run build` | Production build (frontend bundle + server) |
+| `npm run dev` | Development server (hot reload) |
+| `npm run build` | Production build (frontend + server) |
 | `npm start` | Run the production server |
 | `npm run lint` | Type-check the codebase (`tsc --noEmit`) |
-| `npm run clean` | Remove build artifacts |
+
+## Contributing
+
+Arfa AI is an evolving project. Suggestions, feedback, and feature ideas are welcome — the project is actively maintained and improved.
+
+---
+
+**Status:** 🟢 **Active** — currently in development and actively worked on.
