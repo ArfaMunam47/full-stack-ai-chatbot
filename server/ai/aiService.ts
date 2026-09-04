@@ -30,6 +30,7 @@ export async function executeStreamingChat(
   const isDefaultOpenAI = !provider && process.env.DEFAULT_MODEL_PROVIDER === "openai";
   const shouldTryOpenAI = (isExplicitOpenAI || isDefaultOpenAI) && isOpenAIConfigured();
 
+  // Primary attempt based on provider preference
   if (shouldTryOpenAI) {
     const selectedModel = modelName || process.env.OPENAI_MODEL || "gpt-4o";
     try {
@@ -39,9 +40,9 @@ export async function executeStreamingChat(
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : String(err);
       console.warn(
-        `OpenAI stream failed before emitting tokens (${errMsg}). Seamlessly falling back to high-speed Gemini...`
+        `OpenAI stream failed before emitting tokens (${errMsg}). Falling back to Gemini...`
       );
-      // Fallback seamlessly to Gemini so the user receives an instant answer
+      // Fallback to Gemini
       const geminiModel = "gemini-3.8-flash";
       await streamGeminiChat(systemInstruction, history, message, callbacks, geminiModel);
       return;
@@ -50,7 +51,20 @@ export async function executeStreamingChat(
 
   // Gemini primary flow (high-speed streaming)
   const selectedGeminiModel = modelName || "gemini-3.8-flash";
-  await streamGeminiChat(systemInstruction, history, message, callbacks, selectedGeminiModel);
+  try {
+    await streamGeminiChat(systemInstruction, history, message, callbacks, selectedGeminiModel);
+  } catch (geminiErr: unknown) {
+    if (isOpenAIConfigured()) {
+      const geminiMsg = geminiErr instanceof Error ? geminiErr.message : String(geminiErr);
+      console.warn(
+        `Gemini stream failed (${geminiMsg}). Seamlessly falling back to OpenAI...`
+      );
+      const openAiModel = process.env.OPENAI_MODEL || "gpt-4o";
+      await streamOpenAIChat(systemInstruction, history, message, callbacks, openAiModel);
+      return;
+    }
+    throw geminiErr;
+  }
 }
 
 export function generateTitleFromMessage(userMessage: string): string {

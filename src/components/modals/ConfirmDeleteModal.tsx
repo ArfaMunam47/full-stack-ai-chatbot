@@ -22,21 +22,21 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in">
-      <div className="relative w-full max-w-md rounded-2xl bg-white dark:bg-[#1E1819] border border-[#F5E1E1] dark:border-[#35292B] p-6 shadow-xl text-[#2D2626] dark:text-[#F9F4F4]">
+      <div className="tactile-card relative w-full max-w-md rounded-3xl p-6 shadow-2xl text-[#1F130B] dark:text-[#FAF6F0] border border-[#DDD1C2] dark:border-[#3E291C]">
         <button
           onClick={onCancel}
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-[#8E8787] hover:text-[#2D2626] dark:hover:text-[#F9F4F4] hover:bg-[#FFF5F5] dark:hover:bg-[#261F21] transition-colors"
+          className="absolute top-4 right-4 p-1.5 rounded-xl text-[#7A6250] hover:text-[#1F130B] dark:text-[#A89584] dark:hover:text-[#FAF6F0] hover:bg-[#EFE8DF] dark:hover:bg-[#261A12] transition-colors cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
 
         <div className="flex items-start gap-3.5">
-          <div className="p-2.5 rounded-xl bg-[#FFF5F5] dark:bg-[#2D1C1E] text-[#D17A7A] dark:text-[#E28E8E] shrink-0">
+          <div className="p-3 rounded-2xl bg-[#F5EFEB] dark:bg-[#1E140C] text-[#9E3624] dark:text-[#F0806E] shrink-0 border border-[#DDD1C2] dark:border-[#3E291C]">
             <AlertTriangle className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-semibold leading-tight mb-1">{title}</h3>
-            <p className="text-sm text-[#8E8787] leading-relaxed mb-6">
+            <h3 className="text-base font-bold leading-tight mb-1 text-[#1F130B] dark:text-[#FAF6F0]">{title}</h3>
+            <p className="text-sm text-[#543D2B] dark:text-[#D8C9BC] leading-relaxed mb-6 font-normal">
               {description}
             </p>
           </div>
@@ -46,7 +46,7 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 rounded-xl text-sm font-medium text-[#8E8787] hover:text-[#2D2626] dark:hover:text-[#F9F4F4] hover:bg-[#FFF5F5] dark:hover:bg-[#261F21] transition-colors"
+            className="tactile-raised px-4 py-2 rounded-xl text-xs font-semibold text-[#543D2B] dark:text-[#D8C9BC] cursor-pointer"
           >
             Cancel
           </button>
@@ -54,7 +54,7 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
             type="button"
             id="confirm-delete-action-btn"
             onClick={onConfirm}
-            className="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#D17A7A] hover:bg-[#c26d6d] dark:bg-[#E28E8E] dark:text-[#1E1819] transition-colors shadow-2xs"
+            className="tactile-espresso px-4 py-2 rounded-xl text-xs font-semibold text-[#FAF6F0] shadow-xs cursor-pointer active:scale-95 transition-transform"
           >
             {confirmText}
           </button>

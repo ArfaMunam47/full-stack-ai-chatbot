@@ -98,28 +98,27 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   const handleResetPasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!resetCode.trim() || !newPassword.trim()) {
-      setError("Please enter the reset code and your new password.");
+    if (!email.trim() || !resetCode.trim() || !newPassword.trim()) {
+      setError("Please complete all recovery fields.");
       return;
     }
     if (newPassword.length < 6) {
-      setError("New password must be at least 6 characters long.");
+      setError("New password must be at least 6 characters.");
       return;
     }
+
     setError(null);
     setLoading(true);
     try {
-      const user = await api.resetPassword(email.trim(), resetCode.trim(), newPassword);
-      if (user) {
-        onSuccess(user);
-        onClose();
-      } else {
-        setInfoMessage("Password updated successfully. Please log in.");
+      await api.resetPassword(email.trim(), resetCode.trim(), newPassword);
+      setInfoMessage("Password reset successfully. You may now log in.");
+      setTimeout(() => {
         setMode("login");
         setCodeSent(false);
-      }
+        setPassword(newPassword);
+      }, 1500);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Password reset failed.");
+      setError(err instanceof Error ? err.message : "Password reset failed. Verify your code.");
     } finally {
       setLoading(false);
     }
@@ -130,11 +129,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setLoading(true);
 
     try {
-      // Check for Google Identity Services
       const googleClientId = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID;
 
       if ((window as any).google?.accounts?.id && googleClientId) {
-        // Initialize GSI
         (window as any).google.accounts.id.initialize({
           client_id: googleClientId,
           callback: async (response: any) => {
@@ -151,7 +148,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         });
         (window as any).google.accounts.id.prompt();
       } else {
-        // Direct OAuth authentication with secure account creation
         const demoEmail = email.trim() || `google_user_${Math.random().toString(36).substring(2, 7)}@gmail.com`;
         const user = await api.googleAuth({
           email: demoEmail,
@@ -170,7 +166,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   const handleContinueAsGuest = async () => {
-    // Keep isolated guest session
     try {
       const guestUser = await api.getCurrentUser();
       onSuccess(guestUser);
@@ -181,11 +176,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 animate-fade-in backdrop-blur-xs">
-      <div className="relative w-full max-w-md rounded-2xl bg-[#181315] border border-[#302427] p-6 sm:p-8 shadow-2xl text-[#FAF4F4]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in">
+      <div className="tactile-card relative w-full max-w-md rounded-3xl p-6 sm:p-8 shadow-2xl text-[#1F130B] dark:text-[#FAF6F0] border border-[#DDD1C2] dark:border-[#3E291C]">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-[#A3989A] hover:text-[#FAF4F4] hover:bg-[#20181A] transition-colors cursor-pointer"
+          className="absolute top-5 right-5 p-1.5 rounded-xl text-[#7A6250] hover:text-[#1F130B] dark:text-[#A89584] dark:hover:text-[#FAF6F0] hover:bg-[#EFE8DF] dark:hover:bg-[#261A12] transition-colors cursor-pointer"
           aria-label="Close modal"
         >
           <X className="w-4 h-4" />
@@ -201,28 +196,30 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   setError(null);
                   setInfoMessage(null);
                 }}
-                className="p-1 rounded-lg text-[#A3989A] hover:text-[#FAF4F4] hover:bg-[#20181A] transition-colors cursor-pointer"
+                className="p-1 rounded-xl text-[#7A6250] hover:text-[#1F130B] dark:text-[#A89584] dark:hover:text-[#FAF6F0] hover:bg-[#EFE8DF] dark:hover:bg-[#261A12] transition-colors cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
               </button>
-              <h2 className="text-lg font-semibold tracking-tight text-[#FAF4F4]">Reset password</h2>
+              <h2 className="text-lg font-bold tracking-tight text-[#1F130B] dark:text-[#FAF6F0]">
+                Reset Password
+              </h2>
             </div>
 
-            <p className="text-xs text-[#A3989A] mb-5">
+            <p className="text-xs text-[#543D2B] dark:text-[#D8C9BC] mb-5">
               {!codeSent
                 ? "Enter your account email to generate a secure recovery code."
                 : "Enter the 6-digit code and your new password to restore access."}
             </p>
 
             {error && (
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-[#23191C] border border-[#4A3338] text-[#E59C9C] text-xs mb-4">
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-[#F5EFEB] dark:bg-[#1E140C] border border-[#DDD1C2] dark:border-[#3E291C] text-[#9E3624] dark:text-[#F0806E] text-xs mb-4 font-medium">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
             {infoMessage && (
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-[#1C241D] border border-[#28402D] text-[#A6E3B8] text-xs mb-4">
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-emerald-800 dark:text-emerald-300 text-xs mb-4 font-medium">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>{infoMessage}</span>
               </div>
@@ -231,18 +228,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             {!codeSent ? (
               <form onSubmit={handleForgotPasswordRequest} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-[#A3989A] mb-1.5">
-                    Email address
+                  <label className="block text-xs font-semibold text-[#543D2B] dark:text-[#D8C9BC] mb-1.5">
+                    Account Email
                   </label>
-                  <div className="relative">
-                    <Mail className="w-4 h-4 text-[#786E70] absolute left-3.5 top-3" />
+                  <div className="tactile-recessed rounded-xl flex items-center px-3.5 py-2.5">
+                    <Mail className="w-4 h-4 text-[#8C7563] dark:text-[#A89584] mr-2.5 shrink-0" />
                     <input
                       type="email"
-                      required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="name@example.com"
-                      className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#302427] bg-[#141012] text-[#FAF4F4] text-sm focus:outline-none focus:border-[#C87575]"
+                      required
+                      className="w-full bg-transparent border-none outline-none text-xs text-[#1F130B] dark:text-[#FAF6F0] placeholder-[#8C7563] dark:placeholder-[#A89584]"
                     />
                   </div>
                 </div>
@@ -250,45 +247,43 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-2.5 rounded-xl font-medium text-sm text-white bg-[#C87575] hover:bg-[#B66464] transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
+                  className="tactile-espresso w-full py-2.5 rounded-xl font-semibold text-xs text-[#FAF6F0] cursor-pointer active:scale-95 transition-transform shadow-xs"
                 >
-                  {loading ? "Generating code..." : "Send recovery code"}
+                  {loading ? "Issuing Code..." : "Send Recovery Code"}
                 </button>
               </form>
             ) : (
               <form onSubmit={handleResetPasswordSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-[#A3989A] mb-1.5">
-                    6-digit verification code
+                  <label className="block text-xs font-semibold text-[#543D2B] dark:text-[#D8C9BC] mb-1.5">
+                    6-Digit Verification Code
                   </label>
-                  <div className="relative">
-                    <KeyRound className="w-4 h-4 text-[#786E70] absolute left-3.5 top-3" />
+                  <div className="tactile-recessed rounded-xl flex items-center px-3.5 py-2.5">
+                    <KeyRound className="w-4 h-4 text-[#8C7563] dark:text-[#A89584] mr-2.5 shrink-0" />
                     <input
                       type="text"
-                      required
-                      maxLength={6}
                       value={resetCode}
                       onChange={(e) => setResetCode(e.target.value)}
                       placeholder="123456"
-                      className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#302427] bg-[#141012] text-[#FAF4F4] text-sm focus:outline-none focus:border-[#C87575] tracking-widest font-mono"
+                      required
+                      className="w-full bg-transparent border-none outline-none text-xs text-[#1F130B] dark:text-[#FAF6F0] placeholder-[#8C7563] dark:placeholder-[#A89584] font-mono"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-[#A3989A] mb-1.5">
-                    New password
+                  <label className="block text-xs font-semibold text-[#543D2B] dark:text-[#D8C9BC] mb-1.5">
+                    New Password (min 6 chars)
                   </label>
-                  <div className="relative">
-                    <Lock className="w-4 h-4 text-[#786E70] absolute left-3.5 top-3" />
+                  <div className="tactile-recessed rounded-xl flex items-center px-3.5 py-2.5">
+                    <Lock className="w-4 h-4 text-[#8C7563] dark:text-[#A89584] mr-2.5 shrink-0" />
                     <input
                       type="password"
-                      required
-                      minLength={6}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="At least 6 characters"
-                      className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#302427] bg-[#141012] text-[#FAF4F4] text-sm focus:outline-none focus:border-[#C87575]"
+                      placeholder="••••••••"
+                      required
+                      className="w-full bg-transparent border-none outline-none text-xs text-[#1F130B] dark:text-[#FAF6F0] placeholder-[#8C7563] dark:placeholder-[#A89584]"
                     />
                   </div>
                 </div>
@@ -296,118 +291,112 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-2.5 rounded-xl font-medium text-sm text-white bg-[#C87575] hover:bg-[#B66464] transition-colors shadow-sm disabled:opacity-50 cursor-pointer"
+                  className="tactile-espresso w-full py-2.5 rounded-xl font-semibold text-xs text-[#FAF6F0] cursor-pointer active:scale-95 transition-transform shadow-xs"
                 >
-                  {loading ? "Resetting..." : "Reset password and log in"}
+                  {loading ? "Updating..." : "Confirm Password Reset"}
                 </button>
               </form>
             )}
           </div>
         ) : (
           <div>
-            <div className="text-center mb-6">
-              <div className="inline-block mb-3">
-                <ArfaLogo size="md" />
-              </div>
-              <h2 className="text-xl font-semibold tracking-tight text-[#FAF4F4]">
-                Welcome to Arfa AI
+            <div className="flex items-center gap-2.5 mb-2">
+              <ArfaLogo size="sm" showText={false} />
+              <h2 className="text-lg font-bold tracking-tight text-[#1F130B] dark:text-[#FAF6F0]">
+                {mode === "login" ? "Welcome back to Arfa AI" : "Create your Arfa account"}
               </h2>
-              <p className="text-xs sm:text-sm text-[#A3989A] mt-1">
-                Your personal AI space for thinking, creating, and building.
-              </p>
             </div>
 
+            <p className="text-xs text-[#543D2B] dark:text-[#D8C9BC] mb-6">
+              {mode === "login"
+                ? "Sign in to access your persistent conversations, custom AI memories, and tailored voice models."
+                : "Join Arfa AI for persistent memory, multi-device sync, and full personalization."}
+            </p>
+
             {error && (
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-[#23191C] border border-[#4A3338] text-[#E59C9C] text-xs mb-4">
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-[#F5EFEB] dark:bg-[#1E140C] border border-[#DDD1C2] dark:border-[#3E291C] text-[#9E3624] dark:text-[#F0806E] text-xs mb-4 font-medium">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
-            {infoMessage && (
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-[#1C241D] border border-[#28402D] text-[#A6E3B8] text-xs mb-4">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
-                <span>{infoMessage}</span>
-              </div>
-            )}
-
-            {/* Top Auth Actions */}
-            <div className="space-y-2.5 mb-5">
-              <button
-                type="button"
-                onClick={handleGoogleSignIn}
-                disabled={loading}
-                className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl border border-[#302427] hover:border-[#453438] bg-[#1F191B] hover:bg-[#251D20] text-sm font-medium text-[#FAF4F4] transition-colors cursor-pointer"
-              >
-                <svg className="w-4 h-4" viewBox="0 0 24 24">
-                  <path
-                    fill="#4285F4"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                  />
-                </svg>
-                <span>Continue with Google</span>
-              </button>
-            </div>
+            {/* Google OAuth Option */}
+            <button
+              id="google-signin-btn"
+              type="button"
+              onClick={handleGoogleSignIn}
+              disabled={loading}
+              className="tactile-raised w-full flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl text-xs font-semibold text-[#1F130B] dark:text-[#FAF6F0] cursor-pointer mb-4"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                />
+              </svg>
+              <span>Continue with Google</span>
+            </button>
 
             <div className="relative flex items-center justify-center my-4">
-              <div className="w-full border-t border-[#302427]"></div>
-              <span className="relative px-3 bg-[#181315] text-[11px] uppercase tracking-wider text-[#786E70]">
-                or with email
+              <div className="border-t border-[#E5DDD3] dark:border-[#332217] w-full" />
+              <span className="bg-[#FCFAF7] dark:bg-[#170E08] px-2 text-[10px] uppercase font-semibold text-[#8C7563] dark:text-[#A89584] tracking-wider relative">
+                Or with email
               </span>
             </div>
 
+            {/* Email Form */}
             <form onSubmit={handleEmailAuthSubmit} className="space-y-3.5">
               {mode === "register" && (
                 <div>
-                  <label className="block text-xs font-medium text-[#A3989A] mb-1">
+                  <label className="block text-xs font-semibold text-[#543D2B] dark:text-[#D8C9BC] mb-1.5">
                     Your Name
                   </label>
-                  <div className="relative">
-                    <UserIcon className="w-4 h-4 text-[#786E70] absolute left-3.5 top-3" />
+                  <div className="tactile-recessed rounded-xl flex items-center px-3.5 py-2.5">
+                    <UserIcon className="w-4 h-4 text-[#8C7563] dark:text-[#A89584] mr-2.5 shrink-0" />
                     <input
                       type="text"
-                      required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="Your Name"
-                      className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#302427] bg-[#141012] text-[#FAF4F4] text-sm focus:outline-none focus:border-[#C87575]"
+                      placeholder="Alex Taylor"
+                      required
+                      className="w-full bg-transparent border-none outline-none text-xs text-[#1F130B] dark:text-[#FAF6F0] placeholder-[#8C7563] dark:placeholder-[#A89584]"
                     />
                   </div>
                 </div>
               )}
 
               <div>
-                <label className="block text-xs font-medium text-[#A3989A] mb-1">
+                <label className="block text-xs font-semibold text-[#543D2B] dark:text-[#D8C9BC] mb-1.5">
                   Email
                 </label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 text-[#786E70] absolute left-3.5 top-3" />
+                <div className="tactile-recessed rounded-xl flex items-center px-3.5 py-2.5">
+                  <Mail className="w-4 h-4 text-[#8C7563] dark:text-[#A89584] mr-2.5 shrink-0" />
                   <input
                     type="email"
-                    required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@example.com"
-                    className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#302427] bg-[#141012] text-[#FAF4F4] text-sm focus:outline-none focus:border-[#C87575]"
+                    required
+                    className="w-full bg-transparent border-none outline-none text-xs text-[#1F130B] dark:text-[#FAF6F0] placeholder-[#8C7563] dark:placeholder-[#A89584]"
                   />
                 </div>
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-medium text-[#A3989A]">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold text-[#543D2B] dark:text-[#D8C9BC]">
                     Password
                   </label>
                   {mode === "login" && (
@@ -418,79 +407,61 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         setError(null);
                         setInfoMessage(null);
                       }}
-                      className="text-xs text-[#C87575] hover:underline cursor-pointer"
+                      className="text-[11px] text-[#2E1B10] dark:text-[#FAF6F0] underline cursor-pointer font-semibold"
                     >
                       Forgot password?
                     </button>
                   )}
                 </div>
-                <div className="relative">
-                  <Lock className="w-4 h-4 text-[#786E70] absolute left-3.5 top-3" />
+                <div className="tactile-recessed rounded-xl flex items-center px-3.5 py-2.5">
+                  <Lock className="w-4 h-4 text-[#8C7563] dark:text-[#A89584] mr-2.5 shrink-0" />
                   <input
                     type="password"
-                    required
-                    minLength={6}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#302427] bg-[#141012] text-[#FAF4F4] text-sm focus:outline-none focus:border-[#C87575]"
+                    required
+                    className="w-full bg-transparent border-none outline-none text-xs text-[#1F130B] dark:text-[#FAF6F0] placeholder-[#8C7563] dark:placeholder-[#A89584]"
                   />
                 </div>
               </div>
 
               <button
+                id="auth-submit-btn"
                 type="submit"
                 disabled={loading}
-                className="w-full py-2.5 rounded-xl font-medium text-sm text-white bg-[#C87575] hover:bg-[#B66464] transition-colors shadow-sm mt-2 disabled:opacity-50 cursor-pointer"
+                className="tactile-espresso w-full py-2.5 rounded-xl font-semibold text-xs text-[#FAF6F0] cursor-pointer active:scale-95 transition-transform mt-2 shadow-xs"
               >
                 {loading
-                  ? "Please wait..."
+                  ? "Processing..."
                   : mode === "login"
-                  ? "Continue"
-                  : "Create account"}
+                  ? "Sign in with Email"
+                  : "Create Account"}
               </button>
             </form>
 
-            <div className="mt-5 space-y-2 text-center text-xs text-[#A3989A]">
-              {mode === "login" ? (
-                <div>
-                  Don't have an account?{" "}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMode("register");
-                      setError(null);
-                    }}
-                    className="font-semibold text-[#C87575] hover:underline cursor-pointer"
-                  >
-                    Create account
-                  </button>
-                </div>
-              ) : (
-                <div>
-                  Already have an account?{" "}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMode("login");
-                      setError(null);
-                    }}
-                    className="font-semibold text-[#C87575] hover:underline cursor-pointer"
-                  >
-                    Log in
-                  </button>
-                </div>
-              )}
+            <div className="flex items-center justify-between mt-5 pt-4 border-t border-[#E5DDD3] dark:border-[#332217] text-xs text-[#543D2B] dark:text-[#D8C9BC]">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode(mode === "login" ? "register" : "login");
+                  setError(null);
+                  setInfoMessage(null);
+                }}
+                className="text-[#2E1B10] dark:text-[#FAF6F0] font-semibold underline cursor-pointer"
+              >
+                {mode === "login"
+                  ? "Need an account? Register"
+                  : "Already have an account? Sign in"}
+              </button>
 
-              <div>
-                <button
-                  type="button"
-                  onClick={handleContinueAsGuest}
-                  className="text-[#786E70] hover:text-[#FAF4F4] transition-colors cursor-pointer underline text-[11px]"
-                >
-                  Continue as guest
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={handleContinueAsGuest}
+                className="hover:text-[#1F130B] dark:hover:text-[#FAF6F0] transition-colors cursor-pointer font-medium"
+              >
+                Continue as Guest
+              </button>
             </div>
           </div>
         )}

@@ -7,6 +7,38 @@
       "salt": "9daae1f10dc7ca51cc6bb82d14dee52e",
       "passwordHash": "3c8a62ef44c287513659e7f0033cfaf3f6a89918a3ed29e024feb637887102dbe782f6cda95f011652c39864dbbd2b54c720fbb1e936596c3fb73e2596e91f66",
       "createdAt": "2026-09-03T12:11:42.409Z"
+    },
+    {
+      "id": "usr_820e2361-21c6-496a-87e1-857094696358",
+      "email": "testuser_a_1788536669653@example.com",
+      "name": "User Alpha",
+      "salt": "b05d9357b420956aa68e2873990a780d",
+      "passwordHash": "eedf3fa96a89b2e2424ee622140bf9a3ecffad742402b8a465c6c849f9682f8569029bb085b9165edd1d0f5c251c84fdd84088ecab44dfbbc15765b25b02081f",
+      "createdAt": "2026-09-04T15:44:29.662Z"
+    },
+    {
+      "id": "usr_e8a4fe22-d3e7-410f-9892-191c56f02565",
+      "email": "testuser_b_1788536669653@example.com",
+      "name": "User Beta",
+      "salt": "aed7e6f2e7a9f0b35a1d271d8cdfd7d4",
+      "passwordHash": "ab76ab47e0a60543603ab421f3d1692d038fea99fbdee38bd079fd749174945ddb8db113a98500ab75afd739620fe602366d2ed13654468981ec790c6f0276a3",
+      "createdAt": "2026-09-04T15:44:29.670Z"
+    },
+    {
+      "id": "usr_f5262ce4-75ae-45d8-be10-d0a7d0ea125a",
+      "email": "testuser_a_1788536722135@example.com",
+      "name": "User Alpha",
+      "salt": "759801fa369e9020fb69ea1c90047f79",
+      "passwordHash": "5e5671595b1c692c1acd2b6c8f88ce35480cbbf29880b71a9837e61d5d0b7057d79339281ac0d832fd3839cabe1cef2f5935687ea2195e5f7459a701b39d2d6c",
+      "createdAt": "2026-09-04T15:45:22.143Z"
+    },
+    {
+      "id": "usr_01deb784-310e-4b84-9cdb-3e03570e3cc9",
+      "email": "testuser_b_1788536722135@example.com",
+      "name": "User Beta",
+      "salt": "dd8dbe6a3a2f8da19ef44803c206e91c",
+      "passwordHash": "c05d6e52c358c8ead821e349ab59248800c30435a2066cdf1f7b88af8958990ae9e367d92217f1ce0fe94af38ff0e11949a737f1a607e0e1c4aefc4dbfc412a4",
+      "createdAt": "2026-09-04T15:45:22.151Z"
     }
   ],
   "sessions": [
@@ -24,12 +56,109 @@
       "expiresAt": 1788438427498
     }
   ],
-  "conversations": [],
-  "messages": [],
-  "memories": [],
+  "conversations": [
+    {
+      "id": "conv_380823d5-75f4-4838-b6c4-0c638e3e2084",
+      "userId": "usr_01deb784-310e-4b84-9cdb-3e03570e3cc9",
+      "title": "Beta Confidential Notes",
+      "createdAt": "2026-09-04T15:45:22.172Z",
+      "updatedAt": "2026-09-04T15:45:22.172Z"
+    },
+    {
+      "id": "conv_19b174ac-b705-4292-8a1a-58bb79eb3aa3",
+      "userId": "usr_f5262ce4-75ae-45d8-be10-d0a7d0ea125a",
+      "title": "Alpha Project Discussion",
+      "createdAt": "2026-09-04T15:45:22.172Z",
+      "updatedAt": "2026-09-04T15:45:22.173Z"
+    },
+    {
+      "id": "conv_63eed7e1-bb9e-483d-905d-3e4c0893919f",
+      "userId": "usr_e8a4fe22-d3e7-410f-9892-191c56f02565",
+      "title": "Beta Confidential Notes",
+      "createdAt": "2026-09-04T15:44:29.687Z",
+      "updatedAt": "2026-09-04T15:44:29.687Z"
+    },
+    {
+      "id": "conv_55586ce9-0bb8-4ee8-a221-312a06b8e422",
+      "userId": "usr_820e2361-21c6-496a-87e1-857094696358",
+      "title": "Alpha Project Discussion",
+      "createdAt": "2026-09-04T15:44:29.687Z",
+      "updatedAt": "2026-09-04T15:44:29.688Z"
+    }
+  ],
+  "messages": [
+    {
+      "id": "msg_43879492-41c7-488f-8484-4967965b32ee",
+      "conversationId": "conv_55586ce9-0bb8-4ee8-a221-312a06b8e422",
+      "userId": "usr_820e2361-21c6-496a-87e1-857094696358",
+      "role": "user",
+      "content": "What are the latest system metrics?",
+      "createdAt": "2026-09-04T15:44:29.688Z"
+    },
+    {
+      "id": "msg_9ba67b47-94e4-4f40-91bf-cabc7e6395f7",
+      "conversationId": "conv_19b174ac-b705-4292-8a1a-58bb79eb3aa3",
+      "userId": "usr_f5262ce4-75ae-45d8-be10-d0a7d0ea125a",
+      "role": "user",
+      "content": "What are the latest system metrics?",
+      "createdAt": "2026-09-04T15:45:22.173Z"
+    }
+  ],
+  "memories": [
+    {
+      "id": "mem_922fb13c-57a0-4336-91a4-e08bd37bf065",
+      "userId": "usr_f5262ce4-75ae-45d8-be10-d0a7d0ea125a",
+      "category": "preference",
+      "content": "Prefers concise bulleted answers",
+      "createdAt": "2026-09-04T15:45:22.174Z"
+    },
+    {
+      "id": "mem_1abad489-c206-4111-bd33-79b96554305e",
+      "userId": "usr_820e2361-21c6-496a-87e1-857094696358",
+      "category": "preference",
+      "content": "Prefers concise bulleted answers",
+      "createdAt": "2026-09-04T15:44:29.689Z"
+    }
+  ],
   "userSettings": [
     {
       "userId": "usr_b3ec962d-54cc-479b-95f2-972756dbf7ca",
+      "theme": "light",
+      "preferredProvider": "gemini",
+      "preferredModel": "gemini-3.8-flash",
+      "customInstructions": "",
+      "temperature": 0.7,
+      "voiceEnabled": true
+    },
+    {
+      "userId": "usr_820e2361-21c6-496a-87e1-857094696358",
+      "theme": "dark",
+      "preferredProvider": "gemini",
+      "preferredModel": "gemini-3.8-flash",
+      "customInstructions": "",
+      "temperature": 0.2,
+      "voiceEnabled": true
+    },
+    {
+      "userId": "usr_e8a4fe22-d3e7-410f-9892-191c56f02565",
+      "theme": "light",
+      "preferredProvider": "gemini",
+      "preferredModel": "gemini-3.8-flash",
+      "customInstructions": "",
+      "temperature": 0.7,
+      "voiceEnabled": true
+    },
+    {
+      "userId": "usr_f5262ce4-75ae-45d8-be10-d0a7d0ea125a",
+      "theme": "dark",
+      "preferredProvider": "gemini",
+      "preferredModel": "gemini-3.8-flash",
+      "customInstructions": "",
+      "temperature": 0.2,
+      "voiceEnabled": true
+    },
+    {
+      "userId": "usr_01deb784-310e-4b84-9cdb-3e03570e3cc9",
       "theme": "light",
       "preferredProvider": "gemini",
       "preferredModel": "gemini-3.8-flash",

@@ -48,6 +48,7 @@ export interface UserSettings {
   customInstructions: string;
   temperature: number;
   voiceEnabled: boolean;
+  responseStyle?: "balanced" | "concise" | "creative" | "technical";
 }
 
 export interface UsageStats {

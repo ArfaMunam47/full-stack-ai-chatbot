@@ -29,46 +29,47 @@ export const RenameModal: React.FC<RenameModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-      <div className="relative w-full max-w-md rounded-2xl bg-white dark:bg-[#1E1819] border border-[#F5E1E1] dark:border-[#35292B] p-6 shadow-xl text-[#2D2626] dark:text-[#F9F4F4]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in">
+      <div className="tactile-card relative w-full max-w-md rounded-3xl p-6 shadow-2xl text-[#1F130B] dark:text-[#FAF6F0] border border-[#DDD1C2] dark:border-[#3E291C]">
         <button
           onClick={onCancel}
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-[#8E8787] hover:text-[#2D2626] dark:hover:text-[#F9F4F4] hover:bg-[#FFF5F5] dark:hover:bg-[#261F21]"
+          className="absolute top-4 right-4 p-1.5 rounded-xl text-[#7A6250] hover:text-[#1F130B] dark:text-[#A89584] dark:hover:text-[#FAF6F0] hover:bg-[#EFE8DF] dark:hover:bg-[#261A12] transition-colors cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
 
         <div className="flex items-center gap-2.5 mb-4">
-          <div className="p-2 rounded-xl bg-[#FFF5F5] dark:bg-[#2D1C1E] text-[#D17A7A] dark:text-[#E28E8E]">
+          <div className="p-2.5 rounded-2xl bg-[#EFE8DF] dark:bg-[#261A12] text-[#2E1B10] dark:text-[#FAF6F0] border border-[#DDD1C2] dark:border-[#3E291C]">
             <Edit3 className="w-4 h-4" />
           </div>
-          <h3 className="text-base font-semibold">Rename Conversation</h3>
+          <h3 className="text-base font-bold text-[#1F130B] dark:text-[#FAF6F0]">Rename Conversation</h3>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Conversation title"
-            autoFocus
-            className="w-full px-3.5 py-2.5 rounded-xl border border-[#F5E1E1] dark:border-[#35292B] bg-[#FFF9F9] dark:bg-[#161213] text-[#2D2626] dark:text-[#F9F4F4] text-sm focus:outline-none focus:border-[#D17A7A] mb-5"
-          />
+          <div className="tactile-recessed rounded-xl px-3.5 py-2.5 mb-5">
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Conversation title"
+              autoFocus
+              className="w-full bg-transparent border-none outline-none text-[#1F130B] dark:text-[#FAF6F0] placeholder-[#8C7563] dark:placeholder-[#A89584] text-sm"
+            />
+          </div>
 
           <div className="flex items-center justify-end gap-2.5">
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 rounded-xl text-sm font-medium text-[#8E8787] hover:text-[#2D2626] dark:hover:text-[#F9F4F4] hover:bg-[#FFF5F5] dark:hover:bg-[#261F21]"
+              className="tactile-raised px-4 py-2 rounded-xl text-xs font-semibold text-[#543D2B] dark:text-[#D8C9BC] cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={!title.trim()}
-              className="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#D17A7A] hover:bg-[#c26d6d] dark:bg-[#E28E8E] dark:text-[#1E1819] disabled:opacity-50 transition-colors shadow-2xs"
+              className="tactile-espresso px-4 py-2 rounded-xl text-xs font-semibold text-[#FAF6F0] cursor-pointer active:scale-95 shadow-xs"
             >
-              Save
+              Save Changes
             </button>
           </div>
         </form>

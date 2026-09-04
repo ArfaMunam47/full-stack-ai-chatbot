@@ -52,18 +52,29 @@ function getHeaders(): HeadersInit {
   return headers;
 }
 
+// Secure client fetch wrapper ensuring HttpOnly cookies and authorization tokens
+async function secureFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  return fetch(input, {
+    credentials: "include",
+    ...init,
+    headers: {
+      ...getHeaders(),
+      ...(init?.headers || {}),
+    },
+  });
+}
+
 export const api = {
   // Auth
   async getCurrentUser(): Promise<User> {
-    const res = await fetch("/api/auth/me", { headers: getHeaders() });
+    const res = await secureFetch("/api/auth/me");
     if (!res.ok) throw new Error("Failed to load user");
     return res.json();
   },
 
   async login(email: string, password: string): Promise<User> {
-    const res = await fetch("/api/auth/login", {
+    const res = await secureFetch("/api/auth/login", {
       method: "POST",
-      headers: getHeaders(),
       body: JSON.stringify({ email, password }),
     });
     const data = await res.json();
@@ -75,9 +86,8 @@ export const api = {
   },
 
   async register(email: string, password: string, name: string): Promise<User> {
-    const res = await fetch("/api/auth/register", {
+    const res = await secureFetch("/api/auth/register", {
       method: "POST",
-      headers: getHeaders(),
       body: JSON.stringify({ email, password, name }),
     });
     const data = await res.json();
@@ -89,9 +99,8 @@ export const api = {
   },
 
   async googleAuth(payload: { credential?: string; email?: string; name?: string; googleId?: string; avatar?: string }): Promise<User> {
-    const res = await fetch("/api/auth/google", {
+    const res = await secureFetch("/api/auth/google", {
       method: "POST",
-      headers: getHeaders(),
       body: JSON.stringify(payload),
     });
     const data = await res.json();
@@ -103,9 +112,8 @@ export const api = {
   },
 
   async forgotPassword(email: string): Promise<{ success: boolean; message: string; code?: string }> {
-    const res = await fetch("/api/auth/forgot-password", {
+    const res = await secureFetch("/api/auth/forgot-password", {
       method: "POST",
-      headers: getHeaders(),
       body: JSON.stringify({ email }),
     });
     const data = await res.json();
@@ -114,9 +122,8 @@ export const api = {
   },
 
   async resetPassword(email: string, code: string, newPassword: string): Promise<User | null> {
-    const res = await fetch("/api/auth/reset-password", {
+    const res = await secureFetch("/api/auth/reset-password", {
       method: "POST",
-      headers: getHeaders(),
       body: JSON.stringify({ email, code, newPassword }),
     });
     const data = await res.json();
@@ -128,7 +135,7 @@ export const api = {
   },
 
   async logout(): Promise<void> {
-    await fetch("/api/auth/logout", { method: "POST", headers: getHeaders() }).catch(() => {});
+    await secureFetch("/api/auth/logout", { method: "POST" }).catch(() => {});
     setAuthToken(null);
     resetGuestSession();
   },
@@ -138,21 +145,20 @@ export const api = {
     const url = searchQuery
       ? `/api/conversations?q=${encodeURIComponent(searchQuery)}`
       : "/api/conversations";
-    const res = await fetch(url, { headers: getHeaders() });
+    const res = await secureFetch(url);
     if (!res.ok) throw new Error("Failed to fetch conversations");
     return res.json();
   },
 
   async getConversation(id: string): Promise<Conversation & { messages: Message[] }> {
-    const res = await fetch(`/api/conversations/${id}`, { headers: getHeaders() });
+    const res = await secureFetch(`/api/conversations/${id}`);
     if (!res.ok) throw new Error("Failed to fetch conversation");
     return res.json();
   },
 
   async createConversation(title?: string): Promise<Conversation> {
-    const res = await fetch("/api/conversations", {
+    const res = await secureFetch("/api/conversations", {
       method: "POST",
-      headers: getHeaders(),
       body: JSON.stringify({ title }),
     });
     if (!res.ok) throw new Error("Failed to create conversation");
@@ -160,9 +166,8 @@ export const api = {
   },
 
   async updateConversation(id: string, title: string): Promise<Conversation> {
-    const res = await fetch(`/api/conversations/${id}`, {
+    const res = await secureFetch(`/api/conversations/${id}`, {
       method: "PATCH",
-      headers: getHeaders(),
       body: JSON.stringify({ title }),
     });
     if (!res.ok) throw new Error("Failed to update conversation");
@@ -170,32 +175,29 @@ export const api = {
   },
 
   async deleteConversation(id: string): Promise<void> {
-    const res = await fetch(`/api/conversations/${id}`, {
+    const res = await secureFetch(`/api/conversations/${id}`, {
       method: "DELETE",
-      headers: getHeaders(),
     });
     if (!res.ok) throw new Error("Failed to delete conversation");
   },
 
   async deleteAllConversations(): Promise<void> {
-    const res = await fetch("/api/conversations", {
+    const res = await secureFetch("/api/conversations", {
       method: "DELETE",
-      headers: getHeaders(),
     });
     if (!res.ok) throw new Error("Failed to clear conversations");
   },
 
   // Memories
   async getMemories(): Promise<MemoryItem[]> {
-    const res = await fetch("/api/memories", { headers: getHeaders() });
+    const res = await secureFetch("/api/memories");
     if (!res.ok) throw new Error("Failed to load memories");
     return res.json();
   },
 
   async addMemory(category: MemoryItem["category"], content: string): Promise<MemoryItem> {
-    const res = await fetch("/api/memories", {
+    const res = await secureFetch("/api/memories", {
       method: "POST",
-      headers: getHeaders(),
       body: JSON.stringify({ category, content }),
     });
     if (!res.ok) throw new Error("Failed to add memory");
@@ -203,32 +205,29 @@ export const api = {
   },
 
   async deleteMemory(id: string): Promise<void> {
-    const res = await fetch(`/api/memories/${id}`, {
+    const res = await secureFetch(`/api/memories/${id}`, {
       method: "DELETE",
-      headers: getHeaders(),
     });
     if (!res.ok) throw new Error("Failed to delete memory");
   },
 
   async clearMemories(): Promise<void> {
-    const res = await fetch("/api/memories", {
+    const res = await secureFetch("/api/memories", {
       method: "DELETE",
-      headers: getHeaders(),
     });
     if (!res.ok) throw new Error("Failed to clear memories");
   },
 
   // Settings
   async getSettings(): Promise<UserSettings> {
-    const res = await fetch("/api/settings", { headers: getHeaders() });
+    const res = await secureFetch("/api/settings");
     if (!res.ok) throw new Error("Failed to load settings");
     return res.json();
   },
 
   async updateSettings(updates: Partial<UserSettings>): Promise<UserSettings> {
-    const res = await fetch("/api/settings", {
+    const res = await secureFetch("/api/settings", {
       method: "PATCH",
-      headers: getHeaders(),
       body: JSON.stringify(updates),
     });
     if (!res.ok) throw new Error("Failed to update settings");
@@ -237,14 +236,14 @@ export const api = {
 
   // Usage & Observability
   async getUsage(): Promise<UsageStats> {
-    const res = await fetch("/api/usage", { headers: getHeaders() });
+    const res = await secureFetch("/api/usage");
     if (!res.ok) throw new Error("Failed to load usage stats");
     return res.json();
   },
 
   // Arfa Knowledge Profile
   async getKnowledge(): Promise<ArfaKnowledgeProfile> {
-    const res = await fetch("/api/knowledge", { headers: getHeaders() });
+    const res = await secureFetch("/api/knowledge");
     if (!res.ok) throw new Error("Failed to load Arfa knowledge profile");
     return res.json();
   },
@@ -255,9 +254,8 @@ export const api = {
       const reader = new FileReader();
       reader.onload = async () => {
         try {
-          const res = await fetch("/api/upload", {
+          const res = await secureFetch("/api/upload", {
             method: "POST",
-            headers: getHeaders(),
             body: JSON.stringify({
               name: file.name,
               type: file.type,
@@ -298,6 +296,7 @@ export const api = {
       try {
         const response = await fetch("/api/chat", {
           method: "POST",
+          credentials: "include",
           headers: getHeaders(),
           body: JSON.stringify(payload),
           signal: options.signal,
