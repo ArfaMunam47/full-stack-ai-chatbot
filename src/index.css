@@ -1,79 +1,72 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
     --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    
-    /* 
-     * ARFA AI Design System: Warm Ivory / Soft Cream & Deep Coffee / Espresso
-     * Strict Two-Color Harmonized Architectural Palette (2026 Tactile Edition)
-     */
-    --color-bg-canvas: #FAF7F2;        /* Warm Ivory base canvas */
-    --color-bg-surface: #FFFFFF;       /* Crisp, luminous warm ivory white for maximum readability */
-    --color-bg-subtle: #F4EFEB;        /* Soft cream subtle fill */
-    --color-bg-sidebar: #F5EFEB;       /* Warm ivory architectural sidebar */
-    --color-bg-recessed: #EFE8DF;      /* Tactile recessed cavity */
-    
-    --color-border-subtle: #E5DDD3;    /* Subtle coffee-tinted hairline border */
-    --color-border-strong: #C9BDB1;    /* Defined warm roast accent border */
-    --color-border-highlight: rgba(255, 255, 255, 0.98);
-    
-    /* Primary Deep Coffee / Espresso Action Palette */
-    --color-coffee-primary: #2E1B10;   /* Deep roasted espresso */
-    --color-coffee-hover: #3E2517;     /* Warm roast hover */
-    --color-coffee-dark: #1A0F08;      /* Deepest obsidian espresso bean */
-    --color-coffee-soft: #F2ECE4;      /* Gentle latte cream */
-    --color-coffee-border: #D6C8BB;    /* Soft coffee border */
 
-    /* Aliases for backwards compatibility */
-    --color-pink-primary: var(--color-coffee-primary);
-    --color-pink-hover: var(--color-coffee-hover);
-    --color-pink-dark: var(--color-coffee-dark);
-    --color-pink-soft: var(--color-coffee-soft);
-    --color-pink-border: var(--color-coffee-border);
-    
-    /* Deep Coffee Typography (AAA Readability Contrast Ratio > 14:1) */
-    --color-text-primary: #1F130B;      /* Deep espresso bean - razor-sharp, immediate legibility */
-    --color-text-secondary: #543D2B;    /* Medium-dark coffee roast - clear subheadings & labels */
-    --color-text-muted: #7A6250;        /* Roasted mocha - fully legible secondary details */
-    --color-placeholder: #8C7563;       /* Warm roast placeholder - clearly readable, never faded out */
-    
-    --color-code-bg: #1B120C;
-    --color-code-text: #FAF6F0;
+    /* 
+     * ARFA AI Ultra-Professional Monochromatic Palette (ChatGPT-style)
+     * Timeless, high-contrast, zero bluish tints
+     */
+    --color-bg-canvas: #FFFFFF;        /* Pure white canvas */
+    --color-bg-surface: #FFFFFF;       /* Pure white cards & containers */
+    --color-bg-subtle: #F4F4F5;        /* Neutral-100 subtle hover & tags */
+    --color-bg-sidebar: #F9FAFB;       /* Crisp light neutral sidebar */
+    --color-bg-recessed: #F4F4F5;      /* Recessed input */
+
+    --color-border-subtle: #E4E4E7;    /* Neutral-200 hairline border */
+    --color-border-strong: #D4D4D8;    /* Neutral-300 boundary border */
+    --color-border-highlight: rgba(0, 0, 0, 0.05);
+
+    /* Primary Accent: Crisp Jet Black in light mode */
+    --color-brand-primary: #18181B;    /* Neutral-900 */
+    --color-brand-hover: #000000;      /* Pure black */
+    --color-brand-dark: #09090B;
+    --color-brand-soft: #F4F4F5;
+    --color-brand-border: #E4E4E7;
+
+    /* High Readability Typography (WCAG AAA Contrast) */
+    --color-text-primary: #18181B;      /* Neutral-900 - jet readable text */
+    --color-text-secondary: #52525B;    /* Neutral-600 - clear subheadings */
+    --color-text-muted: #71717A;        /* Neutral-500 - metadata */
+    --color-placeholder: #A1A1AA;       /* Neutral-400 */
+
+    --color-code-bg: #18181B;
+    --color-code-text: #FAFAFA;
   }
 
   .dark {
-    /* Deep Roasted Espresso Noir with Warm Ivory Accents */
-    --color-bg-canvas: #150E09;        /* Deepest dark roasted espresso bean */
-    --color-bg-surface: #20150E;       /* Deep coffee bean card surface */
-    --color-bg-subtle: #291B13;        /* Warm roast subtle layer */
-    --color-bg-sidebar: #19100A;       /* Dark espresso sidebar panel */
-    --color-bg-recessed: #100A06;      /* Deep recessed tactile groove */
-    
-    --color-border-subtle: #332217;    /* Subtle dark roast hairline */
-    --color-border-strong: #4F3524;    /* Distinct coffee border */
-    --color-border-highlight: rgba(255, 245, 235, 0.1);
-    
-    --color-coffee-primary: #FAF6F0;   /* Crystalline warm ivory in dark mode */
-    --color-coffee-hover: #FFFFFF;
-    --color-coffee-dark: #EFE7DC;
-    --color-coffee-soft: #2E1E15;
-    --color-coffee-border: #4D3322;
+    /* 
+     * Deep Obsidian Dark Mode: 100% visible, high-contrast, zero bluish hue
+     */
+    --color-bg-canvas: #171717;        /* Clean charcoal obsidian canvas */
+    --color-bg-surface: #212121;       /* Neutral-800 container */
+    --color-bg-subtle: #2A2A2A;        /* Neutral-700 subtle fill */
+    --color-bg-sidebar: #171717;       /* Seamless dark sidebar */
+    --color-bg-recessed: #262626;      /* Input groove */
 
-    --color-pink-primary: var(--color-coffee-primary);
-    --color-pink-hover: var(--color-coffee-hover);
-    --color-pink-dark: var(--color-coffee-dark);
-    --color-pink-soft: var(--color-coffee-soft);
-    --color-pink-border: var(--color-coffee-border);
-    
-    --color-text-primary: #FAF6F0;      /* Pure crystalline warm ivory - pristine contrast */
-    --color-text-secondary: #D8C9BC;    /* Soft warm latte ivory */
-    --color-text-muted: #A89584;        /* Legible muted warm ivory */
-    --color-placeholder: #8A7767;
-    
-    --color-code-bg: #0E0805;
-    --color-code-text: #FAF6F0;
+    --color-border-subtle: #2F2F2F;    /* Visible dark border */
+    --color-border-strong: #404040;    /* Solid contrasting border */
+    --color-border-highlight: rgba(255, 255, 255, 0.1);
+
+    /* Primary Accent: Crisp White in dark mode */
+    --color-brand-primary: #FFFFFF;
+    --color-brand-hover: #F4F4F5;
+    --color-brand-dark: #E4E4E7;
+    --color-brand-soft: #2A2A2A;
+    --color-brand-border: #404040;
+
+    /* Bright, crisp, effortless legibility */
+    --color-text-primary: #F5F5F5;      /* Crisp pure light */
+    --color-text-secondary: #D4D4D8;    /* Neutral-300 */
+    --color-text-muted: #A1A1AA;        /* Neutral-400 */
+    --color-placeholder: #71717A;
+
+    --color-code-bg: #0D0D0D;
+    --color-code-text: #F5F5F5;
   }
 
   html, body {
@@ -86,7 +79,7 @@
     -moz-osx-font-smoothing: grayscale;
     height: 100%;
     width: 100%;
-    overflow: hidden; /* No page scrollbar */
+    overflow: hidden;
     position: fixed;
     inset: 0;
   }
@@ -98,261 +91,112 @@
   }
 }
 
-/* Tactile Skeuomorphic Depth & Materials (Warm Ivory & Deep Coffee) */
-.tactile-raised {
-  background: linear-gradient(180deg, #FFFFFF 0%, #F8F3EC 100%);
-  border: 1px solid #E5DDD3;
-  box-shadow: 
-    0 1px 3px rgba(46, 27, 16, 0.05),
-    0 1px 1px rgba(46, 27, 16, 0.02),
-    inset 0 1px 0 rgba(255, 255, 255, 0.98),
-    inset 0 -1px 0 rgba(229, 221, 211, 0.4);
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.tactile-raised:hover {
-  background: linear-gradient(180deg, #FFFFFF 0%, #F3ECE2 100%);
-  border-color: #D6C8BB;
-  transform: translateY(-1px);
-  box-shadow: 
-    0 3px 8px rgba(46, 27, 16, 0.08),
-    0 1px 2px rgba(46, 27, 16, 0.04),
-    inset 0 1px 0 #FFFFFF;
-}
-
-.tactile-raised:active {
-  transform: translateY(1px);
-  background: #EFE8DF;
-  box-shadow: 
-    inset 0 2px 4px rgba(46, 27, 16, 0.1),
-    inset 0 1px 2px rgba(46, 27, 16, 0.05);
-}
-
-.dark .tactile-raised {
-  background: linear-gradient(180deg, #261A12 0%, #1B110B 100%);
-  border: 1px solid #3B261A;
-  box-shadow: 
-    0 1px 3px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 245, 235, 0.08),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.5);
-}
-
-.dark .tactile-raised:hover {
-  background: linear-gradient(180deg, #302117 0%, #22150E 100%);
-  border-color: #4D3322;
-}
-
-.dark .tactile-raised:active {
-  background: #140C07;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
-}
-
-/* Deep Coffee Tactile Button (Signature CTA, New Chat, Send) */
-.tactile-espresso, .tactile-coffee, .tactile-pink {
-  background: linear-gradient(180deg, #2E1B10 0%, #1A0F08 100%);
-  color: #FAF6F0 !important;
-  border: 1px solid #140A05;
-  box-shadow: 
-    0 3px 8px rgba(26, 15, 8, 0.3),
-    0 1px 2px rgba(26, 15, 8, 0.2),
-    inset 0 1px 0 rgba(255, 245, 235, 0.22),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.35);
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.tactile-espresso:hover, .tactile-coffee:hover, .tactile-pink:hover {
-  background: linear-gradient(180deg, #3D2416 0%, #24140B 100%);
-  transform: translateY(-1px);
-  box-shadow: 
-    0 5px 12px rgba(26, 15, 8, 0.38),
-    0 2px 4px rgba(26, 15, 8, 0.25),
-    inset 0 1px 0 rgba(255, 245, 235, 0.3);
-}
-
-.tactile-espresso:active, .tactile-coffee:active, .tactile-pink:active {
-  transform: translateY(1px);
-  background: #140A05;
-  box-shadow: 
-    inset 0 2px 5px rgba(0, 0, 0, 0.5),
-    inset 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.dark .tactile-espresso, .dark .tactile-coffee, .dark .tactile-pink {
-  background: linear-gradient(180deg, #FAF6F0 0%, #E8DDD2 100%);
-  color: #1F130B !important;
-  border: 1px solid #FAF6F0;
-  box-shadow: 
-    0 3px 10px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-}
-
-.dark .tactile-espresso:hover, .dark .tactile-coffee:hover, .dark .tactile-pink:hover {
-  background: #FFFFFF;
-  color: #1A0F08 !important;
-}
-
-.dark .tactile-espresso:active, .dark .tactile-coffee:active, .dark .tactile-pink:active {
-  transform: translateY(1px);
-  background: #D8C9BC;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-/* Tactile User Message Bubble: Deep Coffee with Warm Ivory Text */
-.tactile-user-bubble {
-  background: linear-gradient(180deg, #2E1B10 0%, #1D1009 100%);
-  color: #FAF6F0 !important;
-  border: 1px solid #3B2416;
-  box-shadow: 
-    0 2px 8px rgba(29, 16, 9, 0.18),
-    0 1px 2px rgba(29, 16, 9, 0.12),
-    inset 0 1px 0 rgba(255, 245, 235, 0.15);
-}
-
-.dark .tactile-user-bubble {
-  background: linear-gradient(180deg, #2A1C14 0%, #1C120C 100%);
-  border: 1px solid #452E20;
-  box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 245, 235, 0.08);
-}
-
-/* Tactile Recessed Inset (Message Inputs & Wells) */
-.tactile-recessed {
-  background-color: var(--color-bg-recessed);
+/* Modern Card & Surface Utilities */
+.saas-card {
+  background-color: var(--color-bg-surface);
   border: 1px solid var(--color-border-subtle);
-  box-shadow: 
-    inset 0 2px 4px rgba(46, 27, 16, 0.06),
-    inset 0 1px 2px rgba(46, 27, 16, 0.03),
-    0 1px 0 var(--color-border-highlight);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.tactile-recessed:focus-within {
-  border-color: #543D2B;
-  box-shadow: 
-    inset 0 2px 4px rgba(46, 27, 16, 0.04),
-    0 0 0 3px rgba(46, 27, 16, 0.12),
-    0 1px 0 var(--color-border-highlight);
+.saas-card:hover {
+  border-color: var(--color-border-strong);
 }
 
-.dark .tactile-recessed:focus-within {
-  border-color: #D8C9BC;
-  box-shadow: 
-    inset 0 2px 4px rgba(0, 0, 0, 0.4),
-    0 0 0 3px rgba(250, 246, 240, 0.15),
-    0 1px 0 var(--color-border-highlight);
+.dark .saas-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
-/* Tactile Card (Luminous Warm Ivory Surface with Coffee Hairline) */
+/* Primary Button (Black in Light, White in Dark) */
+.saas-btn-primary {
+  background-color: var(--color-brand-primary);
+  color: #FFFFFF;
+  border: 1px solid transparent;
+  transition: all 0.15s ease-in-out;
+}
+
+.dark .saas-btn-primary {
+  color: #18181B;
+}
+
+.saas-btn-primary:hover {
+  background-color: var(--color-brand-hover);
+  transform: translateY(-0.5px);
+}
+
+/* Secondary Button */
+.saas-btn-secondary {
+  background-color: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-subtle);
+  transition: all 0.15s ease-in-out;
+}
+
+.saas-btn-secondary:hover {
+  background-color: var(--color-bg-subtle);
+  border-color: var(--color-border-strong);
+}
+
+/* Input Bar & Recessed Containers */
+.saas-input-bar {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease-in-out;
+}
+
+.saas-input-bar:focus-within {
+  border-color: var(--color-border-strong);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+}
+
+.dark .saas-input-bar {
+  background-color: #212121;
+  border-color: #333333;
+}
+
+.dark .saas-input-bar:focus-within {
+  border-color: #555555;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08);
+}
+
+/* Backward compatibility aliases */
 .tactile-card {
   background-color: var(--color-bg-surface);
   border: 1px solid var(--color-border-subtle);
-  box-shadow: 
-    0 2px 8px rgba(46, 27, 16, 0.04),
-    0 1px 2px rgba(46, 27, 16, 0.02),
-    inset 0 1px 0 var(--color-border-highlight);
 }
 
-/* Tactile Sidebar Panel */
-.tactile-sidebar {
-  background-color: var(--color-bg-sidebar);
-  border-right: 1px solid var(--color-border-subtle);
-  box-shadow: 
-    inset -1px 0 0 rgba(255, 255, 255, 0.8),
-    2px 0 8px rgba(46, 27, 16, 0.02);
+.tactile-raised {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  transition: all 0.15s ease-in-out;
 }
 
-.dark .tactile-sidebar {
-  box-shadow: 
-    inset -1px 0 0 rgba(255, 245, 235, 0.04),
-    2px 0 8px rgba(0, 0, 0, 0.3);
+.tactile-raised:hover {
+  background-color: var(--color-bg-subtle);
+  border-color: var(--color-border-strong);
 }
 
-/* Luxury Tactile Stitched Composer Bar (Warm Saddle/Beige Finish from Image 1) */
+.tactile-espresso {
+  background-color: var(--color-brand-primary);
+  color: #FFFFFF;
+}
+
+.dark .tactile-espresso {
+  color: #18181B;
+}
+
+.tactile-recessed {
+  background-color: var(--color-bg-subtle);
+  border: 1px solid var(--color-border-subtle);
+}
+
 .tactile-composer-bar {
-  background: linear-gradient(180deg, #EBE1D5 0%, #DFD3C4 100%);
-  border: 2px solid #C4B19F;
-  box-shadow: 
-    0 4px 20px rgba(46, 27, 16, 0.08),
-    0 1px 3px rgba(46, 27, 16, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    inset 0 -1px 0 rgba(196, 177, 159, 0.5);
-  position: relative;
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
 }
 
-/* Stitched dashed outline effect */
-.tactile-composer-bar::after {
-  content: '';
-  position: absolute;
-  inset: 2px;
-  border-radius: inherit;
-  border: 1px dashed rgba(150, 126, 106, 0.45);
-  pointer-events: none;
-}
-
-.dark .tactile-composer-bar {
-  background: linear-gradient(180deg, #241810 0%, #1A1009 100%);
-  border: 2px solid #452D1D;
-  box-shadow: 
-    0 4px 20px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 245, 235, 0.06),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.6);
-}
-
-.dark .tactile-composer-bar::after {
-  border-color: rgba(90, 60, 40, 0.5);
-}
-
-/* Prominent Embedded Tactile Microphone (Golden Bronze & Espresso Medallion from Image 1) */
-.tactile-mic-dial {
-  position: relative;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(circle at 40% 30%, #D4AF7A 0%, #9E7444 55%, #6B4925 100%);
-  border: 2px solid #5C3D1E;
-  color: #FAF6F0;
-  box-shadow: 
-    0 3px 8px rgba(46, 27, 16, 0.35),
-    0 1px 2px rgba(46, 27, 16, 0.2),
-    inset 0 1px 2px rgba(255, 240, 215, 0.6),
-    inset 0 -2px 3px rgba(35, 20, 10, 0.5);
-  cursor: pointer;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  user-select: none;
-}
-
-.tactile-mic-dial:hover {
-  background: radial-gradient(circle at 40% 30%, #E2C08E 0%, #AC814F 55%, #7A532C 100%);
-  transform: translateY(-1px) scale(1.03);
-  box-shadow: 
-    0 5px 12px rgba(46, 27, 16, 0.4),
-    0 0 12px rgba(212, 175, 122, 0.3),
-    inset 0 1px 2px rgba(255, 240, 215, 0.8);
-}
-
-.tactile-mic-dial:active, .tactile-mic-dial.is-pressed {
-  transform: translateY(1px) scale(0.96);
-  background: radial-gradient(circle at 50% 50%, #8A6133 0%, #543719 100%);
-  box-shadow: 
-    inset 0 3px 6px rgba(0, 0, 0, 0.6),
-    inset 0 1px 2px rgba(0, 0, 0, 0.4);
-}
-
-.tactile-mic-dial.is-listening {
-  background: radial-gradient(circle at 40% 30%, #E8A857 0%, #BD6829 60%, #753512 100%);
-  border-color: #8C3E14;
-  box-shadow: 
-    0 0 0 4px rgba(232, 168, 87, 0.35),
-    0 0 20px rgba(232, 168, 87, 0.5),
-    0 4px 14px rgba(46, 27, 16, 0.4),
-    inset 0 1px 2px rgba(255, 240, 215, 0.9);
-}
-
-/* Custom Scrollbars in Warm Coffee */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -363,160 +207,72 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(74, 53, 37, 0.25);
+  background-color: var(--color-border-strong);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(74, 53, 37, 0.45);
+  background-color: var(--color-text-muted);
 }
 
-::selection {
-  background: rgba(46, 27, 16, 0.15);
-  color: #1F130B;
-}
-
-/* RTL Text Alignment & Multilingual support */
-[dir="rtl"] {
-  text-align: right;
-  direction: rtl;
-}
-
-.rtl-flip {
-  transform: scaleX(-1);
-}
-
-/* Markdown Styling */
-.markdown-content {
-  line-height: 1.72;
-  word-break: break-word;
+/* Markdown styling */
+.markdown-body {
+  line-height: 1.65;
   color: var(--color-text-primary);
 }
 
-.markdown-content p {
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
+.markdown-body p {
+  margin-bottom: 0.85rem;
 }
 
-.markdown-content p:first-child {
-  margin-top: 0;
-}
-
-.markdown-content p:last-child {
+.markdown-body p:last-child {
   margin-bottom: 0;
 }
 
-.markdown-content h1,
-.markdown-content h2,
-.markdown-content h3,
-.markdown-content h4 {
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4 {
   font-weight: 700;
-  letter-spacing: -0.02em;
   margin-top: 1.25rem;
   margin-bottom: 0.5rem;
   color: var(--color-text-primary);
 }
 
-.markdown-content h1 { font-size: 1.35rem; }
-.markdown-content h2 { font-size: 1.2rem; }
-.markdown-content h3 { font-size: 1.05rem; }
-
-.markdown-content ul {
-  list-style-type: disc;
-  padding-left: 1.35rem;
-  margin-top: 0.4rem;
-  margin-bottom: 0.4rem;
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 1.25rem;
+  margin-bottom: 0.85rem;
 }
 
-.markdown-content ol {
-  list-style-type: decimal;
-  padding-left: 1.35rem;
-  margin-top: 0.4rem;
-  margin-bottom: 0.4rem;
+.markdown-body li {
+  margin-bottom: 0.35rem;
 }
 
-.markdown-content li {
-  margin-top: 0.25rem;
-  margin-bottom: 0.25rem;
-}
-
-.markdown-content blockquote {
-  border-left: 3.5px solid var(--color-coffee-primary);
-  padding-left: 0.85rem;
-  margin: 0.75rem 0;
-  font-style: italic;
-  color: var(--color-text-secondary);
-}
-
-.markdown-content a {
-  color: var(--color-coffee-primary);
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  transition: opacity 0.15s ease;
-}
-
-.markdown-content a:hover {
-  opacity: 0.8;
-}
-
-.markdown-content table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 0.75rem 0;
-  font-size: 0.9rem;
-}
-
-.markdown-content th,
-.markdown-content td {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--color-border-subtle);
-  text-align: left;
-}
-
-.markdown-content th {
-  background: var(--color-bg-subtle);
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.markdown-content code:not(pre code) {
+.markdown-body code:not(pre code) {
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.375rem;
   font-family: var(--font-mono);
   font-size: 0.85em;
-  padding: 0.15em 0.45em;
-  border-radius: 6px;
-  background: var(--color-bg-subtle);
-  color: var(--color-text-primary);
+  background-color: var(--color-bg-subtle);
   border: 1px solid var(--color-border-subtle);
-  font-weight: 600;
+  color: var(--color-text-primary);
 }
 
-/* Streaming Cursor Animation */
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+.markdown-body pre {
+  margin: 0.85rem 0;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background-color: var(--color-code-bg);
+  color: var(--color-code-text);
+  overflow-x: auto;
+  border: 1px solid var(--color-border-subtle);
 }
 
-.streaming-cursor {
-  display: inline-block;
-  width: 7px;
-  height: 15px;
-  background-color: var(--color-coffee-primary);
-  margin-left: 3px;
-  vertical-align: -2px;
-  animation: blink 0.9s infinite;
-  border-radius: 1px;
+.markdown-body blockquote {
+  border-left: 3px solid var(--color-text-muted);
+  padding-left: 1rem;
+  margin: 0.85rem 0;
+  color: var(--color-text-secondary);
+  font-style: italic;
 }
-
-/* Audio Waveform Animation */
-@keyframes wavePulse {
-  0%, 100% { height: 4px; opacity: 0.5; }
-  50% { height: 16px; opacity: 1; }
-}
-
-.waveform-bar-1 { animation: wavePulse 0.9s ease-in-out infinite; }
-.waveform-bar-2 { animation: wavePulse 0.7s ease-in-out infinite 0.15s; }
-.waveform-bar-3 { animation: wavePulse 1.1s ease-in-out infinite 0.3s; }
-.waveform-bar-4 { animation: wavePulse 0.8s ease-in-out infinite 0.45s; }
-.waveform-bar-5 { animation: wavePulse 0.95s ease-in-out infinite 0.2s; }
-

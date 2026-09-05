@@ -8,12 +8,13 @@ import { AuthModal } from "./components/modals/AuthModal.tsx";
 import { ConfirmDeleteModal } from "./components/modals/ConfirmDeleteModal.tsx";
 import { RenameModal } from "./components/modals/RenameModal.tsx";
 import { HelpModal } from "./components/modals/HelpModal.tsx";
+import { TemplatesModal } from "./components/modals/TemplatesModal.tsx";
+import { KnowledgeModal } from "./components/modals/KnowledgeModal.tsx";
 import { ArfaLogo } from "./components/ui/ArfaLogo.tsx";
 import { api } from "./lib/api.ts";
 import { Conversation, Message, User, MessageAttachment } from "./types.ts";
 import {
   Menu,
-  Plus,
   AlertCircle,
   RefreshCw,
   LogIn,
@@ -30,7 +31,7 @@ import {
 } from "lucide-react";
 
 export default function App() {
-  // State: Default to warm ivory light theme as required by design specification
+  // Theme state: Default to light theme with high contrast slate typography
   const [theme, setTheme] = useState<"light" | "dark" | "system">(() => {
     return (localStorage.getItem("arfa_theme") as any) || "light";
   });
@@ -54,7 +55,10 @@ export default function App() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authInitialMode, setAuthInitialMode] = useState<"login" | "register">("login");
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
+  const [isKnowledgeOpen, setIsKnowledgeOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Conversation | "all" | null>(null);
   const [renameTarget, setRenameTarget] = useState<Conversation | null>(null);
 
@@ -128,6 +132,8 @@ export default function App() {
         setIsSettingsOpen(false);
         setIsAuthOpen(false);
         setIsHelpOpen(false);
+        setIsTemplatesOpen(false);
+        setIsKnowledgeOpen(false);
         setIsHeaderMenuOpen(false);
         setDeleteTarget(null);
         setRenameTarget(null);
@@ -221,6 +227,7 @@ export default function App() {
     abortControllerRef.current = new AbortController();
 
     let fullAccumulatedResponse = "";
+    let hasCompleted = false;
 
     try {
       await api.streamChat(
@@ -237,10 +244,13 @@ export default function App() {
             }
           },
           onChunk: (chunk: string) => {
+            if (hasCompleted) return;
             fullAccumulatedResponse += chunk;
             setStreamingContent((prev) => prev + chunk);
           },
           onDone: async (data) => {
+            if (hasCompleted) return;
+            hasCompleted = true;
             setIsStreaming(false);
             setStreamingContent("");
 
@@ -260,6 +270,8 @@ export default function App() {
             speakTextIfEnabled(data.fullText || fullAccumulatedResponse);
           },
           onError: (errorMessage: string) => {
+            if (hasCompleted) return;
+            hasCompleted = true;
             setIsStreaming(false);
             setStreamingContent("");
             setErrorBanner("Arfa AI couldn't complete that response.");
@@ -269,13 +281,16 @@ export default function App() {
         }
       );
     } catch (err: unknown) {
-      if ((err as any)?.name === "AbortError") {
-        console.log("User stopped generation.");
-      } else {
-        setErrorBanner("Arfa AI couldn't complete that response.");
+      if (!hasCompleted) {
+        hasCompleted = true;
+        if ((err as any)?.name === "AbortError") {
+          console.log("User stopped generation.");
+        } else {
+          setErrorBanner("Arfa AI couldn't complete that response.");
+        }
+        setIsStreaming(false);
+        setStreamingContent("");
       }
-      setIsStreaming(false);
-      setStreamingContent("");
     }
   };
 
@@ -291,7 +306,7 @@ export default function App() {
         role: "assistant",
         content: streamingContent,
         createdAt: new Date().toISOString(),
-        model: "Arfa AI",
+        model: "ARFA AI",
       };
       setMessages((prev) => [...prev, stoppedMsg]);
     }
@@ -331,29 +346,33 @@ export default function App() {
   const handleRenameSaved = async (newTitle: string) => {
     if (!renameTarget) return;
     try {
-      const updated = await api.updateConversation(renameTarget.id, newTitle);
-      setConversations((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
-      setRenameTarget(null);
+      const updated = await api.renameConversation(renameTarget.id, newTitle);
+      setConversations((prev) =>
+        prev.map((c) => (c.id === updated.id ? { ...c, title: updated.title } : c))
+      );
     } catch (err) {
-      console.error("Failed to rename conversation:", err);
+      console.error("Rename error:", err);
+    } finally {
+      setRenameTarget(null);
     }
   };
 
   const handleLogout = async () => {
-    await api.logout();
-    await loadUser();
-    await loadConversations();
-    handleNewChat();
+    try {
+      await api.logout();
+      loadUser();
+      handleNewChat();
+      loadConversations();
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
   };
 
   const activeConv = conversations.find((c) => c.id === activeConversationId);
 
   return (
-    <div
-      id="arfa-app-root"
-      className="flex h-[100dvh] max-h-[100dvh] w-full overflow-hidden tactile-root text-[#1F130B] dark:text-[#FAF6F0] antialiased selection:bg-[#2E1B10]/20 dark:selection:bg-[#FAF6F0]/20"
-    >
-      {/* Tactile Sidebar */}
+    <div className="flex h-screen w-screen overflow-hidden bg-[#FFFFFF] dark:bg-[#171717] text-neutral-900 dark:text-neutral-100 select-none">
+      {/* Sidebar with Navigation, Conversation History, and Auth Options */}
       <Sidebar
         conversations={conversations}
         activeConversationId={activeConversationId}
@@ -362,11 +381,14 @@ export default function App() {
         onRenameConversation={(conv) => setRenameTarget(conv)}
         onDeleteConversation={(conv) => setDeleteTarget(conv)}
         onOpenSettings={() => setIsSettingsOpen(true)}
-        onOpenHelp={() => setIsHelpOpen(true)}
-        onOpenAuth={() => setIsAuthOpen(true)}
+        onOpenKnowledge={() => setIsKnowledgeOpen(true)}
+        onOpenTemplates={() => setIsTemplatesOpen(true)}
+        onOpenAuth={(mode) => {
+          setAuthInitialMode(mode || "login");
+          setIsAuthOpen(true);
+        }}
+        onLogout={handleLogout}
         currentUser={currentUser}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
         isOpen={isMobileSidebarOpen}
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
         isCollapsed={isSidebarCollapsed}
@@ -378,18 +400,18 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 h-full max-h-[100dvh] overflow-hidden relative">
-        {/* Minimal, Pristine Header */}
+      <main className="flex-1 flex flex-col min-w-0 h-full max-h-[100dvh] overflow-hidden relative bg-white dark:bg-[#171717]">
+        {/* Modern Pristine Header */}
         <header
           id="main-chat-header"
-          className="shrink-0 flex items-center justify-between px-3 sm:px-6 h-14 border-b border-[#E5DDD3] dark:border-[#332217] bg-[#FCFAF7]/90 dark:bg-[#140C07]/90 backdrop-blur-md z-10"
+          className="shrink-0 flex items-center justify-between px-3 sm:px-6 h-14 border-b border-neutral-200 dark:border-neutral-800 bg-white/90 dark:bg-[#171717]/90 backdrop-blur-md z-10"
         >
-          {/* Left: Mobile Menu Toggle, Desktop Expand, & Arfa AI Identity */}
+          {/* Left: Mobile Menu Toggle, Desktop Expand, & ARFA AI Identity */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               id="mobile-sidebar-toggle-btn"
               onClick={() => setIsMobileSidebarOpen(true)}
-              className="md:hidden p-2 rounded-xl text-[#543D2B] dark:text-[#D8C9BC] hover:text-[#1F130B] dark:hover:text-[#FAF6F0] hover:bg-[#EFE8DF] dark:hover:bg-[#261A12] transition-colors cursor-pointer"
+              className="md:hidden p-2 rounded-xl text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
               aria-label="Toggle navigation drawer"
             >
               <Menu className="w-5 h-5" />
@@ -402,8 +424,8 @@ export default function App() {
                   setIsSidebarCollapsed(false);
                   localStorage.setItem("arfa_sidebar_collapsed", "false");
                 }}
-                title="Open sidebar (⌘B)"
-                className="hidden md:flex p-2 rounded-xl text-[#543D2B] dark:text-[#D8C9BC] hover:text-[#1F130B] dark:hover:text-[#FAF6F0] hover:bg-[#EFE8DF] dark:hover:bg-[#261A12] transition-colors cursor-pointer"
+                title="Open sidebar"
+                className="hidden md:flex p-2 rounded-xl text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
                 aria-label="Open sidebar"
               >
                 <PanelLeft className="w-4 h-4" />
@@ -413,10 +435,10 @@ export default function App() {
             <div className="flex items-center gap-2.5 min-w-0">
               <ArfaLogo size="sm" showText={false} />
               <div className="flex items-center gap-2 min-w-0">
-                <h1 className="text-sm font-bold tracking-tight text-[#1F130B] dark:text-[#FAF6F0] truncate">
-                  {activeConv ? activeConv.title : "Arfa AI"}
+                <h1 className="text-sm font-bold tracking-tight text-neutral-900 dark:text-white truncate">
+                  {activeConv ? activeConv.title : "ARFA AI"}
                 </h1>
-                <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   Online
                 </span>
@@ -424,52 +446,52 @@ export default function App() {
             </div>
           </div>
 
-          {/* Right Controls: Voice Toggle, New Chat & More Options */}
+          {/* Right Controls: New Chat, Dark/Light Theme Toggle, Sign in & More Options */}
           <div className="flex items-center gap-2 shrink-0">
-            {/* Audio Voice Toggle */}
-            <button
-              id="header-voice-toggle-btn"
-              type="button"
-              onClick={() => {
-                const next = !audioVoiceEnabled;
-                setAudioVoiceEnabled(next);
-                localStorage.setItem("arfa_audio_voice", String(next));
-                if (!next && window.speechSynthesis) {
-                  window.speechSynthesis.cancel();
-                }
-              }}
-              title={audioVoiceEnabled ? "Voice readout enabled (Click to mute)" : "Enable voice readout"}
-              className={`tactile-raised p-2 rounded-xl cursor-pointer transition-all ${
-                audioVoiceEnabled
-                  ? "text-[#1F130B] dark:text-[#FAF6F0] bg-[#E5DDD3] dark:bg-[#332217]"
-                  : "text-[#7A6250] dark:text-[#A89584] hover:text-[#1F130B] dark:hover:text-[#FAF6F0]"
-              }`}
-              aria-label="Toggle voice responses"
-            >
-              {audioVoiceEnabled ? (
-                <Volume2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              ) : (
-                <VolumeX className="w-4 h-4" />
-              )}
-            </button>
-
-            {/* New Chat Button (Image 2 style with SquarePen) */}
+            {/* New Chat Button */}
             <button
               id="header-new-chat-btn"
               onClick={handleNewChat}
               title="New Chat (⌘K)"
-              className="tactile-raised inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#1F130B] dark:text-[#FAF6F0] cursor-pointer active:scale-95 shadow-xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-black dark:text-white bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 hover:border-black dark:hover:border-neutral-400 cursor-pointer shadow-xs transition-colors"
             >
-              <SquarePen className="w-3.5 h-3.5 text-[#543D2B] dark:text-[#D8C9BC]" />
-              <span className="hidden sm:inline">New chat</span>
+              <SquarePen className="w-3.5 h-3.5 text-black dark:text-white" />
+              <span className="hidden sm:inline font-bold text-black dark:text-white">New chat</span>
+            </button>
+
+            {/* Theme Toggle (Dark / Light) */}
+            <button
+              id="header-theme-toggle-btn"
+              type="button"
+              onClick={() => {
+                const next = theme === "light" ? "dark" : "light";
+                setTheme(next);
+              }}
+              title={`Switch to ${theme === "light" ? "Dark" : "Light"} mode`}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium text-neutral-700 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 transition-colors cursor-pointer"
+            >
+              {theme === "light" ? (
+                <>
+                  <Moon className="w-3.5 h-3.5 text-neutral-700" />
+                  <span className="hidden sm:inline">Dark</span>
+                </>
+              ) : (
+                <>
+                  <Sun className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="hidden sm:inline">Light</span>
+                </>
+              )}
             </button>
 
             {/* Auth / Profile trigger */}
             {currentUser?.isGuest ? (
               <button
                 type="button"
-                onClick={() => setIsAuthOpen(true)}
-                className="tactile-espresso hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer text-[#FAF6F0]"
+                onClick={() => {
+                  setAuthInitialMode("login");
+                  setIsAuthOpen(true);
+                }}
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer text-white bg-neutral-900 hover:bg-black dark:bg-white dark:hover:bg-neutral-200 dark:text-neutral-950 shadow-xs transition-colors"
               >
                 <LogIn className="w-3.5 h-3.5" />
                 <span>Sign in</span>
@@ -483,7 +505,7 @@ export default function App() {
                 type="button"
                 onClick={() => setIsHeaderMenuOpen((prev) => !prev)}
                 title="More options"
-                className="tactile-raised p-2 rounded-xl text-[#7A6250] dark:text-[#A89584] hover:text-[#1F130B] dark:hover:text-[#FAF6F0] cursor-pointer"
+                className="p-2 rounded-xl text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer transition-colors"
                 aria-label="More options"
                 aria-expanded={isHeaderMenuOpen}
               >
@@ -492,15 +514,15 @@ export default function App() {
 
               {/* Dropdown Menu */}
               {isHeaderMenuOpen && (
-                <div className="absolute right-0 mt-2 w-52 rounded-2xl tactile-card p-1.5 shadow-xl z-30 border border-[#DDD1C2] dark:border-[#3E291C] animate-fade-in">
+                <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-white dark:bg-neutral-800 p-1.5 shadow-xl z-30 border border-neutral-200 dark:border-neutral-700 animate-fadeIn text-xs">
                   <button
                     onClick={() => {
                       setIsHeaderMenuOpen(false);
                       setIsSettingsOpen(true);
                     }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#1F130B] dark:text-[#FAF6F0] hover:bg-[#EFE8DF] dark:hover:bg-[#261A12] transition-colors cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors cursor-pointer"
                   >
-                    <Settings className="w-3.5 h-3.5 text-[#543D2B] dark:text-[#D8C9BC]" />
+                    <Settings className="w-3.5 h-3.5 text-neutral-400" />
                     <span>Settings & Models</span>
                   </button>
 
@@ -509,31 +531,10 @@ export default function App() {
                       setIsHeaderMenuOpen(false);
                       setIsHelpOpen(true);
                     }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#1F130B] dark:text-[#FAF6F0] hover:bg-[#EFE8DF] dark:hover:bg-[#261A12] transition-colors cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors cursor-pointer"
                   >
-                    <HelpCircle className="w-3.5 h-3.5 text-[#543D2B] dark:text-[#D8C9BC]" />
+                    <HelpCircle className="w-3.5 h-3.5 text-neutral-400" />
                     <span>Voice & Guide</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      const next = theme === "light" ? "dark" : "light";
-                      setTheme(next);
-                      setIsHeaderMenuOpen(false);
-                    }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#1F130B] dark:text-[#FAF6F0] hover:bg-[#EFE8DF] dark:hover:bg-[#261A12] transition-colors cursor-pointer"
-                  >
-                    {theme === "light" ? (
-                      <>
-                        <Moon className="w-3.5 h-3.5 text-[#543D2B] dark:text-[#D8C9BC]" />
-                        <span>Espresso Dark Mode</span>
-                      </>
-                    ) : (
-                      <>
-                        <Sun className="w-3.5 h-3.5 text-[#543D2B] dark:text-[#D8C9BC]" />
-                        <span>Warm Ivory Light Mode</span>
-                      </>
-                    )}
                   </button>
 
                   {activeConv && (
@@ -542,7 +543,7 @@ export default function App() {
                         setIsHeaderMenuOpen(false);
                         setDeleteTarget(activeConv);
                       }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#9E3624] dark:text-[#F0806E] hover:bg-[#EFE8DF] dark:hover:bg-[#261A12] transition-colors cursor-pointer border-t border-[#E5DDD3] dark:border-[#332217] mt-1 pt-1.5"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer border-t border-neutral-100 dark:border-neutral-700 mt-1 pt-1.5"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       <span>Delete Conversation</span>
@@ -554,17 +555,17 @@ export default function App() {
           </div>
         </header>
 
-        {/* Error Notification Banner: "Arfa AI couldn't complete that response." with "Try again" */}
+        {/* Error Notification Banner */}
         {errorBanner && (
-          <div className="shrink-0 mx-4 sm:mx-6 mt-3 flex items-center justify-between px-4 py-2.5 rounded-2xl bg-[#F5EFEB] dark:bg-[#1E140C] border border-[#DDD1C2] dark:border-[#3E291C] text-xs text-[#1F130B] dark:text-[#FAF6F0] shadow-xs">
+          <div className="shrink-0 mx-4 sm:mx-6 mt-3 flex items-center justify-between px-4 py-2.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-xs text-red-700 dark:text-red-300 shadow-xs">
             <div className="flex items-center gap-2.5 min-w-0">
-              <AlertCircle className="w-4 h-4 shrink-0 text-[#9E3624] dark:text-[#F0806E]" />
+              <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
               <span className="font-semibold truncate">{errorBanner}</span>
             </div>
             <button
               id="chat-error-retry-btn"
               onClick={handleRegenerate}
-              className="tactile-espresso text-[#FAF6F0] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold shrink-0 ml-3 cursor-pointer shadow-xs active:scale-95"
+              className="text-white bg-red-600 hover:bg-red-700 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold shrink-0 ml-3 cursor-pointer shadow-xs transition-colors"
             >
               <RefreshCw className="w-3 h-3" />
               <span>Try again</span>
@@ -572,15 +573,18 @@ export default function App() {
           </div>
         )}
 
-        {/* Main Conversation Container: fills available space */}
+        {/* Main Conversation Container */}
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden relative">
           {messages.length === 0 && !isStreaming ? (
-            /* Empty state */
-            <div className="flex-1 min-h-0 flex flex-col justify-center items-center overflow-hidden">
-              <EmptyState onSelectPrompt={(prompt) => handleSendMessage(prompt)} />
+            /* Empty state matching user's reference layout */
+            <div className="flex-1 min-h-0 flex flex-col justify-center items-center overflow-y-auto">
+              <EmptyState
+                currentUser={currentUser}
+                onSelectPrompt={(prompt) => handleSendMessage(prompt)}
+              />
             </div>
           ) : (
-            /* Conversation messages: only this region scrolls vertically */
+            /* Conversation messages */
             <div className="flex-1 min-h-0 overflow-y-auto px-2 sm:px-4 py-4 space-y-2">
               {messages.map((msg, index) => (
                 <MessageItem
@@ -613,14 +617,16 @@ export default function App() {
             </div>
           )}
 
-          {/* Bottom Message Composer */}
-          <div className="shrink-0 border-t border-transparent">
-            <MessageComposer
-              onSend={handleSendMessage}
-              isStreaming={isStreaming}
-              onStop={handleStopGeneration}
-            />
-          </div>
+          {/* Bottom Message Composer ONLY when conversation is active or streaming */}
+          {(messages.length > 0 || isStreaming) && (
+            <div className="shrink-0 border-t border-transparent">
+              <MessageComposer
+                onSend={handleSendMessage}
+                isStreaming={isStreaming}
+                onStop={handleStopGeneration}
+              />
+            </div>
+          )}
         </div>
       </main>
 
@@ -629,7 +635,10 @@ export default function App() {
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         currentUser={currentUser}
-        onOpenAuth={() => setIsAuthOpen(true)}
+        onOpenAuth={() => {
+          setAuthInitialMode("login");
+          setIsAuthOpen(true);
+        }}
         onLogout={handleLogout}
         onThemeChange={(newTheme) => setTheme(newTheme)}
         onClearConversations={() => setDeleteTarget("all")}
@@ -638,10 +647,22 @@ export default function App() {
       <AuthModal
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
+        initialMode={authInitialMode}
         onSuccess={(user) => {
           setCurrentUser(user);
           loadConversations();
         }}
+      />
+
+      <TemplatesModal
+        isOpen={isTemplatesOpen}
+        onClose={() => setIsTemplatesOpen(false)}
+        onSelectTemplate={(prompt) => handleSendMessage(prompt)}
+      />
+
+      <KnowledgeModal
+        isOpen={isKnowledgeOpen}
+        onClose={() => setIsKnowledgeOpen(false)}
       />
 
       <HelpModal

@@ -111,6 +111,19 @@ export async function streamGeminiChat(
     }
   }
 
+  let hasFinished = false;
+  const safeFinish = (text: string, meta?: Record<string, unknown>) => {
+    if (hasFinished) return;
+    hasFinished = true;
+    callbacks.onFinish(text, meta);
+  };
+
+  const safeError = (err: Error) => {
+    if (hasFinished) return;
+    hasFinished = true;
+    callbacks.onError(err);
+  };
+
   let lastError: Error | null = null;
   const MAX_RETRIES_PER_MODEL = 2;
 
@@ -119,15 +132,36 @@ export async function streamGeminiChat(
       let chunkEmitted = false;
       let fullAccumulated = "";
 
+      // Low-latency configuration: set thinkingBudget to 0 so the model streams tokens immediately
+      const modelConfig: any = {
+        systemInstruction,
+        temperature: 0.7,
+      };
+
+      if (candidate.includes("flash")) {
+        modelConfig.thinkingConfig = { thinkingBudget: 0 };
+      }
+
       try {
-        const responseStream = await ai.models.generateContentStream({
-          model: candidate,
-          contents,
-          config: {
-            systemInstruction,
-            temperature: 0.7,
-          },
-        });
+        let responseStream;
+        try {
+          responseStream = await ai.models.generateContentStream({
+            model: candidate,
+            contents,
+            config: modelConfig,
+          });
+        } catch (configErr: any) {
+          if (modelConfig.thinkingConfig) {
+            delete modelConfig.thinkingConfig;
+            responseStream = await ai.models.generateContentStream({
+              model: candidate,
+              contents,
+              config: modelConfig,
+            });
+          } else {
+            throw configErr;
+          }
+        }
 
         for await (const chunk of responseStream) {
           const textChunk = chunk.text || "";
@@ -139,7 +173,7 @@ export async function streamGeminiChat(
         }
 
         if (chunkEmitted) {
-          callbacks.onFinish(fullAccumulated, {
+          safeFinish(fullAccumulated, {
             model: candidate,
             provider: "gemini",
           });
@@ -159,7 +193,7 @@ export async function streamGeminiChat(
         const unaryText = response.text || "";
         if (unaryText) {
           callbacks.onChunk(unaryText);
-          callbacks.onFinish(unaryText, {
+          safeFinish(unaryText, {
             model: candidate,
             provider: "gemini",
           });
@@ -174,7 +208,7 @@ export async function streamGeminiChat(
 
         // If chunks were already sent to user, we cannot switch models mid-flight
         if (chunkEmitted) {
-          callbacks.onFinish(fullAccumulated, {
+          safeFinish(fullAccumulated, {
             model: candidate,
             provider: "gemini",
           });
@@ -194,7 +228,7 @@ export async function streamGeminiChat(
           const text = response.text || "";
           if (text) {
             callbacks.onChunk(text);
-            callbacks.onFinish(text, {
+            safeFinish(text, {
               model: candidate,
               provider: "gemini",
             });
@@ -206,19 +240,19 @@ export async function streamGeminiChat(
 
         // Check if transient error to apply backoff before next attempt
         if (isTransientError(lastError) && attempt < MAX_RETRIES_PER_MODEL - 1) {
-          const backoffTime = 1200 * (attempt + 1);
+          const backoffTime = 800 * (attempt + 1);
           await sleep(backoffTime);
         }
       }
     }
 
     // Brief delay before switching to the next candidate model
-    await sleep(600);
+    await sleep(300);
   }
 
   if (lastError) {
     const friendlyMsg = formatFriendlyErrorMessage(lastError);
-    callbacks.onError(new Error(friendlyMsg));
+    safeError(new Error(friendlyMsg));
   }
 }
 

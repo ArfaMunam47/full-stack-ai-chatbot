@@ -174,6 +174,10 @@ export const api = {
     return res.json();
   },
 
+  async renameConversation(id: string, title: string): Promise<Conversation> {
+    return this.updateConversation(id, title);
+  },
+
   async deleteConversation(id: string): Promise<void> {
     const res = await secureFetch(`/api/conversations/${id}`, {
       method: "DELETE",
@@ -275,6 +279,78 @@ export const api = {
     });
   },
 
+  // Multimodal Generation & Processing
+  async generateImage(payload: {
+    prompt: string;
+    conversationId?: string;
+    aspectRatio?: "1:1" | "16:9" | "9:16" | "4:3" | "3:4";
+    sourceImageBase64?: string;
+    sourceImageMimeType?: string;
+  }): Promise<{
+    mediaId: string;
+    url: string;
+    prompt: string;
+    model: string;
+    mimeType: string;
+    aspectRatio: string;
+  }> {
+    const res = await secureFetch("/api/generate-image", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Image generation failed");
+    return data;
+  },
+
+  async generateVideo(payload: {
+    prompt: string;
+    conversationId?: string;
+    aspectRatio?: "16:9" | "9:16";
+    durationSeconds?: 4 | 6 | 8;
+    sourceImageBase64?: string;
+    sourceImageMimeType?: string;
+  }): Promise<{
+    mediaId: string;
+    operationName: string;
+    prompt: string;
+    model: string;
+    status: "processing";
+    aspectRatio: string;
+    durationSeconds: number;
+  }> {
+    const res = await secureFetch("/api/generate-video", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Video generation failed");
+    return data;
+  },
+
+  async checkVideoStatus(mediaId: string): Promise<{
+    mediaId: string;
+    status: "processing" | "completed" | "failed";
+    url?: string;
+    error?: string;
+    progressPercent?: number;
+  }> {
+    const res = await secureFetch(`/api/video-status/${mediaId}`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed to check video status");
+    return data;
+  },
+
+  async transcribeAudio(audioBase64: string, mimeType: string = "audio/webm"): Promise<string> {
+    const res = await secureFetch("/api/audio/transcribe", {
+      method: "POST",
+      body: JSON.stringify({ audioBase64, mimeType }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed to transcribe audio");
+    return data.text || "";
+  },
+
   // Streaming SSE
   streamChat(
     payload: {
@@ -283,12 +359,20 @@ export const api = {
       attachments?: MessageAttachment[];
       provider?: "gemini" | "openai";
       modelName?: string;
+      mode?: "chat" | "image" | "video";
     },
     options: {
       onInit?: (data: { conversationId: string; isNewConversation: boolean; userMessageId: string }) => void;
+      onStatus?: (status: string) => void;
       onChunk: (chunk: string) => void;
       onError: (error: string) => void;
-      onDone: (data: { messageId: string; fullText: string; model: string }) => void;
+      onDone: (data: {
+        messageId: string;
+        fullText: string;
+        model: string;
+        media?: any[];
+        videoJob?: { mediaId: string; operationName: string };
+      }) => void;
       signal?: AbortSignal;
     }
   ): Promise<void> {
@@ -318,6 +402,8 @@ export const api = {
         const decoder = new TextDecoder();
         let buffer = "";
 
+        let isDone = false;
+
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
@@ -333,12 +419,24 @@ export const api = {
                 const data = JSON.parse(trimmed.slice(6));
                 if (data.type === "init" && options.onInit) {
                   options.onInit(data);
+                } else if (data.type === "status" && options.onStatus) {
+                  options.onStatus(data.status);
                 } else if (data.type === "chunk") {
                   options.onChunk(data.chunk);
                 } else if (data.type === "error") {
-                  options.onError(data.error);
+                  if (!isDone) {
+                    options.onError(data.error);
+                  }
                 } else if (data.type === "done") {
-                  options.onDone(data);
+                  if (!isDone) {
+                    isDone = true;
+                    options.onDone(data);
+                  }
+                  try {
+                    await reader.cancel();
+                  } catch {}
+                  resolve();
+                  return;
                 }
               } catch (e) {
                 console.warn("Failed to parse SSE line", trimmed, e);
@@ -352,6 +450,7 @@ export const api = {
           // Handled cancellation
           resolve();
         } else {
+          // Only propagate error if we haven't successfully completed
           const errMsg = err instanceof Error ? err.message : "Network error";
           options.onError(errMsg);
           reject(err);

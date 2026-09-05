@@ -1,17 +1,19 @@
 import React, { useState } from "react";
 import {
   SquarePen,
-  Search,
   MessageSquare,
+  BookOpen,
+  LayoutTemplate,
   Settings,
   MoreVertical,
   Trash2,
   Edit2,
-  X,
-  HelpCircle,
-  SlidersHorizontal,
   PanelLeftClose,
   ChevronDown,
+  LogOut,
+  UserCheck,
+  Sparkles,
+  LogIn,
 } from "lucide-react";
 import { Conversation, User } from "../../types.ts";
 import { ArfaLogo } from "../ui/ArfaLogo.tsx";
@@ -24,11 +26,11 @@ interface SidebarProps {
   onRenameConversation: (conv: Conversation) => void;
   onDeleteConversation: (conv: Conversation) => void;
   onOpenSettings: () => void;
-  onOpenHelp?: () => void;
-  onOpenAuth: () => void;
+  onOpenKnowledge: () => void;
+  onOpenTemplates: () => void;
+  onOpenAuth: (mode?: "login" | "register") => void;
+  onLogout: () => void;
   currentUser: User | null;
-  searchQuery: string;
-  onSearchChange: (q: string) => void;
   isOpen: boolean;
   onCloseMobile: () => void;
   isCollapsed?: boolean;
@@ -43,39 +45,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onRenameConversation,
   onDeleteConversation,
   onOpenSettings,
-  onOpenHelp,
+  onOpenKnowledge,
+  onOpenTemplates,
   onOpenAuth,
+  onLogout,
   currentUser,
-  searchQuery,
-  onSearchChange,
   isOpen,
   onCloseMobile,
   isCollapsed = false,
   onToggleCollapse,
 }) => {
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
-  // Format relative timestamp
-  const formatTimestamp = (dateStr?: string) => {
-    if (!dateStr) return "";
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return "";
-    const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-    const startOfYesterday = startOfToday - 24 * 60 * 60 * 1000;
-    const time = d.getTime();
-
-    if (time >= startOfToday) {
-      return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-    } else if (time >= startOfYesterday) {
-      return "Yesterday";
-    } else {
-      const diffDays = Math.floor((now.getTime() - time) / (1000 * 60 * 60 * 24));
-      return diffDays > 0 && diffDays < 7 ? `${diffDays}d ago` : d.toLocaleDateString([], { month: "short", day: "numeric" });
-    }
-  };
-
-  // Categorize conversation history: Today, Yesterday, Earlier
+  // Group conversations into Today, Yesterday, Earlier
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
   const startOfYesterday = startOfToday - 24 * 60 * 60 * 1000;
@@ -100,23 +83,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
     return (
       <div className="mb-4">
-        <div className="text-[11px] uppercase tracking-wider text-[#7A6250] dark:text-[#A89584] font-bold px-3 pt-2 pb-1.5 select-none">
+        <div className="text-[11px] uppercase tracking-wider text-neutral-400 dark:text-neutral-500 font-bold px-3 pt-2 pb-1.5 select-none">
           {label}
         </div>
-        <div className="space-y-1">
+        <div className="space-y-0.5">
           {items.map((conv) => {
             const isActive = conv.id === activeConversationId;
             const isMenuOpen = menuOpenId === conv.id;
-            const timeLabel = formatTimestamp(conv.updatedAt || conv.createdAt);
 
             return (
               <div
                 key={conv.id}
                 id={`conversation-item-${conv.id}`}
-                className={`group relative flex items-center justify-between rounded-xl px-3 py-2 text-sm transition-all duration-150 cursor-pointer ${
+                className={`group relative flex items-center justify-between rounded-xl px-3 py-2 text-xs transition-all duration-150 cursor-pointer ${
                   isActive
-                    ? "tactile-card text-[#1F130B] dark:text-[#FAF6F0] font-semibold ring-1 ring-[#D6C8BB] dark:ring-[#4D3322]"
-                    : "text-[#543D2B] dark:text-[#D8C9BC] hover:bg-[#EFE8DF] dark:hover:bg-[#261A12] hover:text-[#1F130B] dark:hover:text-[#FAF6F0]"
+                    ? "bg-neutral-200/70 dark:bg-neutral-800 text-neutral-900 dark:text-white font-medium"
+                    : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800/50 hover:text-neutral-900 dark:hover:text-white"
                 }`}
               >
                 <button
@@ -128,67 +110,58 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   className="flex items-center gap-2.5 flex-1 min-w-0 text-left truncate cursor-pointer"
                 >
                   <MessageSquare
-                    className={`w-4 h-4 shrink-0 transition-colors ${
-                      isActive ? "text-[#2E1B10] dark:text-[#FAF6F0]" : "text-[#8C7563] dark:text-[#A89584]"
+                    className={`w-3.5 h-3.5 shrink-0 ${
+                      isActive ? "text-neutral-900 dark:text-white font-bold" : "text-neutral-400"
                     }`}
                   />
-                  <span className="truncate text-xs sm:text-[13px]">{conv.title}</span>
+                  <span className="truncate">{conv.title}</span>
                 </button>
 
-                {/* Right side: Timestamp or Menu Toggle */}
-                <div className="flex items-center gap-1.5 shrink-0 ml-1">
-                  {timeLabel && !isMenuOpen && (
-                    <span className="text-[10px] text-[#8C7563] dark:text-[#A89584] group-hover:hidden transition-opacity font-medium">
-                      {timeLabel}
-                    </span>
-                  )}
+                {/* More options button */}
+                <div className="relative shrink-0 ml-1">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMenuOpenId(isMenuOpen ? null : conv.id);
+                    }}
+                    className={`p-1 rounded-md text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition-opacity ${
+                      isMenuOpen ? "opacity-100 bg-neutral-200 dark:bg-neutral-700" : "opacity-0 group-hover:opacity-100"
+                    }`}
+                    title="Conversation options"
+                  >
+                    <MoreVertical className="w-3.5 h-3.5" />
+                  </button>
 
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setMenuOpenId(isMenuOpen ? null : conv.id);
-                      }}
-                      className={`p-1 rounded-lg text-[#7A6250] hover:text-[#1F130B] dark:text-[#A89584] dark:hover:text-[#FAF6F0] transition-opacity cursor-pointer ${
-                        isMenuOpen ? "opacity-100" : "hidden group-hover:block"
-                      }`}
-                      aria-label="Conversation options"
+                  {isMenuOpen && (
+                    <div
+                      className="absolute right-0 top-full mt-1 w-32 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-xl py-1 z-30 animate-fadeIn"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <MoreVertical className="w-3.5 h-3.5" />
-                    </button>
-
-                    {/* Context menu */}
-                    {isMenuOpen && (
-                      <div
-                        className="absolute right-0 top-6 z-30 w-32 rounded-xl bg-[#FCFAF7] dark:bg-[#1E140C] border border-[#DDD1C2] dark:border-[#3E291C] py-1 shadow-xl text-xs"
-                        onClick={(e) => e.stopPropagation()}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuOpenId(null);
+                          onRenameConversation(conv);
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 cursor-pointer"
                       >
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setMenuOpenId(null);
-                            onRenameConversation(conv);
-                          }}
-                          className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-[#EFE8DF] dark:hover:bg-[#261A12] text-[#1F130B] dark:text-[#FAF6F0] transition-colors cursor-pointer"
-                        >
-                          <Edit2 className="w-3.5 h-3.5 text-[#7A6250]" />
-                          <span>Rename</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setMenuOpenId(null);
-                            onDeleteConversation(conv);
-                          }}
-                          className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-[#EFE8DF] dark:hover:bg-[#261A12] text-[#9E3624] dark:text-[#F0806E] transition-colors cursor-pointer"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                          <span>Delete</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                        <Edit2 className="w-3 h-3" />
+                        <span>Rename</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuOpenId(null);
+                          onDeleteConversation(conv);
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -203,47 +176,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Mobile Backdrop */}
       {isOpen && (
         <div
-          id="sidebar-mobile-backdrop"
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs md:hidden"
           onClick={onCloseMobile}
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs md:hidden"
         />
       )}
 
-      {/* Tactile Sidebar Container */}
       <aside
-        id="arfa-sidebar"
-        className={`tactile-sidebar fixed md:static inset-y-0 left-0 z-40 flex flex-col w-72 h-full select-none transition-all duration-250 ease-in-out ${
-          isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0"
-        } ${isCollapsed ? "md:-ml-72" : "md:ml-0"}`}
+        id="app-sidebar"
+        className={`fixed md:static inset-y-0 left-0 z-40 w-64 bg-neutral-50 dark:bg-[#1a1a1a] border-r border-neutral-200 dark:border-neutral-800 flex flex-col transition-all duration-200 ease-in-out select-none ${
+          isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        } ${isCollapsed ? "md:-translate-x-full md:w-0 md:border-none overflow-hidden" : ""}`}
       >
-        {/* Top Header: Brand & Collapse / Close */}
-        <div className="flex items-center justify-between px-4 pt-4 pb-3">
-          <div className="cursor-pointer" onClick={onNewChat}>
-            <ArfaLogo size="md" subtitle="Your intelligent companion" />
-          </div>
-          <div className="flex items-center gap-1">
-            {onToggleCollapse && (
-              <button
-                type="button"
-                onClick={onToggleCollapse}
-                title="Collapse sidebar"
-                className="hidden md:flex p-1.5 rounded-xl text-[#7A6250] hover:text-[#1F130B] dark:text-[#A89584] dark:hover:text-[#FAF6F0] hover:bg-[#EFE8DF] dark:hover:bg-[#261A12] transition-colors cursor-pointer"
-              >
-                <PanelLeftClose className="w-4 h-4" />
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={onCloseMobile}
-              className="md:hidden p-1.5 rounded-xl text-[#543D2B] hover:text-[#1F130B] hover:bg-[#EFE8DF] transition-colors cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+        {/* Top Header: Logo + Collapse Button (Matching Reference Image) */}
+        <div className="h-14 px-4 flex items-center justify-between border-b border-neutral-200/80 dark:border-neutral-800">
+          <ArfaLogo size="sm" showText={true} />
+          <button
+            type="button"
+            onClick={() => {
+              if (onToggleCollapse) onToggleCollapse();
+              onCloseMobile();
+            }}
+            className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-200/60 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+            title="Collapse sidebar"
+          >
+            <PanelLeftClose className="w-4 h-4" />
+          </button>
         </div>
 
-        {/* Tactile New Chat Action: SquarePen Written Symbol like ChatGPT in Image 2 */}
-        <div className="px-4 pb-3">
+        {/* New Chat Button (Prominent pill/card from Reference Image) */}
+        <div className="p-3">
           <button
             id="sidebar-new-chat-btn"
             type="button"
@@ -251,49 +212,77 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onNewChat();
               onCloseMobile();
             }}
-            className="tactile-espresso w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-semibold cursor-pointer shadow-sm transition-transform active:scale-98"
+            className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 hover:border-black dark:hover:border-neutral-400 shadow-xs text-black dark:text-white text-xs font-bold cursor-pointer transition-all group"
           >
             <div className="flex items-center gap-2.5">
-              <SquarePen className="w-4 h-4 text-inherit" />
-              <span className="text-inherit text-sm font-semibold tracking-wide">New chat</span>
+              <SquarePen className="w-4 h-4 text-black dark:text-white group-hover:scale-105 transition-transform" />
+              <span className="text-black dark:text-white font-bold text-xs tracking-tight">New Chat</span>
             </div>
-            <kbd className="hidden sm:inline-block px-1.5 py-0.5 rounded bg-white/20 text-[10px] font-mono text-inherit">
+            <kbd className="hidden sm:inline-block px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-700 text-[10px] font-mono text-black dark:text-neutral-200 font-semibold border border-neutral-200 dark:border-neutral-600">
               ⌘K
             </kbd>
           </button>
         </div>
 
-        {/* Tactile Search Bar with Filter Sliders Icon from Image 1 */}
-        <div className="px-4 pb-2">
-          <div className="tactile-recessed relative rounded-xl flex items-center px-3 py-1.5">
-            <Search className="w-3.5 h-3.5 text-[#8C7563] shrink-0 mr-2" />
-            <input
-              id="sidebar-search-input"
-              type="text"
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Search conversations..."
-              className="w-full bg-transparent border-none outline-none text-xs text-[#1F130B] dark:text-[#FAF6F0] placeholder-[#8C7563] dark:placeholder-[#A89584]"
-            />
-            {searchQuery ? (
-              <button
-                type="button"
-                onClick={() => onSearchChange("")}
-                className="text-[#8C7563] hover:text-[#1F130B] dark:hover:text-[#FAF6F0] ml-1 p-0.5 cursor-pointer"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            ) : (
-              <SlidersHorizontal className="w-3.5 h-3.5 text-[#8C7563] shrink-0 ml-1 opacity-60" />
-            )}
-          </div>
+        {/* Main Navigation Items (Chats, Knowledge, Templates, Settings from Reference Image) */}
+        <div className="px-3 pb-2 space-y-0.5">
+          <button
+            type="button"
+            onClick={() => {
+              // Switch to conversations list view or default chat
+              onCloseMobile();
+            }}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200/60 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+          >
+            <MessageSquare className="w-4 h-4 text-neutral-400" />
+            <span>Chats</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              onOpenKnowledge();
+              onCloseMobile();
+            }}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200/60 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+          >
+            <BookOpen className="w-4 h-4 text-neutral-400" />
+            <span>Knowledge</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              onOpenTemplates();
+              onCloseMobile();
+            }}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200/60 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+          >
+            <LayoutTemplate className="w-4 h-4 text-neutral-400" />
+            <span>Templates</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              onOpenSettings();
+              onCloseMobile();
+            }}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200/60 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+          >
+            <Settings className="w-4 h-4 text-neutral-400" />
+            <span>Settings</span>
+          </button>
         </div>
 
-        {/* Conversation History List */}
+        {/* Separator */}
+        <div className="mx-3 my-1 border-t border-neutral-200 dark:border-neutral-800" />
+
+        {/* Conversation History List ("Today", "Yesterday", "Earlier") */}
         <div className="flex-1 overflow-y-auto px-3 py-2">
           {conversations.length === 0 ? (
-            <div className="text-center py-10 text-xs text-[#8C7563] dark:text-[#A89584] font-medium">
-              {searchQuery ? "No matching conversations" : "No conversations yet"}
+            <div className="text-center py-8 text-xs text-neutral-400">
+              No previous chats
             </div>
           ) : (
             <>
@@ -304,56 +293,92 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        {/* Sidebar Footer: Settings, Help & Profile (Matching Image 1) */}
-        <div className="p-3 border-t border-[#E5DDD3] dark:border-[#332217] space-y-1 bg-[#F5EFEB]/90 dark:bg-[#19100A]/90">
-          {/* Settings Button */}
-          <button
-            id="sidebar-settings-btn"
-            type="button"
-            onClick={onOpenSettings}
-            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#543D2B] dark:text-[#D8C9BC] hover:text-[#1F130B] dark:hover:text-[#FAF6F0] hover:bg-[#EFE8DF] dark:hover:bg-[#261A12] transition-colors cursor-pointer"
-          >
-            <Settings className="w-4 h-4 text-[#543D2B] dark:text-[#D8C9BC]" />
-            <span>Settings</span>
-          </button>
+        {/* Bottom Profile Section (ChatGPT-style with Google/Email Auth) */}
+        <div className="p-3 border-t border-neutral-200/80 dark:border-neutral-800 bg-neutral-50/90 dark:bg-[#1a1a1a]/90 relative">
+          {currentUser && !currentUser.isGuest ? (
+            /* Logged in User Card with Dropdown Menu */
+            <>
+              <button
+                id="sidebar-profile-card"
+                type="button"
+                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-neutral-200/60 dark:hover:bg-neutral-800 text-left transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-lg bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                    {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : "U"}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold truncate text-neutral-900 dark:text-neutral-100">
+                      {currentUser.name || "User"}
+                    </p>
+                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                      Pro Plan
+                    </p>
+                  </div>
+                </div>
+                <ChevronDown className={`w-3.5 h-3.5 text-neutral-400 transition-transform ${isProfileMenuOpen ? "rotate-180" : ""}`} />
+              </button>
 
-          {/* Help & Support Button */}
-          <button
-            id="sidebar-help-btn"
-            type="button"
-            onClick={() => {
-              if (onOpenHelp) onOpenHelp();
-            }}
-            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#543D2B] dark:text-[#D8C9BC] hover:text-[#1F130B] dark:hover:text-[#FAF6F0] hover:bg-[#EFE8DF] dark:hover:bg-[#261A12] transition-colors cursor-pointer"
-          >
-            <HelpCircle className="w-4 h-4 text-[#543D2B] dark:text-[#D8C9BC]" />
-            <span>Help & Support</span>
-          </button>
+              {/* Profile Popover Menu */}
+              {isProfileMenuOpen && (
+                <div className="absolute bottom-full left-3 right-3 mb-2 rounded-2xl bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-xl py-1.5 z-40 animate-fadeIn text-xs">
+                  <div className="px-3 py-2 border-b border-neutral-100 dark:border-neutral-700">
+                    <p className="font-semibold text-neutral-900 dark:text-neutral-100 truncate">{currentUser.name}</p>
+                    <p className="text-[11px] text-neutral-500 truncate">{currentUser.email}</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setIsProfileMenuOpen(false);
+                      onOpenSettings();
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 cursor-pointer"
+                  >
+                    <Settings className="w-3.5 h-3.5 text-neutral-400" />
+                    <span>Settings & Preferences</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsProfileMenuOpen(false);
+                      onLogout();
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>Log out</span>
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            /* Guest User Card with Prominent Sign In / Sign Up Option */
+            <div className="rounded-xl p-2.5 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 space-y-2 shadow-xs">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-7 h-7 rounded-lg bg-neutral-100 dark:bg-neutral-700 text-neutral-500 flex items-center justify-center font-bold text-xs shrink-0">
+                  <UserCheck className="w-3.5 h-3.5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 truncate">
+                    Guest Account
+                  </p>
+                  <p className="text-[10px] text-neutral-500 dark:text-neutral-400 truncate">
+                    Free Plan • Save chats
+                  </p>
+                </div>
+              </div>
 
-          {/* User Profile Card like Image 1 */}
-          <button
-            id="sidebar-profile-btn"
-            type="button"
-            onClick={onOpenAuth}
-            className="tactile-raised w-full flex items-center justify-between p-2.5 rounded-2xl text-left transition-all cursor-pointer mt-1"
-          >
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#2E1B10] to-[#170D07] text-[#FAF6F0] flex items-center justify-center font-bold text-xs shrink-0 shadow-xs border border-[#3E2517]">
-                {currentUser && !currentUser.isGuest && currentUser.name
-                  ? currentUser.name.charAt(0).toUpperCase()
-                  : "E"}
-              </div>
-              <div className="min-w-0 flex-1 overflow-hidden">
-                <p className="text-xs font-bold truncate text-[#1F130B] dark:text-[#FAF6F0]">
-                  {currentUser?.isGuest ? "Explorer" : currentUser?.name || "Explorer"}
-                </p>
-                <p className="text-[10px] text-[#7A6250] dark:text-[#A89584] truncate font-medium">
-                  {currentUser?.isGuest ? "Free Plan" : "Premium Plan"}
-                </p>
-              </div>
+              {/* Login / Sign up Button */}
+              <button
+                id="sidebar-login-btn"
+                type="button"
+                onClick={() => onOpenAuth("login")}
+                className="w-full py-2 px-3 rounded-lg bg-neutral-900 hover:bg-black dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-neutral-900 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Log in or Sign up</span>
+              </button>
             </div>
-            <ChevronDown className="w-3.5 h-3.5 text-[#7A6250] dark:text-[#A89584] shrink-0" />
-          </button>
+          )}
         </div>
       </aside>
     </>

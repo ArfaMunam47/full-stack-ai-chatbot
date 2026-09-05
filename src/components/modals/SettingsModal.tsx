@@ -121,20 +121,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in">
-      <div className="tactile-card relative w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden max-h-[85vh] text-[#1F130B] dark:text-[#FAF6F0] border border-[#DDD1C2] dark:border-[#3E291C]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">
+      <div className="bg-white dark:bg-[#212121] border border-neutral-200 dark:border-neutral-700 relative w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col md:flex-row overflow-hidden max-h-[85vh] text-neutral-900 dark:text-neutral-100">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 p-1.5 rounded-xl text-[#7A6250] hover:text-[#1F130B] dark:text-[#A89584] dark:hover:text-[#FAF6F0] hover:bg-[#EFE8DF] dark:hover:bg-[#261A12] transition-colors cursor-pointer"
+          className="absolute top-4 right-4 z-20 p-1.5 rounded-xl text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
           aria-label="Close modal"
         >
           <X className="w-4 h-4" />
         </button>
 
         {/* Left Tabs Nav */}
-        <div className="w-full md:w-52 shrink-0 border-b md:border-b-0 md:border-r border-[#E5DDD3] dark:border-[#332217] bg-[#F5EFEB] dark:bg-[#19100A] p-3 flex md:flex-col gap-1 overflow-x-auto select-none">
-          <div className="hidden md:block px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-[#2E1B10] dark:text-[#FAF6F0]">
+        <div className="w-full md:w-52 shrink-0 border-b md:border-b-0 md:border-r border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-[#1a1a1a] p-3 flex md:flex-col gap-1 overflow-x-auto select-none">
+          <div className="hidden md:block px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
             Settings
           </div>
           {tabs.map((tab) => (
@@ -143,8 +143,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               onClick={() => setActiveTab(tab.key)}
               className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === tab.key
-                  ? "tactile-espresso font-semibold text-[#FAF6F0] shadow-xs"
-                  : "text-[#543D2B] dark:text-[#D8C9BC] hover:text-[#1F130B] dark:hover:text-[#FAF6F0] hover:bg-[#EFE8DF] dark:hover:bg-[#261A12]"
+                  ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-semibold shadow-xs"
+                  : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-200/60 dark:hover:bg-neutral-800"
               }`}
             >
               {tab.icon}
@@ -156,7 +156,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* Tab Content Area */}
         <div className="flex-1 p-5 sm:p-6 overflow-y-auto">
           {saveStatus && (
-            <div className="flex items-center gap-2 p-2.5 mb-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-xs border border-emerald-200 dark:border-emerald-800/50 animate-fade-in font-medium">
+            <div className="flex items-center gap-2 p-2.5 mb-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-xs border border-emerald-200 dark:border-emerald-800/50 font-medium">
               <Check className="w-3.5 h-3.5" />
               <span>Settings saved successfully.</span>
             </div>
@@ -166,29 +166,29 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {activeTab === "appearance" && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-base font-semibold mb-1 text-[#1F130B] dark:text-[#FAF6F0]">Appearance</h3>
-                <p className="text-xs text-[#543D2B] dark:text-[#D8C9BC]">
-                  Select your preferred aesthetic mode for Arfa AI.
+                <h3 className="text-base font-semibold mb-1 text-neutral-900 dark:text-neutral-100">Appearance</h3>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                  Select your preferred aesthetic theme for ARFA AI.
                 </p>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
-                  { id: "light", label: "Warm Ivory (Light)", desc: "Luminous warm ivory, creamy beige & espresso" },
-                  { id: "dark", label: "Espresso (Dark)", desc: "Deep roast coffee, cacao & warm ivory" },
+                  { id: "light", label: "Clean Light", desc: "Crisp white canvas with dark typography" },
+                  { id: "dark", label: "Deep Neutral", desc: "Pure high-contrast dark theme without blue tones" },
                   { id: "system", label: "System Sync", desc: "Adapts automatically to OS settings" },
                 ].map((mode) => (
                   <button
                     key={mode.id}
                     onClick={() => handleUpdateSettings({ theme: mode.id as any })}
-                    className={`tactile-raised p-3.5 rounded-2xl text-left transition-all cursor-pointer ${
+                    className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
                       settings?.theme === mode.id
-                        ? "border-[#2E1B10] dark:border-[#FAF6F0] ring-2 ring-[#2E1B10]/20 dark:ring-[#FAF6F0]/20"
-                        : ""
+                        ? "border-neutral-900 dark:border-white bg-neutral-100 dark:bg-neutral-800 ring-1 ring-neutral-900 dark:ring-white"
+                        : "border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 bg-white dark:bg-neutral-800/40"
                     }`}
                   >
-                    <div className="font-semibold text-xs sm:text-sm mb-1 text-[#1F130B] dark:text-[#FAF6F0]">{mode.label}</div>
-                    <div className="text-[11px] text-[#543D2B] dark:text-[#D8C9BC] leading-snug">{mode.desc}</div>
+                    <div className="font-semibold text-xs sm:text-sm mb-1 text-neutral-900 dark:text-neutral-100">{mode.label}</div>
+                    <div className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-snug">{mode.desc}</div>
                   </button>
                 ))}
               </div>
@@ -199,15 +199,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {activeTab === "ai" && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-base font-semibold mb-1 text-[#1F130B] dark:text-[#FAF6F0]">AI Engine & Model</h3>
-                <p className="text-xs text-[#543D2B] dark:text-[#D8C9BC]">
+                <h3 className="text-base font-semibold mb-1 text-neutral-900 dark:text-neutral-100">AI Engine & Model</h3>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
                   Configure server-side AI model routing and response behavior.
                 </p>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-[#1F130B] dark:text-[#FAF6F0] mb-2">
+                  <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
                     Model Selection
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -218,20 +218,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           preferredModel: "gemini-3.8-flash",
                         })
                       }
-                      className={`tactile-raised p-3.5 rounded-2xl text-left transition-all cursor-pointer ${
+                      className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
                         settings?.preferredProvider === "gemini" && settings?.preferredModel !== "gemini-3.1-flash-lite"
-                          ? "border-[#2E1B10] dark:border-[#FAF6F0] ring-2 ring-[#2E1B10]/20 dark:ring-[#FAF6F0]/20"
-                          : ""
+                          ? "border-neutral-900 dark:border-white bg-neutral-100 dark:bg-neutral-800 ring-1 ring-neutral-900 dark:ring-white"
+                          : "border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800/40"
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold text-xs sm:text-sm text-[#1F130B] dark:text-[#FAF6F0]">Gemini 3.8 Flash</span>
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#EFE8DF] dark:bg-[#261A12] text-[#2E1B10] dark:text-[#FAF6F0] border border-[#DDD1C2] dark:border-[#3E291C]">
+                        <span className="font-semibold text-xs sm:text-sm text-neutral-900 dark:text-neutral-100">Gemini 3.8 Flash</span>
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200">
                           Default
                         </span>
                       </div>
-                      <p className="text-[11px] text-[#543D2B] dark:text-[#D8C9BC] mt-1">
-                        High intelligence and reasoning with multi-turn streaming.
+                      <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-1">
+                        Ultra-fast streaming intelligence and complex reasoning.
                       </p>
                     </button>
 
@@ -242,20 +242,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           preferredModel: "gemini-3.1-flash-lite",
                         })
                       }
-                      className={`tactile-raised p-3.5 rounded-2xl text-left transition-all cursor-pointer ${
+                      className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
                         settings?.preferredProvider === "gemini" && settings?.preferredModel === "gemini-3.1-flash-lite"
-                          ? "border-[#2E1B10] dark:border-[#FAF6F0] ring-2 ring-[#2E1B10]/20 dark:ring-[#FAF6F0]/20"
-                          : ""
+                          ? "border-neutral-900 dark:border-white bg-neutral-100 dark:bg-neutral-800 ring-1 ring-neutral-900 dark:ring-white"
+                          : "border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800/40"
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold text-xs sm:text-sm text-[#1F130B] dark:text-[#FAF6F0]">Gemini 3.1 Flash Lite</span>
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#EFE8DF] dark:bg-[#261A12] text-[#543D2B] dark:text-[#D8C9BC]">
-                          Fast
+                        <span className="font-semibold text-xs sm:text-sm text-neutral-900 dark:text-neutral-100">Flash Lite</span>
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
+                          Instant
                         </span>
                       </div>
-                      <p className="text-[11px] text-[#543D2B] dark:text-[#D8C9BC] mt-1">
-                        Ultra-low latency, high throughput during peak load times.
+                      <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-1">
+                        Zero-wait response time for instant typing.
                       </p>
                     </button>
 
@@ -266,33 +266,33 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           preferredModel: "gpt-4o",
                         })
                       }
-                      className={`tactile-raised p-3.5 rounded-2xl text-left transition-all cursor-pointer ${
+                      className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
                         settings?.preferredProvider === "openai"
-                          ? "border-[#2E1B10] dark:border-[#FAF6F0] ring-2 ring-[#2E1B10]/20 dark:ring-[#FAF6F0]/20"
-                          : ""
+                          ? "border-neutral-900 dark:border-white bg-neutral-100 dark:bg-neutral-800 ring-1 ring-neutral-900 dark:ring-white"
+                          : "border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800/40"
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold text-xs sm:text-sm text-[#1F130B] dark:text-[#FAF6F0]">OpenAI GPT-4o</span>
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#EFE8DF] dark:bg-[#261A12] text-[#543D2B] dark:text-[#D8C9BC]">
+                        <span className="font-semibold text-xs sm:text-sm text-neutral-900 dark:text-neutral-100">OpenAI GPT-4o</span>
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300">
                           Fallback
                         </span>
                       </div>
-                      <p className="text-[11px] text-[#543D2B] dark:text-[#D8C9BC] mt-1">
-                        Bidirectional resilience with automatic failover.
+                      <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-1">
+                        High redundancy with automatic failover.
                       </p>
                     </button>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-[#1F130B] dark:text-[#FAF6F0] mb-1">
-                    Custom AI Instructions
+                  <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+                    Custom System Instructions
                   </label>
-                  <p className="text-[11px] text-[#543D2B] dark:text-[#D8C9BC] mb-2">
-                    Personal guidance injected into every conversation with Arfa AI.
+                  <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mb-2">
+                    Personal guidance injected into every conversation with ARFA AI.
                   </p>
-                  <div className="tactile-recessed rounded-xl p-2.5">
+                  <div className="rounded-xl p-2 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
                     <textarea
                       rows={3}
                       value={settings?.customInstructions || ""}
@@ -301,7 +301,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       }
                       onBlur={(e) => handleUpdateSettings({ customInstructions: e.target.value })}
                       placeholder="e.g. Always be concise, provide code examples with explanations..."
-                      className="w-full bg-transparent border-none outline-none text-xs text-[#1F130B] dark:text-[#FAF6F0] placeholder-[#8C7563] dark:placeholder-[#A89584]"
+                      className="w-full bg-transparent border-none outline-none text-xs text-neutral-900 dark:text-neutral-100 placeholder-neutral-400"
                     />
                   </div>
                 </div>
@@ -309,20 +309,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           )}
 
-          {/* MEMORY ARCHITECTURE */}
+          {/* MEMORY */}
           {activeTab === "memory" && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-semibold mb-0.5 text-[#1F130B] dark:text-[#FAF6F0]">Long-Term Memory</h3>
-                  <p className="text-xs text-[#543D2B] dark:text-[#D8C9BC]">
-                    Explicit facts, engineering preferences, and project context Arfa AI retains.
+                  <h3 className="text-base font-semibold mb-0.5 text-neutral-900 dark:text-neutral-100">Long-Term Memory</h3>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                    Explicit facts, engineering preferences, and project context ARFA AI retains.
                   </p>
                 </div>
                 {memories.length > 0 && (
                   <button
                     onClick={handleClearMemories}
-                    className="text-xs text-[#9E3624] dark:text-[#F0806E] hover:underline font-semibold cursor-pointer"
+                    className="text-xs text-red-600 hover:underline font-semibold cursor-pointer"
                   >
                     Clear All
                   </button>
@@ -330,18 +330,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
 
               <form onSubmit={handleAddMemory} className="flex gap-2">
-                <div className="tactile-recessed rounded-xl px-2.5 py-1.5 flex-1 flex items-center">
+                <div className="rounded-xl px-2.5 py-1.5 flex-1 flex items-center bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
                   <input
                     type="text"
                     value={newMemoryContent}
                     onChange={(e) => setNewMemoryContent(e.target.value)}
-                    placeholder="Remember that my team uses Python 3.12..."
-                    className="w-full bg-transparent border-none outline-none text-xs text-[#1F130B] dark:text-[#FAF6F0] placeholder-[#8C7563] dark:placeholder-[#A89584]"
+                    placeholder="Remember that my team uses TypeScript and React..."
+                    className="w-full bg-transparent border-none outline-none text-xs text-neutral-900 dark:text-neutral-100 placeholder-neutral-400"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="tactile-espresso px-3.5 py-2 rounded-xl text-xs font-semibold text-[#FAF6F0] flex items-center gap-1 cursor-pointer active:scale-95 shadow-xs"
+                  className="px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-neutral-900 hover:bg-black dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 flex items-center gap-1 cursor-pointer transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add</span>
@@ -350,19 +350,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
               <div className="space-y-2 max-h-60 overflow-y-auto">
                 {memories.length === 0 ? (
-                  <p className="text-xs text-[#543D2B] dark:text-[#D8C9BC] italic py-3 text-center">
+                  <p className="text-xs text-neutral-400 italic py-3 text-center">
                     No custom memories stored yet.
                   </p>
                 ) : (
                   memories.map((m) => (
                     <div
                       key={m.id}
-                      className="flex items-center justify-between p-3 rounded-xl bg-[#EFE8DF] dark:bg-[#261A12] border border-[#E5DDD3] dark:border-[#332217] text-xs"
+                      className="flex items-center justify-between p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700/60 text-xs"
                     >
-                      <span className="text-[#1F130B] dark:text-[#FAF6F0]">{m.content}</span>
+                      <span className="text-neutral-800 dark:text-neutral-200">{m.content}</span>
                       <button
                         onClick={() => handleDeleteMemory(m.id)}
-                        className="text-[#7A6250] hover:text-[#9E3624] dark:hover:text-[#F0806E] p-1 cursor-pointer transition-colors"
+                        className="text-neutral-400 hover:text-red-500 p-1 cursor-pointer transition-colors"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -377,30 +377,30 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {activeTab === "arfaProfile" && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-base font-semibold mb-1 text-[#1F130B] dark:text-[#FAF6F0]">Arfa AI Persona</h3>
-                <p className="text-xs text-[#543D2B] dark:text-[#D8C9BC]">
-                  Tailor Arfa AI's conversational style and response temperament.
+                <h3 className="text-base font-semibold mb-1 text-neutral-900 dark:text-neutral-100">ARFA AI Persona</h3>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                  Tailor ARFA AI's conversational style and response temperament.
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { id: "balanced", label: "Balanced & Thoughtful", desc: "Equally analytical, articulate, and friendly." },
-                  { id: "concise", label: "Concise & Direct", desc: "Brief, laser-focused answers without unnecessary filler." },
+                  { id: "balanced", label: "Balanced & Direct", desc: "Equally analytical, articulate, and helpful." },
+                  { id: "concise", label: "Concise & Fast", desc: "Brief, laser-focused answers without unnecessary filler." },
                   { id: "creative", label: "Creative & Visionary", desc: "Explores analogies, novel ideation, and expressive flow." },
-                  { id: "technical", label: "Strictly Technical", desc: "Code-first, rigorous syntax, zero fluff." },
+                  { id: "technical", label: "Strictly Technical", desc: "Code-first, rigorous syntax, production-grade output." },
                 ].map((persona) => (
                   <button
                     key={persona.id}
                     onClick={() => handleUpdateSettings({ responseStyle: persona.id as any })}
-                    className={`tactile-raised p-3.5 rounded-2xl text-left cursor-pointer transition-all ${
+                    className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all ${
                       (settings?.responseStyle || "balanced") === persona.id
-                        ? "border-[#2E1B10] dark:border-[#FAF6F0] ring-2 ring-[#2E1B10]/20 dark:ring-[#FAF6F0]/20"
-                        : ""
+                        ? "border-neutral-900 dark:border-white bg-neutral-100 dark:bg-neutral-800 ring-1 ring-neutral-900 dark:ring-white"
+                        : "border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800/40"
                     }`}
                   >
-                    <div className="font-semibold text-xs sm:text-sm mb-1 text-[#1F130B] dark:text-[#FAF6F0]">{persona.label}</div>
-                    <div className="text-[11px] text-[#543D2B] dark:text-[#D8C9BC] leading-snug">{persona.desc}</div>
+                    <div className="font-semibold text-xs sm:text-sm mb-1 text-neutral-900 dark:text-neutral-100">{persona.label}</div>
+                    <div className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-snug">{persona.desc}</div>
                   </button>
                 ))}
               </div>
@@ -411,18 +411,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {activeTab === "account" && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-base font-semibold mb-1 text-[#1F130B] dark:text-[#FAF6F0]">Account & Profile</h3>
-                <p className="text-xs text-[#543D2B] dark:text-[#D8C9BC]">
+                <h3 className="text-base font-semibold mb-1 text-neutral-900 dark:text-neutral-100">Account & Profile</h3>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
                   Manage your active identity and session state.
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-[#EFE8DF] dark:bg-[#261A12] border border-[#E5DDD3] dark:border-[#332217] flex items-center justify-between">
+              <div className="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700/60 flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-semibold text-[#1F130B] dark:text-[#FAF6F0]">
-                    {currentUser?.name || "Guest Explorer"}
+                  <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                    {currentUser?.name || "Guest User"}
                   </div>
-                  <div className="text-xs text-[#543D2B] dark:text-[#D8C9BC]">
+                  <div className="text-xs text-neutral-500 dark:text-neutral-400">
                     {currentUser?.isGuest ? "Temporary guest session" : currentUser?.email}
                   </div>
                 </div>
@@ -433,14 +433,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       onClose();
                       onOpenAuth();
                     }}
-                    className="tactile-espresso px-4 py-2 rounded-xl text-xs font-semibold text-[#FAF6F0] cursor-pointer shadow-xs"
+                    className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-neutral-900 hover:bg-black dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors cursor-pointer shadow-xs"
                   >
                     Sign In
                   </button>
                 ) : (
                   <button
                     onClick={onLogout}
-                    className="tactile-raised px-4 py-2 rounded-xl text-xs font-semibold text-[#9E3624] dark:text-[#F0806E] cursor-pointer"
+                    className="px-4 py-2 rounded-xl text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 border border-neutral-200 dark:border-neutral-700 transition-colors cursor-pointer"
                   >
                     Sign Out
                   </button>
@@ -453,32 +453,32 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {activeTab === "privacy" && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-base font-semibold mb-1 text-[#1F130B] dark:text-[#FAF6F0]">Data & Privacy</h3>
-                <p className="text-xs text-[#543D2B] dark:text-[#D8C9BC]">
+                <h3 className="text-base font-semibold mb-1 text-neutral-900 dark:text-neutral-100">Data & Privacy</h3>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
                   You retain complete ownership over your conversation data and memory facts.
                 </p>
               </div>
 
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-3.5 rounded-2xl border border-[#E5DDD3] dark:border-[#332217]">
+                <div className="flex items-center justify-between p-3.5 rounded-xl border border-neutral-200 dark:border-neutral-700">
                   <div>
-                    <div className="text-sm font-semibold text-[#1F130B] dark:text-[#FAF6F0]">Export All Data</div>
-                    <div className="text-xs text-[#543D2B] dark:text-[#D8C9BC]">Download complete history, messages, and memories as JSON.</div>
+                    <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Export All Data</div>
+                    <div className="text-xs text-neutral-500 dark:text-neutral-400">Download complete history, messages, and memories as JSON.</div>
                   </div>
                   <a
                     href="/api/export"
                     download
-                    className="tactile-raised inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium cursor-pointer text-[#1F130B] dark:text-[#FAF6F0]"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium cursor-pointer border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800"
                   >
                     <Download className="w-3.5 h-3.5" />
                     <span>Export</span>
                   </a>
                 </div>
 
-                <div className="flex items-center justify-between p-3.5 rounded-2xl border border-[#DDD1C2] dark:border-[#3E291C] bg-[#F5EFEB] dark:bg-[#1E140C]">
+                <div className="flex items-center justify-between p-3.5 rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50/50 dark:bg-red-950/20">
                   <div>
-                    <div className="text-sm font-semibold text-[#9E3624] dark:text-[#F0806E]">Clear All Conversations</div>
-                    <div className="text-xs text-[#543D2B] dark:text-[#D8C9BC]">Permanently delete all chat sessions and messages.</div>
+                    <div className="text-sm font-semibold text-red-600 dark:text-red-400">Clear All Conversations</div>
+                    <div className="text-xs text-neutral-500 dark:text-neutral-400">Permanently delete all chat sessions and messages.</div>
                   </div>
                   <button
                     onClick={() => {
@@ -487,7 +487,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         onClose();
                       }
                     }}
-                    className="tactile-espresso px-3.5 py-1.5 rounded-xl text-xs font-semibold text-[#FAF6F0] transition-all shadow-xs cursor-pointer active:scale-95"
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors shadow-xs cursor-pointer"
                   >
                     Delete All
                   </button>
@@ -500,9 +500,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {activeTab === "shortcuts" && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-base font-semibold mb-1 text-[#1F130B] dark:text-[#FAF6F0]">Keyboard Shortcuts</h3>
-                <p className="text-xs text-[#543D2B] dark:text-[#D8C9BC]">
-                  Speed up your workflow in Arfa AI.
+                <h3 className="text-base font-semibold mb-1 text-neutral-900 dark:text-neutral-100">Keyboard Shortcuts</h3>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                  Speed up your workflow in ARFA AI.
                 </p>
               </div>
 
@@ -513,9 +513,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   { key: "Esc", desc: "Close open modal or cancel input" },
                   { key: "Ctrl / Cmd + K", desc: "Focus search / New Chat" },
                 ].map((s, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl border border-[#E5DDD3] dark:border-[#332217]">
-                    <span className="text-[#543D2B] dark:text-[#D8C9BC] font-medium">{s.desc}</span>
-                    <kbd className="px-2 py-0.5 rounded bg-[#EFE8DF] dark:bg-[#261A12] text-[#1F130B] dark:text-[#FAF6F0] font-mono font-medium border border-[#E5DDD3] dark:border-[#332217]">
+                  <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700">
+                    <span className="text-neutral-600 dark:text-neutral-400 font-medium">{s.desc}</span>
+                    <kbd className="px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-mono font-medium border border-neutral-200 dark:border-neutral-700">
                       {s.key}
                     </kbd>
                   </div>
@@ -528,15 +528,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {activeTab === "about" && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-base font-semibold mb-1 text-[#1F130B] dark:text-[#FAF6F0]">About Arfa AI</h3>
-                <p className="text-xs text-[#543D2B] dark:text-[#D8C9BC]">
-                  Version 2.5 — Tactile Warm Ivory & Deep Coffee Edition
+                <h3 className="text-base font-semibold mb-1 text-neutral-900 dark:text-neutral-100">About ARFA AI</h3>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                  Modern High-Performance SaaS Edition
                 </p>
               </div>
 
-              <div className="text-xs leading-relaxed text-[#543D2B] dark:text-[#D8C9BC] space-y-3 font-normal">
+              <div className="text-xs leading-relaxed text-neutral-600 dark:text-neutral-400 space-y-3 font-normal">
                 <p>
-                  <strong className="text-[#1F130B] dark:text-[#FAF6F0]">ARFA AI</strong> is a production-ready conversational intelligence platform crafted with tactile physical materials, refined warm ivory surfaces, deep coffee typography, and responsive voice dictation.
+                  <strong className="text-neutral-900 dark:text-neutral-100">ARFA AI</strong> is a production-grade conversational intelligence platform featuring instant streaming responses, persistent conversation memory, markdown & code syntax highlighting.
                 </p>
                 <p>
                   Built with React 19, TypeScript, Tailwind CSS, Express, and resilient multi-model AI routing with automatic fallback.

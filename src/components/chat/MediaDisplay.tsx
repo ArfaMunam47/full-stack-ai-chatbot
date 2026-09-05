@@ -1,0 +1,369 @@
+import React, { useState, useEffect } from "react";
+import { MessageMediaItem } from "../../types.ts";
+import { api } from "../../lib/api.ts";
+import {
+  Download,
+  Copy,
+  Check,
+  Film,
+  Sparkles,
+  Maximize2,
+  X,
+  RefreshCw,
+  AlertCircle,
+  Clapperboard,
+  Palette,
+} from "lucide-react";
+
+interface MediaDisplayProps {
+  media: MessageMediaItem[];
+  onPromptAction?: (actionText: string, sourceImage?: string) => void;
+}
+
+export const MediaDisplay: React.FC<MediaDisplayProps> = ({ media, onPromptAction }) => {
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+
+  if (!media || media.length === 0) return null;
+
+  return (
+    <div className="flex flex-col gap-3.5 my-3">
+      {media.map((item) => {
+        if (item.type === "image") {
+          return (
+            <ImageCard
+              key={item.id}
+              item={item}
+              onOpenLightbox={(url) => setLightboxImage(url)}
+              onPromptAction={onPromptAction}
+            />
+          );
+        }
+        if (item.type === "video") {
+          return <VideoCard key={item.id} item={item} onPromptAction={onPromptAction} />;
+        }
+        return null;
+      })}
+
+      {/* Lightbox Modal for Zooming */}
+      {lightboxImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-xs p-4"
+          onClick={() => setLightboxImage(null)}
+        >
+          <div className="relative max-w-4xl max-h-[90vh] flex flex-col items-center">
+            <button
+              type="button"
+              onClick={() => setLightboxImage(null)}
+              className="absolute -top-10 right-0 text-white/80 hover:text-white p-1 rounded-full bg-black/50 hover:bg-black/80 transition-colors"
+              title="Close image preview"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <img
+              src={lightboxImage}
+              alt="Zoomed generation"
+              className="max-w-full max-h-[85vh] rounded-xl object-contain shadow-2xl border border-white/10"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// IMAGE CARD COMPONENT
+// ---------------------------------------------------------------------------
+
+interface ImageCardProps {
+  item: MessageMediaItem;
+  onOpenLightbox: (url: string) => void;
+  onPromptAction?: (actionText: string, sourceImage?: string) => void;
+}
+
+const ImageCard: React.FC<ImageCardProps> = ({ item, onOpenLightbox, onPromptAction }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyPrompt = async () => {
+    try {
+      await navigator.clipboard.writeText(item.prompt);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy prompt:", err);
+    }
+  };
+
+  const handleDownload = () => {
+    const a = document.createElement("a");
+    a.href = item.url;
+    a.download = `arfa-ai-${item.id}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  return (
+    <div className="group rounded-2xl overflow-hidden bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700/80 shadow-xs transition-all">
+      {/* Visual Header / Metadata */}
+      <div className="flex items-center justify-between px-3 py-2 bg-neutral-100/70 dark:bg-neutral-800/60 border-b border-neutral-200/60 dark:border-neutral-700/60 text-xs">
+        <div className="flex items-center gap-1.5 font-medium text-neutral-700 dark:text-neutral-300">
+          <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+          <span className="text-[11px] font-semibold">{item.model || "Gemini Nano Banana"}</span>
+          {item.aspectRatio && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300">
+              {item.aspectRatio}
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={handleCopyPrompt}
+            title={copied ? "Copied!" : "Copy prompt"}
+            className="p-1 rounded-md text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-200/60 dark:hover:bg-neutral-700/60 transition-colors"
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+          </button>
+          <button
+            type="button"
+            onClick={handleDownload}
+            title="Download full-resolution image"
+            className="p-1 rounded-md text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-200/60 dark:hover:bg-neutral-700/60 transition-colors"
+          >
+            <Download className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => onOpenLightbox(item.url)}
+            title="View full screen"
+            className="p-1 rounded-md text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-200/60 dark:hover:bg-neutral-700/60 transition-colors"
+          >
+            <Maximize2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Image Preview */}
+      <div
+        className="relative bg-neutral-900 flex items-center justify-center cursor-pointer overflow-hidden max-h-[460px]"
+        onClick={() => onOpenLightbox(item.url)}
+      >
+        <img
+          src={item.url}
+          alt={item.prompt}
+          loading="lazy"
+          className="w-full h-auto object-contain transition-transform duration-300 hover:scale-[1.01]"
+        />
+      </div>
+
+      {/* Action Footer */}
+      <div className="p-3 bg-white dark:bg-[#1e1e1e] border-t border-neutral-100 dark:border-neutral-800 flex flex-col gap-2">
+        <p className="text-xs text-neutral-600 dark:text-neutral-400 italic line-clamp-2 m-0">
+          "{item.prompt}"
+        </p>
+
+        {onPromptAction && (
+          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-neutral-100 dark:border-neutral-800">
+            <button
+              type="button"
+              onClick={() => onPromptAction(`Edit this image: make the lighting warmer and add subtle highlights`)}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 transition-colors cursor-pointer"
+            >
+              <Palette className="w-3 h-3 text-neutral-500" />
+              <span>Edit Image</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onPromptAction(`Animate this image into an 8-second cinematic video with gentle motion`)}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 transition-colors cursor-pointer"
+            >
+              <Film className="w-3 h-3 text-neutral-500" />
+              <span>Turn into Video</span>
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// VIDEO CARD COMPONENT (With Asynchronous Status Polling)
+// ---------------------------------------------------------------------------
+
+interface VideoCardProps {
+  item: MessageMediaItem;
+  onPromptAction?: (actionText: string) => void;
+}
+
+const VideoCard: React.FC<VideoCardProps> = ({ item, onPromptAction }) => {
+  const [status, setStatus] = useState<"pending" | "processing" | "completed" | "failed">(
+    item.status || "processing"
+  );
+  const [videoUrl, setVideoUrl] = useState<string>(item.url || "");
+  const [errorMessage, setErrorMessage] = useState<string | null>(item.error || null);
+  const [copied, setCopied] = useState(false);
+
+  // Background polling for asynchronous Veo generation
+  useEffect(() => {
+    if (status === "completed" || status === "failed") return;
+
+    let isMounted = true;
+    let pollInterval: NodeJS.Timeout;
+
+    const checkStatus = async () => {
+      try {
+        const res = await api.checkVideoStatus(item.id);
+        if (!isMounted) return;
+
+        if (res.status === "completed" && res.url) {
+          setStatus("completed");
+          setVideoUrl(res.url);
+          clearInterval(pollInterval);
+        } else if (res.status === "failed") {
+          setStatus("failed");
+          setErrorMessage(res.error || "Video rendering could not be completed.");
+          clearInterval(pollInterval);
+        }
+      } catch (err: any) {
+        console.warn("Video polling check failed:", err);
+      }
+    };
+
+    // Poll every 4 seconds
+    pollInterval = setInterval(checkStatus, 4000);
+    // Initial check
+    checkStatus();
+
+    return () => {
+      isMounted = false;
+      clearInterval(pollInterval);
+    };
+  }, [item.id, status]);
+
+  const handleCopyPrompt = async () => {
+    try {
+      await navigator.clipboard.writeText(item.prompt);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy prompt:", err);
+    }
+  };
+
+  const handleDownload = () => {
+    if (!videoUrl) return;
+    const a = document.createElement("a");
+    a.href = videoUrl;
+    a.download = `arfa-ai-video-${item.id}.mp4`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  if (status === "failed") {
+    return (
+      <div className="rounded-2xl p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 text-red-800 dark:text-red-300">
+        <div className="flex items-start gap-2.5">
+          <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
+          <div className="flex-1 text-xs">
+            <p className="font-semibold mb-1">Video Generation Notice</p>
+            <p className="text-red-700 dark:text-red-300/90 leading-relaxed mb-2">
+              {errorMessage || "Veo video generation was unable to complete for this prompt."}
+            </p>
+            <p className="text-[11px] text-red-600 dark:text-red-400 italic">
+              Prompt: "{item.prompt}"
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === "processing" || status === "pending") {
+    return (
+      <div className="rounded-2xl p-5 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700/80 shadow-xs">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Clapperboard className="w-4 h-4 text-neutral-700 dark:text-neutral-300 animate-pulse" />
+            <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">
+              Rendering Video with Veo 3.1
+            </span>
+          </div>
+          <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
+            {item.durationSeconds ? `${item.durationSeconds}s` : "8s"} · 720p HD
+          </span>
+        </div>
+
+        {/* Progress Graphic */}
+        <div className="relative w-full h-2 rounded-full bg-neutral-200 dark:bg-neutral-800 overflow-hidden mb-3">
+          <div className="absolute top-0 left-0 bottom-0 w-1/3 bg-neutral-700 dark:bg-neutral-300 rounded-full animate-[pulse_1.5s_ease-in-out_infinite]" />
+        </div>
+
+        <p className="text-xs text-neutral-600 dark:text-neutral-400 italic mb-2">
+          "{item.prompt}"
+        </p>
+
+        <p className="text-[11px] text-neutral-400 dark:text-neutral-500 m-0">
+          Veo synthesizes high-definition frames asynchronously. You can continue chatting while rendering progresses.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl overflow-hidden bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700/80 shadow-xs">
+      {/* Video Header */}
+      <div className="flex items-center justify-between px-3 py-2 bg-neutral-100/70 dark:bg-neutral-800/60 border-b border-neutral-200/60 dark:border-neutral-700/60 text-xs">
+        <div className="flex items-center gap-1.5 font-medium text-neutral-700 dark:text-neutral-300">
+          <Film className="w-3.5 h-3.5 text-neutral-700 dark:text-neutral-300" />
+          <span className="text-[11px] font-semibold">{item.model || "Veo 3.1"}</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300">
+            {item.durationSeconds ? `${item.durationSeconds}s` : "8s"}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={handleCopyPrompt}
+            title={copied ? "Copied!" : "Copy prompt"}
+            className="p-1 rounded-md text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-200/60 dark:hover:bg-neutral-700/60 transition-colors"
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+          </button>
+          <button
+            type="button"
+            onClick={handleDownload}
+            title="Download MP4 Video"
+            className="p-1 rounded-md text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-200/60 dark:hover:bg-neutral-700/60 transition-colors"
+          >
+            <Download className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Video Player */}
+      <div className="relative bg-black flex items-center justify-center">
+        <video
+          controls
+          playsInline
+          className="w-full max-h-[460px] object-contain rounded-b-none"
+          src={videoUrl}
+        >
+          Your browser does not support HTML5 video playback.
+        </video>
+      </div>
+
+      {/* Video Footer */}
+      <div className="p-3 bg-white dark:bg-[#1e1e1e] border-t border-neutral-100 dark:border-neutral-800 flex flex-col gap-1.5">
+        <p className="text-xs text-neutral-600 dark:text-neutral-400 italic m-0">
+          "{item.prompt}"
+        </p>
+      </div>
+    </div>
+  );
+};

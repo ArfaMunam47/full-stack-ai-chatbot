@@ -1,6 +1,6 @@
 {
-  "name": "Arfa AI",
-  "description": "A luxury tactile skeuomorphic AI assistant featuring high-contrast warm ivory and deep coffee aesthetics, voice dictation, progressive streaming, and resilient multi-model AI routing.",
+  "name": "ARFA AI",
+  "description": "A premium AI assistant featuring ultra-fast streaming responses, ChatGPT-style authentication, interactive templates, long-term memory, and modern monochrome aesthetics.",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

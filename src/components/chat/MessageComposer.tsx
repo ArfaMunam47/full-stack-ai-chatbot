@@ -2,31 +2,27 @@ import React, { useRef, useEffect, useState } from "react";
 import {
   ArrowUp,
   Square,
-  Paperclip,
+  Plus,
   Mic,
   MicOff,
   X,
   FileText,
-  Languages,
-  AlertCircle,
-  Check,
+  Sparkles,
+  Film,
+  MessageSquare,
+  Loader2,
 } from "lucide-react";
 import { MessageAttachment } from "../../types.ts";
 import { api } from "../../lib/api.ts";
 
 interface MessageComposerProps {
-  onSend: (message: string, attachments?: MessageAttachment[]) => void;
+  onSend: (message: string, attachments?: MessageAttachment[], mode?: "chat" | "image" | "video") => void;
   isStreaming: boolean;
   onStop: () => void;
   disabled?: boolean;
-}
-
-type MicState = "idle" | "listening" | "processing" | "error";
-
-// Detect Arabic/Urdu/Hebrew/Persian for natural RTL flow
-export function isRTLText(text: string): boolean {
-  const rtlRegex = /[\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC]/;
-  return rtlRegex.test(text);
+  activeMode?: "chat" | "image" | "video";
+  onModeChange?: (mode: "chat" | "image" | "video") => void;
+  statusText?: string | null;
 }
 
 export const MessageComposer: React.FC<MessageComposerProps> = ({
@@ -34,104 +30,189 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
   isStreaming,
   onStop,
   disabled = false,
+  activeMode = "chat",
+  onModeChange,
+  statusText,
 }) => {
   const [text, setText] = useState("");
   const [attachments, setAttachments] = useState<MessageAttachment[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [micState, setMicState] = useState<MicState>("idle");
+  const [isListening, setIsListening] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const [micNotice, setMicNotice] = useState<string | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState<string>("auto");
-  const [showLangMenu, setShowLangMenu] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const baseTextRef = useRef<string>("");
 
-  const languages = [
-    { code: "auto", label: "Auto Detect", flag: "🌐" },
-    { code: "en-US", label: "English", flag: "🇺🇸" },
-    { code: "ur-PK", label: "Urdu (اردو)", flag: "🇵🇰" },
-    { code: "ar-SA", label: "Arabic (العربية)", flag: "🇸🇦" },
-    { code: "es-ES", label: "Spanish (Español)", flag: "🇪🇸" },
-    { code: "fr-FR", label: "French (Français)", flag: "🇫🇷" },
-    { code: "de-DE", label: "German (Deutsch)", flag: "🇩🇪" },
-  ];
-
-  // Auto-resize textarea
+  // Auto-resize textarea smoothly
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = "auto";
     const nextHeight = Math.min(el.scrollHeight, 180);
-    el.style.height = `${Math.max(nextHeight, 44)}px`;
+    el.style.height = `${Math.max(nextHeight, 40)}px`;
   }, [text]);
 
-  // Speech recognition initialization
+  // Expose helper to parent via custom event for quick actions
+  useEffect(() => {
+    const handleSetPrompt = (e: CustomEvent<string>) => {
+      if (typeof e.detail === "string") {
+        setText(e.detail);
+        textareaRef.current?.focus();
+      }
+    };
+    window.addEventListener("arfa:set-prompt" as any, handleSetPrompt);
+    return () => window.removeEventListener("arfa:set-prompt" as any, handleSetPrompt);
+  }, []);
+
+  // Web Speech API Initialization
   useEffect(() => {
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = true;
-      recognition.lang = selectedLanguage === "auto" ? "en-US" : selectedLanguage;
+      try {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = "en-US";
 
-      recognition.onstart = () => {
-        setMicState("listening");
-        setMicNotice(null);
-      };
-
-      recognition.onresult = (event: any) => {
-        setMicState("processing");
-        let transcript = "";
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          transcript += event.results[i][0].transcript;
-        }
-        if (transcript) {
-          setText((prev) => (prev ? `${prev.trim()} ${transcript}` : transcript));
-        }
-      };
-
-      recognition.onerror = (event: any) => {
-        console.warn("Speech recognition error:", event.error);
-        setMicState("error");
-        setMicNotice(event.error === "not-allowed" ? "Microphone permission was denied." : "Voice error occurred.");
-        setTimeout(() => {
-          setMicState("idle");
+        recognition.onstart = () => {
+          setIsListening(true);
           setMicNotice(null);
-        }, 4000);
-      };
+        };
 
-      recognition.onend = () => {
-        setMicState("idle");
-      };
+        recognition.onresult = (event: any) => {
+          let interimTranscript = "";
+          let finalTranscript = "";
 
-      recognitionRef.current = recognition;
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              finalTranscript += transcript;
+            } else {
+              interimTranscript += transcript;
+            }
+          }
+
+          const combinedSpoken = (finalTranscript || interimTranscript).trim();
+          if (combinedSpoken) {
+            const prefix = baseTextRef.current.trim();
+            setText(prefix ? `${prefix} ${combinedSpoken}` : combinedSpoken);
+          }
+        };
+
+        recognition.onerror = (event: any) => {
+          console.warn("[SpeechRecognition Error]:", event.error);
+          setIsListening(false);
+          if (event.error === "not-allowed" || event.error === "permission-denied") {
+            setMicNotice("Microphone permission was denied. Please allow microphone access in your browser.");
+          }
+        };
+
+        recognition.onend = () => {
+          setIsListening(false);
+        };
+
+        recognitionRef.current = recognition;
+      } catch (err) {
+        console.warn("SpeechRecognition init failed:", err);
+      }
     }
-  }, [selectedLanguage]);
+  }, []);
 
-  const handleMicToggle = () => {
-    if (!recognitionRef.current) {
-      setMicNotice("Speech recognition is supported in modern browsers like Chrome, Edge, and Safari.");
-      setTimeout(() => setMicNotice(null), 4000);
+  // Toggle Microphone (With Web Speech API and MediaRecorder Fallback)
+  const handleMicToggle = async () => {
+    setMicNotice(null);
+
+    // If currently listening, stop
+    if (isListening) {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch {}
+      }
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+        mediaRecorderRef.current.stop();
+      }
+      setIsListening(false);
       return;
     }
 
-    if (micState === "listening") {
-      recognitionRef.current.stop();
-      setMicState("idle");
-    } else {
+    baseTextRef.current = text;
+
+    // 1. Try Web Speech API first if supported
+    if (recognitionRef.current) {
       try {
-        if (selectedLanguage !== "auto" && recognitionRef.current) {
-          recognitionRef.current.lang = selectedLanguage;
-        }
         recognitionRef.current.start();
-        setMicState("listening");
+        setIsListening(true);
+        return;
       } catch (err) {
-        console.error("Mic start error:", err);
-        setMicState("error");
-        setTimeout(() => setMicState("idle"), 2500);
+        console.warn("Web Speech API start error, trying fallback:", err);
+      }
+    }
+
+    // 2. Fallback to MediaRecorder + Server-side Gemini transcription
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setMicNotice("Microphone recording is not supported in this browser.");
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioChunksRef.current = [];
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        setIsListening(false);
+        stream.getTracks().forEach((track) => track.stop());
+
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        if (audioBlob.size === 0) return;
+
+        setIsTranscribing(true);
+        try {
+          const reader = new FileReader();
+          reader.onloadend = async () => {
+            try {
+              const base64Audio = reader.result as string;
+              const transcribedText = await api.transcribeAudio(base64Audio, "audio/webm");
+              if (transcribedText) {
+                setText((prev) => (prev.trim() ? `${prev.trim()} ${transcribedText}` : transcribedText));
+              }
+            } catch (transcribeErr: any) {
+              setMicNotice(transcribeErr.message || "Failed to transcribe audio.");
+            } finally {
+              setIsTranscribing(false);
+            }
+          };
+          reader.readAsDataURL(audioBlob);
+        } catch (readErr) {
+          console.error("Audio conversion failed:", readErr);
+          setIsTranscribing(false);
+        }
+      };
+
+      mediaRecorder.start();
+      mediaRecorderRef.current = mediaRecorder;
+      setIsListening(true);
+    } catch (err: any) {
+      console.error("Microphone access error:", err);
+      setIsListening(false);
+      if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+        setMicNotice("Microphone permission was denied. Please allow microphone access.");
+      } else {
+        setMicNotice("Could not access microphone.");
       }
     }
   };
@@ -139,20 +220,26 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit();
+      handleSend();
     }
   };
 
-  const handleSubmit = () => {
-    if ((!text.trim() && attachments.length === 0) || isStreaming || disabled) return;
-    const msgToSend = text.trim();
-    const attToSend = [...attachments];
+  const handleSend = () => {
+    if (disabled) return;
+    if (isStreaming) {
+      onStop();
+      return;
+    }
+
+    if (!text.trim() && attachments.length === 0) return;
+
+    onSend(text.trim(), attachments, activeMode);
     setText("");
     setAttachments([]);
+
     if (textareaRef.current) {
-      textareaRef.current.style.height = "44px";
+      textareaRef.current.style.height = "40px";
     }
-    onSend(msgToSend, attToSend);
   };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -163,187 +250,215 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        if (file.size > 10 * 1024 * 1024) {
+          alert(`File ${file.name} exceeds 10MB limit.`);
+          continue;
+        }
         const uploaded = await api.uploadFile(file);
         setAttachments((prev) => [...prev, uploaded]);
       }
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "File upload failed";
-      setMicNotice(msg);
-      setTimeout(() => setMicNotice(null), 4000);
+    } catch (err) {
+      console.error("Upload error:", err);
     } finally {
       setIsUploading(false);
-      if (e.target) e.target.value = "";
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
-  const removeAttachment = (id: string) => {
-    setAttachments((prev) => prev.filter((a) => a.id !== id));
+  const handleRemoveAttachment = (idx: number) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  const isRtl = isRTLText(text);
+  const getPlaceholder = () => {
+    if (isListening) return "Listening... speak naturally to transcribe into composer";
+    if (isTranscribing) return "Transcribing speech into text with Gemini...";
+    if (activeMode === "image") return "Describe the image to generate or edit (Nano Banana)...";
+    if (activeMode === "video") return "Describe the video to render (Veo 3.1)...";
+    return "Ask ARFA AI anything, or ask to generate images & videos...";
+  };
 
   return (
-    <div className="p-3 sm:p-4 max-w-4xl w-full mx-auto select-none">
-      {/* Alert or Notice Banner */}
+    <div className="w-full max-w-3xl mx-auto px-4 pb-3 sm:pb-5">
+      {/* Hidden File Input */}
+      <input
+        id="file-upload-input"
+        ref={fileInputRef}
+        type="file"
+        multiple
+        onChange={handleFileSelect}
+        className="hidden"
+      />
+
+      {/* Mic Warning or Status Notice */}
       {micNotice && (
-        <div className="mb-2 text-xs text-[#1F130B] dark:text-[#FAF6F0] bg-[#F5EFEB] dark:bg-[#1E140C] p-2.5 rounded-xl border border-[#DDD1C2] dark:border-[#3E291C] flex items-center justify-between shadow-xs">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="w-3.5 h-3.5 text-[#543D2B] dark:text-[#D8C9BC] shrink-0" />
-            <span className="font-medium">{micNotice}</span>
-          </div>
+        <div className="mb-2 px-3 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-xs text-neutral-700 dark:text-neutral-300 flex items-center justify-between">
+          <span>{micNotice}</span>
           <button
             type="button"
             onClick={() => setMicNotice(null)}
-            className="text-[#7A6250] hover:text-[#1F130B] dark:text-[#A89584] p-1 cursor-pointer"
+            className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white"
           >
             <X className="w-3 h-3" />
           </button>
         </div>
       )}
 
-      {/* Tactile Stitched Composer Container from Image 1 */}
-      <div
-        id="arfa-tactile-composer"
-        className="tactile-composer-bar rounded-3xl p-2 sm:p-2.5 transition-all duration-200 shadow-md"
-      >
-        {/* Attachment Pills */}
-        {attachments.length > 0 && (
-          <div className="flex flex-wrap gap-2 pb-2 px-1">
-            {attachments.map((att) => (
-              <div
-                key={att.id}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs bg-[#FCFAF7] dark:bg-[#261A12] border border-[#DDD1C2] dark:border-[#3E291C] text-[#1F130B] dark:text-[#FAF6F0]"
-              >
-                <FileText className="w-3.5 h-3.5 text-[#543D2B] dark:text-[#D8C9BC]" />
-                <span className="truncate max-w-[150px] font-medium">{att.name}</span>
-                <button
-                  type="button"
-                  onClick={() => removeAttachment(att.id)}
-                  className="text-[#7A6250] hover:text-[#1F130B] dark:text-[#A89584] ml-1 transition-colors cursor-pointer"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+      {/* Streaming Status Banner (e.g. Generating image, Veo rendering) */}
+      {statusText && (
+        <div className="mb-2 px-3 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-xs text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
+          <Loader2 className="w-3.5 h-3.5 animate-spin text-neutral-600 dark:text-neutral-400" />
+          <span className="font-medium">{statusText}</span>
+        </div>
+      )}
 
-        {/* Inner Controls Row */}
-        <div className="flex items-end gap-2">
-          {/* File Attachment Button */}
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileSelect}
-            multiple
-            className="hidden"
-          />
+      {/* Attachment Previews */}
+      {attachments.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-2 px-1">
+          {attachments.map((att, idx) => (
+            <div
+              key={idx}
+              className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-xs text-neutral-800 dark:text-neutral-200 shadow-xs"
+            >
+              {att.type.startsWith("image/") ? (
+                <img
+                  src={att.dataUrl || ""}
+                  alt={att.name}
+                  referrerPolicy="no-referrer"
+                  className="w-5 h-5 rounded object-cover"
+                />
+              ) : (
+                <FileText className="w-4 h-4 text-neutral-500" />
+              )}
+              <span className="max-w-[120px] truncate text-[11px] font-medium">{att.name}</span>
+              <button
+                type="button"
+                onClick={() => handleRemoveAttachment(idx)}
+                className="text-neutral-400 hover:text-neutral-800 dark:hover:text-white transition-colors p-0.5"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Modality Mode Selector (Chat, Image, Video) */}
+      <div className="flex items-center gap-1.5 mb-2 px-1 text-xs">
+        <button
+          type="button"
+          onClick={() => onModeChange?.("chat")}
+          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+            activeMode === "chat"
+              ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 shadow-xs"
+              : "text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          }`}
+        >
+          <MessageSquare className="w-3 h-3" />
+          <span>Chat</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onModeChange?.("image")}
+          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+            activeMode === "image"
+              ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 shadow-xs"
+              : "text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          }`}
+        >
+          <Sparkles className="w-3 h-3" />
+          <span>Image</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onModeChange?.("video")}
+          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+            activeMode === "video"
+              ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 shadow-xs"
+              : "text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          }`}
+        >
+          <Film className="w-3 h-3" />
+          <span>Video</span>
+        </button>
+      </div>
+
+      {/* Skeuomorphic Floating Composer Bar */}
+      <div className="relative rounded-2xl bg-white dark:bg-[#212121] border border-neutral-200 dark:border-neutral-700 shadow-md dark:shadow-none p-2 transition-all focus-within:border-neutral-400 dark:focus-within:border-neutral-500 flex items-end gap-2">
+        {/* Plus Button for File Attachment */}
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={disabled || isUploading}
+          className="w-8 h-8 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white flex items-center justify-center shrink-0 transition-colors cursor-pointer mb-0.5"
+          title="Add photo or document"
+        >
+          <Plus className="w-4 h-4" />
+        </button>
+
+        {/* Text Area */}
+        <textarea
+          ref={textareaRef}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={getPlaceholder()}
+          disabled={disabled}
+          rows={1}
+          className="flex-1 max-h-[180px] py-2 px-1 text-sm bg-transparent border-none outline-none resize-none text-neutral-900 dark:text-white placeholder-neutral-400 leading-relaxed"
+        />
+
+        {/* Action Controls: Mic + Send/Stop */}
+        <div className="flex items-center gap-1.5 shrink-0 mb-0.5">
+          {/* Tactile Listening Mic Button (Warm Ivory / Deep Coffee Theme, No Neon Colors) */}
           <button
-            id="composer-attachment-btn"
             type="button"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading || isStreaming}
-            title="Attach file"
-            className="tactile-raised h-11 w-11 rounded-2xl text-[#543D2B] hover:text-[#1F130B] dark:text-[#D8C9BC] dark:hover:text-[#FAF6F0] cursor-pointer flex items-center justify-center shrink-0 transition-transform active:scale-95 shadow-xs"
+            onClick={handleMicToggle}
+            className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all cursor-pointer ${
+              isListening
+                ? "bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 ring-2 ring-neutral-400 dark:ring-neutral-500 animate-pulse shadow-sm"
+                : isTranscribing
+                ? "bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300"
+                : "text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+            }`}
+            title={isListening ? "Listening... click to stop" : isTranscribing ? "Transcribing..." : "Dictate with voice"}
           >
-            <Paperclip className="w-4 h-4" />
+            {isTranscribing ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : isListening ? (
+              <MicOff className="w-4 h-4" />
+            ) : (
+              <Mic className="w-4 h-4" />
+            )}
           </button>
 
-          {/* Center: Recessed Input Well */}
-          <div className="tactile-recessed flex-1 rounded-2xl px-3.5 py-2 flex flex-col justify-center min-h-[44px] transition-all">
-            <textarea
-              id="message-composer-input"
-              ref={textareaRef}
-              dir={isRtl ? "rtl" : "ltr"}
-              rows={1}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={
-                micState === "listening"
-                  ? "Listening... speak clearly"
-                  : micState === "processing"
-                  ? "Transcribing voice..."
-                  : "Message Arfa AI..."
-              }
-              disabled={disabled || isStreaming}
-              className={`w-full bg-transparent resize-none border-none outline-none text-[#1F130B] dark:text-[#FAF6F0] placeholder-[#8C7563] dark:placeholder-[#A89584] text-[15px] sm:text-[15.5px] leading-relaxed select-text font-normal ${
-                isRtl ? "text-right font-sans" : "text-left"
-              }`}
-            />
-          </div>
-
-          {/* Right Controls: Waveform, Golden Bronze Mic Dial, Send/Stop */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            {/* Active Voice Waveform */}
-            {micState === "listening" && (
-              <div className="flex items-center gap-1 px-2 py-1 rounded-xl bg-[#EFE8DF] dark:bg-[#261A12] border border-[#DDD1C2] dark:border-[#3E291C]">
-                <div className="flex items-center gap-0.5 h-4 px-1">
-                  <span className="w-1 bg-[#2E1B10] dark:bg-[#FAF6F0] rounded-full waveform-bar-1" />
-                  <span className="w-1 bg-[#2E1B10] dark:bg-[#FAF6F0] rounded-full waveform-bar-2" />
-                  <span className="w-1 bg-[#2E1B10] dark:bg-[#FAF6F0] rounded-full waveform-bar-3" />
-                  <span className="w-1 bg-[#2E1B10] dark:bg-[#FAF6F0] rounded-full waveform-bar-4" />
-                  <span className="w-1 bg-[#2E1B10] dark:bg-[#FAF6F0] rounded-full waveform-bar-5" />
-                </div>
-              </div>
-            )}
-
-            {/* Tactile Microphone Dial from Image 1 */}
+          {isStreaming ? (
             <button
-              id="composer-tactile-mic-btn"
               type="button"
-              onClick={handleMicToggle}
-              disabled={isStreaming}
-              title={
-                micState === "listening"
-                  ? "Click to finish voice input"
-                  : "Click to speak with Arfa AI"
-              }
-              className={`tactile-mic-dial ${
-                micState === "listening" ? "is-listening" : ""
-              }`}
-              aria-label="Voice input"
+              onClick={onStop}
+              className="w-8 h-8 rounded-xl bg-neutral-900 hover:bg-black dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-neutral-900 flex items-center justify-center shrink-0 transition-all shadow-xs cursor-pointer"
+              title="Stop generation"
             >
-              {micState === "listening" ? (
-                <MicOff className="w-4 h-4 text-[#FAF6F0] animate-pulse" />
-              ) : (
-                <Mic className="w-4 h-4 text-[#FAF6F0]" />
-              )}
+              <Square className="w-3.5 h-3.5 fill-current" />
             </button>
-
-            {/* Stop Generation or Send Button */}
-            {isStreaming ? (
-              <button
-                id="composer-stop-btn"
-                type="button"
-                onClick={onStop}
-                className="tactile-espresso h-11 px-3.5 rounded-2xl text-xs font-semibold text-[#FAF6F0] flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-sm"
-                title="Stop generating"
-              >
-                <Square className="w-3.5 h-3.5 fill-current" />
-                <span>Stop</span>
-              </button>
-            ) : (
-              (text.trim() || attachments.length > 0) && (
-                <button
-                  id="composer-send-btn"
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={(!text.trim() && attachments.length === 0) || disabled}
-                  aria-label="Send message"
-                  className="tactile-espresso h-11 w-11 rounded-2xl text-[#FAF6F0] transition-all flex items-center justify-center cursor-pointer active:scale-95 shadow-sm animate-fadeIn"
-                >
-                  <ArrowUp className="w-4 h-4 text-inherit" />
-                </button>
-              )
-            )}
-          </div>
+          ) : (
+            <button
+              type="button"
+              onClick={handleSend}
+              disabled={disabled || (!text.trim() && attachments.length === 0)}
+              className="w-8 h-8 rounded-xl bg-neutral-900 hover:bg-black dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-neutral-900 disabled:opacity-30 disabled:hover:bg-neutral-900 dark:disabled:hover:bg-white flex items-center justify-center shrink-0 transition-all shadow-xs cursor-pointer"
+              title="Send message"
+            >
+              <ArrowUp className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Clean Disclaimer from Image 1 & ChatGPT */}
-      <p className="text-[11px] text-center text-[#7A6250] dark:text-[#A89584] mt-2 select-none tracking-tight font-medium">
-        Arfa AI can make mistakes. Consider checking important information.
+      {/* Subtle ChatGPT-style disclaimer below composer */}
+      <p className="text-[11px] text-neutral-400 dark:text-neutral-500 text-center mt-2">
+        ARFA AI can make mistakes. Consider checking important information.
       </p>
     </div>
   );

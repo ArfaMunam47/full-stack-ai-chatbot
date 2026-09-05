@@ -4,12 +4,14 @@ import remarkGfm from "remark-gfm";
 import { Message } from "../../types.ts";
 import { ArfaLogo } from "../ui/ArfaLogo.tsx";
 import { CodeBlock } from "./CodeBlock.tsx";
-import { Copy, Check, Volume2, VolumeX, RotateCcw, FileText, Sparkles, CheckCheck } from "lucide-react";
+import { MediaDisplay } from "./MediaDisplay.tsx";
+import { Copy, Check, Volume2, VolumeX, RotateCcw, FileText, Sparkles } from "lucide-react";
 
 interface MessageItemProps {
   message: Message;
   isStreaming?: boolean;
   onRegenerate?: () => void;
+  onPromptAction?: (text: string) => void;
 }
 
 // RTL character detection for Arabic, Urdu, Hebrew, Persian
@@ -21,6 +23,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
   message,
   isStreaming = false,
   onRegenerate,
+  onPromptAction,
 }) => {
   const [copied, setCopied] = useState(false);
   const [speaking, setSpeaking] = useState(false);
@@ -52,7 +55,6 @@ export const MessageItem: React.FC<MessageItemProps> = ({
     }
 
     window.speechSynthesis.cancel();
-    // Clean markdown symbols for speech synthesis
     const cleanText = message.content.replace(/```[\s\S]*?```/g, "code block").replace(/[#*`_]/g, "");
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.rate = 1.0;
@@ -68,38 +70,35 @@ export const MessageItem: React.FC<MessageItemProps> = ({
     return (
       <div
         id={`message-user-${message.id}`}
-        className="group w-full max-w-4xl mx-auto flex justify-end py-2 px-3 sm:px-5"
+        className="group w-full max-w-3xl mx-auto flex justify-end py-2 px-4 select-text"
       >
-        {/* Luxury Deep Espresso Tactile Treatment for User Message */}
         <div
           dir={isRtl ? "rtl" : "ltr"}
-          className={`max-w-[88%] md:max-w-[78%] rounded-2xl sm:rounded-3xl px-5 py-3.5 tactile-user-bubble select-text ${
+          className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200/80 dark:border-neutral-700/80 text-neutral-900 dark:text-neutral-100 shadow-xs ${
             isRtl ? "text-right" : "text-left"
           }`}
         >
           {/* Attachments if any */}
           {message.attachments && message.attachments.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-2.5">
+            <div className="flex flex-wrap gap-2 mb-2">
               {message.attachments.map((att) => (
                 <div
                   key={att.id}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs bg-white/10 border border-white/20 text-[#FAF6F0]"
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200"
                 >
-                  <FileText className="w-3.5 h-3.5 text-[#FAF6F0]/90" />
+                  <FileText className="w-3.5 h-3.5 text-neutral-500" />
                   <span className="truncate max-w-[140px] font-medium">{att.name}</span>
                 </div>
               ))}
             </div>
           )}
 
-          <p className="whitespace-pre-wrap text-[15px] sm:text-[15.5px] leading-relaxed select-text m-0 text-[#FAF6F0] font-normal">
+          <p className="whitespace-pre-wrap text-sm sm:text-[15px] leading-relaxed select-text m-0 font-normal">
             {message.content}
           </p>
 
-          {/* Timestamp & Double Checkmarks (from Image 1) */}
-          <div className="flex items-center justify-end gap-1 mt-1 text-[10px] text-[#FAF6F0]/70 select-none">
+          <div className="flex items-center justify-end gap-1 mt-1 text-[10px] text-neutral-400 select-none">
             <span>{messageTime}</span>
-            <CheckCheck className="w-3.5 h-3.5 text-[#FAF6F0]/80" />
           </div>
         </div>
       </div>
@@ -109,49 +108,49 @@ export const MessageItem: React.FC<MessageItemProps> = ({
   return (
     <div
       id={`message-assistant-${message.id}`}
-      className="group w-full max-w-4xl mx-auto flex items-start gap-3 sm:gap-4 py-2.5 sm:py-3.5 px-3 sm:px-5"
+      className="group w-full max-w-3xl mx-auto flex items-start gap-3 py-3 sm:py-4 px-4 select-text"
     >
-      {/* Original ARFA Emblem */}
-      <div className="shrink-0 mt-1">
+      {/* Brand Emblem */}
+      <div className="shrink-0 mt-0.5">
         <ArfaLogo size="sm" showText={false} />
       </div>
 
-      {/* Warm Ivory Surface for Assistant Message */}
+      {/* Assistant Message Body */}
       <div
         dir={isRtl ? "rtl" : "ltr"}
-        className={`flex-1 min-w-0 tactile-card rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-sm ${
+        className={`flex-1 min-w-0 rounded-2xl p-4 sm:p-5 bg-white dark:bg-[#212121] border border-neutral-200 dark:border-neutral-700/80 shadow-xs text-neutral-900 dark:text-neutral-100 ${
           isRtl ? "text-right" : "text-left"
         }`}
       >
         {/* Header: Identity & Model Indicator */}
-        <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-[#E5DDD3] dark:border-[#332217]">
+        <div className="flex items-center justify-between gap-2 mb-2.5 pb-2 border-b border-neutral-100 dark:border-neutral-800">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold tracking-tight text-[#1F130B] dark:text-[#FAF6F0]">
-              Arfa AI
+            <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100">
+              ARFA AI
             </span>
             {message.model && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#EFE8DF] dark:bg-[#261A12] text-[#543D2B] dark:text-[#D8C9BC] border border-[#E5DDD3] dark:border-[#332217]">
-                <Sparkles className="w-2.5 h-2.5 text-[#543D2B] dark:text-[#D8C9BC]" />
+              <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
+                <Sparkles className="w-2.5 h-2.5 text-neutral-500" />
                 {message.model}
               </span>
             )}
           </div>
 
           {/* Quick Action Buttons */}
-          <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
             <button
               type="button"
               onClick={handleSpeak}
               title={speaking ? "Stop speaking" : "Listen to response"}
-              className="p-1.5 rounded-lg text-[#7A6250] hover:text-[#1F130B] dark:text-[#A89584] dark:hover:text-[#FAF6F0] hover:bg-[#EFE8DF] dark:hover:bg-[#261A12] transition-colors cursor-pointer"
+              className="p-1 rounded-md text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
             >
-              {speaking ? <VolumeX className="w-3.5 h-3.5 text-[#2E1B10] dark:text-[#FAF6F0]" /> : <Volume2 className="w-3.5 h-3.5" />}
+              {speaking ? <VolumeX className="w-3.5 h-3.5 text-neutral-900 dark:text-white" /> : <Volume2 className="w-3.5 h-3.5" />}
             </button>
             <button
               type="button"
               onClick={handleCopy}
               title={copied ? "Copied!" : "Copy response"}
-              className="p-1.5 rounded-lg text-[#7A6250] hover:text-[#1F130B] dark:text-[#A89584] dark:hover:text-[#FAF6F0] hover:bg-[#EFE8DF] dark:hover:bg-[#261A12] transition-colors cursor-pointer"
+              className="p-1 rounded-md text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
             </button>
@@ -160,7 +159,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                 type="button"
                 onClick={onRegenerate}
                 title="Regenerate response"
-                className="p-1.5 rounded-lg text-[#7A6250] hover:text-[#1F130B] dark:text-[#A89584] dark:hover:text-[#FAF6F0] hover:bg-[#EFE8DF] dark:hover:bg-[#261A12] transition-colors cursor-pointer"
+                className="p-1 rounded-md text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
               </button>
@@ -168,44 +167,64 @@ export const MessageItem: React.FC<MessageItemProps> = ({
           </div>
         </div>
 
-        {/* Markdown Content */}
-        <div className="markdown-content text-[15px] sm:text-[15.5px] leading-relaxed text-[#1F130B] dark:text-[#FAF6F0]">
-          <Markdown
-            remarkPlugins={[remarkGfm]}
-            components={{
-              code(props) {
-                const { className, children, ...rest } = props;
-                const match = /language-(\w+)/.exec(className || "");
-                const isInline = !match && !String(children).includes("\n");
+        {/* Markdown Content with pristine readability */}
+        <div className="markdown-body text-sm sm:text-[15px] leading-relaxed text-neutral-900 dark:text-neutral-100 min-h-[28px] flex flex-col justify-center">
+          {isStreaming && (!message.content || message.content.trim().length === 0) ? (
+            <div className="flex items-center gap-2.5 py-1 text-xs text-neutral-600 dark:text-neutral-400 select-none">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neutral-400 dark:bg-neutral-500 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-neutral-900 dark:bg-neutral-100"></span>
+              </span>
+              <span className="font-semibold text-xs tracking-tight animate-pulse text-neutral-700 dark:text-neutral-300">
+                Loading...
+              </span>
+            </div>
+          ) : (
+            <>
+              <Markdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  code(props) {
+                    const { className, children, ...rest } = props;
+                    const match = /language-(\w+)/.exec(className || "");
+                    const isInline = !match && !String(children).includes("\n");
 
-                if (isInline) {
-                  return (
-                    <code className={className} {...rest}>
-                      {children}
-                    </code>
-                  );
-                }
+                    if (isInline) {
+                      return (
+                        <code className={className} {...rest}>
+                          {children}
+                        </code>
+                      );
+                    }
 
-                return (
-                  <CodeBlock
-                    language={match ? match[1] : "plaintext"}
-                    code={String(children).replace(/\n$/, "")}
-                  />
-                );
-              },
-            }}
-          >
-            {message.content}
-          </Markdown>
+                    return (
+                      <CodeBlock
+                        language={match ? match[1] : "plaintext"}
+                        code={String(children).replace(/\n$/, "")}
+                      />
+                    );
+                  },
+                }}
+              >
+                {message.content}
+              </Markdown>
 
-          {/* Streaming Cursor */}
-          {isStreaming && <span className="streaming-cursor" />}
+              {/* Streaming Cursor */}
+              {isStreaming && (
+                <span className="inline-block w-2 h-4 ml-1 bg-neutral-800 dark:bg-neutral-200 animate-pulse align-middle" />
+              )}
+            </>
+          )}
+
+          {/* Generated Multimodal Media (Images, Videos) */}
+          {message.media && message.media.length > 0 && (
+            <MediaDisplay media={message.media} onPromptAction={onPromptAction} />
+          )}
         </div>
 
-        {/* Card Footer: Timestamp & Double Checkmarks (from Image 1) */}
-        <div className="flex items-center justify-end gap-1.5 mt-2 pt-2 border-t border-[#E5DDD3]/60 dark:border-[#332217]/60 text-[10px] text-[#8C7563] dark:text-[#A89584] select-none">
+        {/* Timestamp */}
+        <div className="flex items-center justify-end mt-2 pt-1 text-[10px] text-neutral-400 select-none">
           <span>{messageTime}</span>
-          <CheckCheck className="w-3.5 h-3.5 text-[#543D2B] dark:text-[#D8C9BC]" />
         </div>
       </div>
     </div>

@@ -1,113 +1,220 @@
-import React from "react";
-import { ArfaLogo } from "../ui/ArfaLogo.tsx";
-import { Mail, Atom, Briefcase, Languages, Sparkles, CheckCheck } from "lucide-react";
+import React, { useState, useRef } from "react";
+import {
+  Sparkles,
+  Plus,
+  Mic,
+  ArrowUp,
+  Brain,
+  Code,
+  GraduationCap,
+  Lightbulb,
+} from "lucide-react";
+import { User } from "../../types.ts";
 
 interface EmptyStateProps {
-  onSelectPrompt: (promptText: string) => void;
+  currentUser?: User | null;
+  onSendPrompt?: (promptText: string) => void;
+  onSelectPrompt?: (promptText: string) => void;
+  onOpenAttachment?: () => void;
 }
 
-export const EmptyState: React.FC<EmptyStateProps> = ({ onSelectPrompt }) => {
-  const suggestions = [
+export const EmptyState: React.FC<EmptyStateProps> = ({
+  currentUser,
+  onSendPrompt,
+  onSelectPrompt,
+}) => {
+  const [inputText, setInputText] = useState("");
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  const triggerPrompt = (text: string) => {
+    if (onSendPrompt) onSendPrompt(text);
+    else if (onSelectPrompt) onSelectPrompt(text);
+  };
+
+  // Time-of-day greeting (Matching reference image)
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    let timeGreeting = "Good morning";
+    if (hour >= 12 && hour < 17) timeGreeting = "Good afternoon";
+    else if (hour >= 17) timeGreeting = "Good evening";
+
+    const name = currentUser && !currentUser.isGuest ? currentUser.name : "Arfa";
+    return `${timeGreeting}, ${name} 👋`;
+  };
+
+  // Speech Recognition
+  const handleMicToggle = () => {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Speech recognition is not supported in this browser.");
+      return;
+    }
+
+    if (isListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsListening(false);
+    } else {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = "en-US";
+
+      recognition.onstart = () => setIsListening(true);
+      recognition.onresult = (event: any) => {
+        let transcript = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        if (transcript) {
+          setInputText((prev) => (prev ? `${prev.trim()} ${transcript}` : transcript));
+        }
+      };
+      recognition.onerror = () => setIsListening(false);
+      recognition.onend = () => setIsListening(false);
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    }
+  };
+
+  const handleSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!inputText.trim()) return;
+    triggerPrompt(inputText.trim());
+    setInputText("");
+  };
+
+  // 4 Prompt Cards from Reference Image
+  const promptSuggestions = [
     {
-      title: "Help me write an email",
-      prompt: "Help me write a professional, clear, and polite email requesting an update on an important project.",
-      icon: Mail,
+      id: "explain-ai",
+      title: "Explain AI in simple terms",
+      prompt: "Explain artificial intelligence in simple terms that anyone can easily understand, with a relatable everyday analogy.",
+      icon: Brain,
+      color: "text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800",
     },
     {
-      title: "Explain quantum physics",
-      prompt: "Explain quantum physics and quantum superposition in simple, intuitive terms with a clear real-world analogy.",
-      icon: Atom,
+      id: "coding-practices",
+      title: "Best practices for coding",
+      prompt: "What are the most essential modern best practices for clean code, maintainability, and scalable software architecture?",
+      icon: Code,
+      color: "text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800",
     },
     {
-      title: "Plan a 5-day trip",
-      prompt: "Plan a detailed, exciting 5-day travel itinerary with daily morning and afternoon activities, local food, and travel tips.",
-      icon: Briefcase,
+      id: "study-plan",
+      title: "Make a study plan",
+      prompt: "Create a focused, realistic study plan for mastering a new subject in 30 days, with structured daily and weekly milestones.",
+      icon: GraduationCap,
+      color: "text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800",
     },
     {
-      title: "Translate this to Spanish",
-      prompt: "Translate the following message into natural, fluent Spanish with polite tone: 'Thank you so much for your support and collaboration today.'",
-      icon: Languages,
+      id: "motivational-quote",
+      title: "Write a motivational quote",
+      prompt: "Share an inspiring, deeply motivational quote accompanied by a brief thought on overcoming obstacles and staying persistent.",
+      icon: Lightbulb,
+      color: "text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800",
     },
   ];
 
-  const currentTime = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-
   return (
     <div
-      id="arfa-welcome-screen"
-      className="w-full max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10 flex flex-col justify-center flex-1 select-none animate-fadeIn"
+      id="arfa-empty-state"
+      className="w-full max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col items-center justify-center flex-1 select-none animate-fadeIn"
     >
-      {/* Assistant Greeting Card from Image 1 */}
-      <div className="flex items-start gap-3 sm:gap-4 mb-6">
-        <div className="shrink-0 mt-1">
-          <ArfaLogo size="sm" showText={false} />
-        </div>
-
-        <div className="flex-1 min-w-0 tactile-card rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-sm">
-          {/* Header */}
-          <div className="flex items-center justify-between gap-2 mb-3 pb-2.5 border-b border-[#E5DDD3] dark:border-[#332217]">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold tracking-tight text-[#1F130B] dark:text-[#FAF6F0]">
-                Arfa AI
-              </span>
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#EFE8DF] dark:bg-[#261A12] text-[#543D2B] dark:text-[#D8C9BC] border border-[#E5DDD3] dark:border-[#332217]">
-                <Sparkles className="w-2.5 h-2.5 text-[#543D2B] dark:text-[#D8C9BC]" />
-                Online
-              </span>
-            </div>
-            <span className="text-[11px] text-[#7A6250] dark:text-[#A89584] font-medium">
-              Assistant
-            </span>
-          </div>
-
-          {/* Welcoming Message Copy from Image 1 */}
-          <div className="text-[15px] sm:text-[16px] leading-relaxed text-[#1F130B] dark:text-[#FAF6F0] font-normal space-y-2">
-            <p className="font-semibold text-lg text-[#1F130B] dark:text-[#FAF6F0]">
-              Hello! ✨
-            </p>
-            <p className="text-[#3D291C] dark:text-[#E8DDD2]">
-              I'm here to help you with anything you need. You can ask me questions, get ideas,
-              translate languages, write content, solve problems, and much more.
-            </p>
-          </div>
-
-          {/* Card Footer: Timestamp & Double Checkmarks */}
-          <div className="flex items-center justify-end gap-1.5 mt-3 pt-2 text-[11px] text-[#8C7563] dark:text-[#A89584]">
-            <span>{currentTime}</span>
-            <CheckCheck className="w-3.5 h-3.5 text-[#543D2B] dark:text-[#D8C9BC]" />
-          </div>
-        </div>
+      {/* Top Neutral Emblem */}
+      <div className="w-12 h-12 rounded-2xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center shadow-sm mb-4 transition-transform hover:scale-105">
+        <Sparkles className="w-6 h-6" />
       </div>
 
-      {/* 4 Prompt Suggestions from Image 1 */}
-      <div className="w-full pl-0 sm:pl-11">
-        <p className="text-xs font-semibold uppercase tracking-wider text-[#7A6250] dark:text-[#A89584] mb-3 px-1">
-          Suggested topics
-        </p>
+      {/* Dynamic Headline */}
+      <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 dark:text-white text-center mb-1">
+        {getGreeting()}
+      </h1>
+      <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center mb-8">
+        How can I help you today?
+      </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          {suggestions.map((item, idx) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={idx}
-                id={`welcome-suggestion-${idx}`}
-                type="button"
-                onClick={() => onSelectPrompt(item.prompt)}
-                className="tactile-raised group text-left px-4 py-3 rounded-2xl flex items-center gap-3 cursor-pointer transition-all duration-150 active:scale-98"
-              >
-                <div className="w-8 h-8 rounded-xl bg-[#EFE8DF] dark:bg-[#2A1D15] flex items-center justify-center text-[#543D2B] dark:text-[#D8C9BC] group-hover:text-[#1F130B] dark:group-hover:text-[#FAF6F0] group-hover:bg-[#E5DDD3] dark:group-hover:bg-[#38261C] transition-colors shrink-0 shadow-xs border border-[#DDD1C2] dark:border-[#3E291C]">
-                  <Icon className="w-4 h-4" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <span className="text-xs sm:text-[13px] font-semibold text-[#1F130B] dark:text-[#FAF6F0] block truncate">
-                    {item.title}
-                  </span>
-                </div>
-              </button>
-            );
-          })}
+      {/* Central Floating Search / Prompt Box */}
+      <form
+        onSubmit={handleSubmit}
+        className="w-full relative mb-8 rounded-2xl bg-white dark:bg-[#212121] border border-neutral-200 dark:border-neutral-700 shadow-md dark:shadow-none p-2.5 transition-all focus-within:border-neutral-400 dark:focus-within:border-neutral-500"
+      >
+        <div className="flex items-center gap-2">
+          {/* Plus Button for File Upload */}
+          <button
+            type="button"
+            onClick={() => {
+              const fileInput = document.getElementById("file-upload-input");
+              if (fileInput) fileInput.click();
+            }}
+            className="w-8 h-8 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white flex items-center justify-center shrink-0 transition-colors cursor-pointer"
+            title="Attach file or photo"
+          >
+            <Plus className="w-4 h-4" />
+          </button>
+
+          {/* Main Prompt Input */}
+          <input
+            id="empty-state-prompt-input"
+            type="text"
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            placeholder="Ask ARFA AI anything..."
+            className="flex-1 text-sm bg-transparent outline-none text-neutral-900 dark:text-white placeholder-neutral-400 px-2 py-1"
+          />
+
+          {/* Microphone Voice Button */}
+          <button
+            type="button"
+            onClick={handleMicToggle}
+            className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors cursor-pointer ${
+              isListening
+                ? "bg-red-500 text-white animate-pulse"
+                : "text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+            }`}
+            title={isListening ? "Listening..." : "Dictate with voice"}
+          >
+            <Mic className="w-4 h-4" />
+          </button>
+
+          {/* Send Button (Solid Black in Light Mode, Solid White in Dark Mode - ChatGPT style) */}
+          <button
+            type="submit"
+            disabled={!inputText.trim()}
+            className="w-8 h-8 rounded-xl bg-neutral-900 hover:bg-black dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-neutral-900 disabled:opacity-30 disabled:hover:bg-neutral-900 dark:disabled:hover:bg-white flex items-center justify-center shrink-0 transition-all shadow-xs cursor-pointer"
+            title="Send prompt"
+          >
+            <ArrowUp className="w-4 h-4" />
+          </button>
         </div>
+      </form>
+
+      {/* 2x2 Grid of Prompt Suggestions */}
+      <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {promptSuggestions.map((item) => {
+          const Icon = item.icon;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => triggerPrompt(item.prompt)}
+              className="p-3.5 rounded-xl bg-white dark:bg-[#212121] border border-neutral-200 dark:border-neutral-700 hover:border-neutral-400 dark:hover:border-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800/70 hover:shadow-xs transition-all flex items-center gap-3 text-left cursor-pointer group"
+            >
+              <div
+                className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${item.color}`}
+              >
+                <Icon className="w-4 h-4" />
+              </div>
+              <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-200 group-hover:text-neutral-900 dark:group-hover:text-white truncate">
+                {item.title}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

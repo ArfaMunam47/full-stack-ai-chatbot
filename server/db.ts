@@ -42,6 +42,20 @@ export interface MessageAttachment {
   dataUrl?: string;
 }
 
+export interface MessageMediaItem {
+  id: string;
+  type: "image" | "video";
+  url: string;
+  mimeType: string;
+  prompt: string;
+  model: string;
+  status: "pending" | "processing" | "completed" | "failed";
+  operationId?: string;
+  aspectRatio?: string;
+  durationSeconds?: number;
+  error?: string;
+}
+
 export interface Message {
   id: string;
   conversationId: string;
@@ -50,7 +64,28 @@ export interface Message {
   content: string;
   createdAt: string;
   attachments?: MessageAttachment[];
+  media?: MessageMediaItem[];
   model?: string;
+}
+
+export interface MediaRecord {
+  id: string;
+  userId: string;
+  conversationId?: string;
+  messageId?: string;
+  type: "image" | "video";
+  prompt: string;
+  model: string;
+  status: "pending" | "processing" | "completed" | "failed";
+  operationName?: string;
+  fileName?: string;
+  filePath?: string;
+  mimeType: string;
+  aspectRatio?: string;
+  durationSeconds?: number;
+  error?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface MemoryItem {
@@ -85,6 +120,7 @@ interface DatabaseSchema {
   passwordResetCodes: PasswordResetCode[];
   conversations: Conversation[];
   messages: Message[];
+  mediaRecords: MediaRecord[];
   memories: MemoryItem[];
   userSettings: UserSettings[];
   usageRecords: UsageRecord[];
@@ -104,6 +140,7 @@ class Database {
     passwordResetCodes: [],
     conversations: [],
     messages: [],
+    mediaRecords: [],
     memories: [],
     userSettings: [],
     usageRecords: [],
@@ -127,6 +164,7 @@ class Database {
           passwordResetCodes: parsed.passwordResetCodes || [],
           conversations: parsed.conversations || [],
           messages: parsed.messages || [],
+          mediaRecords: parsed.mediaRecords || [],
           memories: parsed.memories || [],
           userSettings: parsed.userSettings || [],
           usageRecords: parsed.usageRecords || [],
@@ -171,6 +209,7 @@ class Database {
     // Clean, genuine empty state for users.
     this.data.conversations = [];
     this.data.messages = [];
+    this.data.mediaRecords = [];
     this.data.memories = [];
     this.data.sessions = [];
     this.data.passwordResetCodes = [];
@@ -438,7 +477,8 @@ class Database {
     role: "user" | "assistant" | "system",
     content: string,
     attachments?: MessageAttachment[],
-    model?: string
+    model?: string,
+    media?: MessageMediaItem[]
   ): Message {
     const conv = this.getConversation(conversationId, userId);
     if (!conv) {
@@ -454,6 +494,7 @@ class Database {
       content,
       createdAt: now,
       attachments,
+      media,
       model,
     };
 
@@ -461,6 +502,73 @@ class Database {
     conv.updatedAt = now;
     this.save();
     return msg;
+  }
+
+  updateMessageMedia(messageId: string, userId: string, media: MessageMediaItem[]): Message | undefined {
+    const msg = this.data.messages.find((m) => m.id === messageId && m.userId === userId);
+    if (!msg) return undefined;
+    msg.media = media;
+    this.save();
+    return msg;
+  }
+
+  // Media Operations (Ownership Enforced)
+  createMediaRecord(
+    record: Omit<MediaRecord, "id" | "createdAt" | "updatedAt">
+  ): MediaRecord {
+    const now = new Date().toISOString();
+    const media: MediaRecord = {
+      id: `med_${crypto.randomUUID()}`,
+      ...record,
+      createdAt: now,
+      updatedAt: now,
+    };
+    if (!this.data.mediaRecords) this.data.mediaRecords = [];
+    this.data.mediaRecords.unshift(media);
+    this.save();
+    return media;
+  }
+
+  getMediaRecord(id: string, userId: string): MediaRecord | undefined {
+    if (!this.data.mediaRecords) return undefined;
+    return this.data.mediaRecords.find((m) => m.id === id && m.userId === userId);
+  }
+
+  getMediaRecordByOperation(operationName: string): MediaRecord | undefined {
+    if (!this.data.mediaRecords) return undefined;
+    return this.data.mediaRecords.find((m) => m.operationName === operationName);
+  }
+
+  updateMediaRecord(id: string, updates: Partial<MediaRecord>): MediaRecord | undefined {
+    if (!this.data.mediaRecords) return undefined;
+    const media = this.data.mediaRecords.find((m) => m.id === id);
+    if (!media) return undefined;
+    Object.assign(media, updates, { updatedAt: new Date().toISOString() });
+    this.save();
+    return media;
+  }
+
+  deleteMediaRecord(id: string, userId: string): boolean {
+    if (!this.data.mediaRecords) return false;
+    const idx = this.data.mediaRecords.findIndex((m) => m.id === id && m.userId === userId);
+    if (idx === -1) return false;
+    const [deleted] = this.data.mediaRecords.splice(idx, 1);
+    if (deleted.filePath && fs.existsSync(deleted.filePath)) {
+      try {
+        fs.unlinkSync(deleted.filePath);
+      } catch (err) {
+        console.error("Failed to delete media file from disk:", err);
+      }
+    }
+    this.save();
+    return true;
+  }
+
+  getLastImageMedia(conversationId: string, userId: string): MediaRecord | undefined {
+    if (!this.data.mediaRecords) return undefined;
+    return this.data.mediaRecords.find(
+      (m) => m.conversationId === conversationId && m.userId === userId && m.type === "image" && m.status === "completed"
+    );
   }
 
   // Memories

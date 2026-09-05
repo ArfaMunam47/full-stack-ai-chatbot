@@ -51,6 +51,29 @@ export const ChatRequestSchema = z.object({
   attachments: z.array(ChatAttachmentSchema).max(5, "Maximum of 5 attachments allowed per message").optional(),
   provider: z.enum(["gemini", "openai"]).optional(),
   modelName: z.string().trim().max(100).optional(),
+  mode: z.enum(["chat", "image", "video"]).optional(),
+});
+
+export const GenerateImageSchema = z.object({
+  prompt: z.string().trim().min(1, "Prompt cannot be empty").max(2500, "Prompt exceeds maximum length"),
+  conversationId: z.string().trim().max(100).optional(),
+  aspectRatio: z.enum(["1:1", "16:9", "9:16", "4:3", "3:4"]).optional(),
+  sourceImageBase64: z.string().max(15 * 1024 * 1024).optional(),
+  sourceImageMimeType: z.string().max(100).optional(),
+});
+
+export const GenerateVideoSchema = z.object({
+  prompt: z.string().trim().min(1, "Prompt cannot be empty").max(2500, "Prompt exceeds maximum length"),
+  conversationId: z.string().trim().max(100).optional(),
+  aspectRatio: z.enum(["16:9", "9:16"]).optional(),
+  durationSeconds: z.union([z.literal(4), z.literal(6), z.literal(8)]).optional(),
+  sourceImageBase64: z.string().max(15 * 1024 * 1024).optional(),
+  sourceImageMimeType: z.string().max(100).optional(),
+});
+
+export const AudioTranscribeSchema = z.object({
+  audioBase64: z.string().min(1, "Audio data is required").max(15 * 1024 * 1024),
+  mimeType: z.string().default("audio/webm"),
 });
 
 export const AddMemorySchema = z.object({

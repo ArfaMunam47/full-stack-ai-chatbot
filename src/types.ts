@@ -13,6 +13,20 @@ export interface MessageAttachment {
   dataUrl?: string;
 }
 
+export interface MessageMediaItem {
+  id: string;
+  type: "image" | "video";
+  url: string;
+  mimeType: string;
+  prompt: string;
+  model: string;
+  status: "pending" | "processing" | "completed" | "failed";
+  operationId?: string;
+  aspectRatio?: string;
+  durationSeconds?: number;
+  error?: string;
+}
+
 export interface Message {
   id: string;
   conversationId: string;
@@ -20,6 +34,7 @@ export interface Message {
   content: string;
   createdAt: string;
   attachments?: MessageAttachment[];
+  media?: MessageMediaItem[];
   model?: string;
 }
 

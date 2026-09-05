@@ -1,11 +1,20 @@
 import express, { Response } from "express";
 import cookieParser from "cookie-parser";
 import crypto from "crypto";
+import fs from "fs";
 import { db } from "./db.ts";
 import { executeStreamingChat, generateTitleFromMessage, formatFriendlyErrorMessage } from "./ai/aiService.ts";
 import { ARFA_PROFILE } from "./ai/arfaProfile.ts";
 import { isOpenAIConfigured } from "./ai/openaiClient.ts";
 import { isSupabaseConfigured } from "./db/supabaseClient.ts";
+import {
+  generateImage,
+  startVideoGeneration,
+  checkVideoStatus,
+  transcribeAudioBuffer,
+  getFriendlyMultimodalError,
+} from "./ai/multimodalService.ts";
+import { detectIntent } from "./ai/intentRouter.ts";
 import {
   RegisterSchema,
   LoginSchema,
@@ -15,6 +24,9 @@ import {
   CreateConversationSchema,
   UpdateConversationSchema,
   ChatRequestSchema,
+  GenerateImageSchema,
+  GenerateVideoSchema,
+  AudioTranscribeSchema,
   AddMemorySchema,
   UpdateSettingsSchema,
   UploadFileSchema,
@@ -59,6 +71,26 @@ const chatLimiter = createRateLimiter({
   windowMs: 60 * 1000,
   max: 45,
   message: "Chat rate limit reached. Please wait a few moments before sending another message.",
+  keyGenerator: (req) => {
+    const authReq = req as AuthenticatedRequest;
+    return authReq.userId || (req.headers["x-forwarded-for"] as string) || req.ip || "unknown";
+  },
+});
+
+const mediaGenLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  max: 12,
+  message: "Media generation rate limit reached. Please wait a minute before requesting more media.",
+  keyGenerator: (req) => {
+    const authReq = req as AuthenticatedRequest;
+    return authReq.userId || (req.headers["x-forwarded-for"] as string) || req.ip || "unknown";
+  },
+});
+
+const transcribeLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  max: 30,
+  message: "Transcription rate limit reached. Please wait a moment.",
   keyGenerator: (req) => {
     const authReq = req as AuthenticatedRequest;
     return authReq.userId || (req.headers["x-forwarded-for"] as string) || req.ip || "unknown";
@@ -443,6 +475,7 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache, no-transform");
   res.setHeader("Connection", "keep-alive");
+  res.setHeader("X-Accel-Buffering", "no");
   res.flushHeaders();
 
   // 6. Support Stop Generation: handle client disconnect / abort signal
@@ -460,6 +493,191 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
       userMessageId: userMsg.id,
     })}\n\n`
   );
+  if (typeof (res as any).flush === "function") {
+    (res as any).flush();
+  }
+
+  // 7. MULTIMODAL INTENT ROUTING (Real Gemini Nano Banana & Veo Generation)
+  const lastImage = db.getLastImageMedia(conv.id, userId);
+  const intentResult = detectIntent({
+    message: message.trim(),
+    attachments: mappedAttachments,
+    lastImageMedia: lastImage
+      ? {
+          filePath: lastImage.filePath,
+          mimeType: lastImage.mimeType,
+          url: `/api/media/${lastImage.id}`,
+          id: lastImage.id,
+        }
+      : undefined,
+    explicitMode: parsed.data.mode,
+  });
+
+  if (intentResult.intent === "image_generation" || intentResult.intent === "image_edit") {
+    try {
+      res.write(
+        `data: ${JSON.stringify({
+          type: "status",
+          status: intentResult.intent === "image_edit" ? "Editing image with Gemini Nano Banana..." : "Generating image with Gemini Nano Banana...",
+        })}\n\n`
+      );
+      if (typeof (res as any).flush === "function") (res as any).flush();
+
+      // If editing an earlier image in the conversation and no new attachment was provided
+      let editSourceBase64 = intentResult.sourceImageBase64;
+      let editSourceMime = intentResult.sourceImageMimeType;
+      if (!editSourceBase64 && lastImage && lastImage.filePath && fs.existsSync(lastImage.filePath)) {
+        try {
+          const fileBuf = fs.readFileSync(lastImage.filePath);
+          editSourceBase64 = fileBuf.toString("base64");
+          editSourceMime = lastImage.mimeType || "image/png";
+        } catch (readErr) {
+          console.error("Failed to read last image for editing:", readErr);
+        }
+      }
+
+      const imgResult = await generateImage({
+        userId,
+        conversationId: conv.id,
+        messageId: userMsg.id,
+        prompt: intentResult.cleanedPrompt,
+        sourceImageBase64: editSourceBase64,
+        sourceImageMimeType: editSourceMime,
+        aspectRatio: (intentResult.aspectRatio as any) || "1:1",
+      });
+
+      const assistantMsg = db.addMessage(
+        conv.id,
+        userId,
+        "assistant",
+        intentResult.intent === "image_edit"
+          ? `I've edited the image based on your instruction:\n\n*"${intentResult.cleanedPrompt}"*`
+          : `I've generated this image based on your request:\n\n*"${intentResult.cleanedPrompt}"*`,
+        undefined,
+        imgResult.model,
+        [
+          {
+            id: imgResult.mediaId,
+            type: "image",
+            url: imgResult.url,
+            mimeType: imgResult.mimeType,
+            prompt: imgResult.prompt,
+            model: imgResult.model,
+            status: "completed",
+            aspectRatio: imgResult.aspectRatio,
+          },
+        ]
+      );
+
+      res.write(
+        `data: ${JSON.stringify({
+          type: "done",
+          messageId: assistantMsg.id,
+          fullText: assistantMsg.content,
+          model: imgResult.model,
+          media: assistantMsg.media,
+        })}\n\n`
+      );
+      res.end();
+      return;
+    } catch (imgErr: unknown) {
+      console.error("[Image Generation Error]:", imgErr);
+      const friendlyErr = getFriendlyMultimodalError(imgErr, "image");
+      res.write(
+        `data: ${JSON.stringify({
+          type: "error",
+          error: friendlyErr,
+        })}\n\n`
+      );
+      res.end();
+      return;
+    }
+  }
+
+  if (intentResult.intent === "video_generation" || intentResult.intent === "image_to_video") {
+    try {
+      res.write(
+        `data: ${JSON.stringify({
+          type: "status",
+          status: "Starting high-definition video generation with Veo 3.1...",
+        })}\n\n`
+      );
+      if (typeof (res as any).flush === "function") (res as any).flush();
+
+      let videoSourceBase64 = intentResult.sourceImageBase64;
+      let videoSourceMime = intentResult.sourceImageMimeType;
+      if (!videoSourceBase64 && lastImage && lastImage.filePath && fs.existsSync(lastImage.filePath)) {
+        try {
+          const fileBuf = fs.readFileSync(lastImage.filePath);
+          videoSourceBase64 = fileBuf.toString("base64");
+          videoSourceMime = lastImage.mimeType || "image/png";
+        } catch (readErr) {
+          console.error("Failed to read last image for video generation:", readErr);
+        }
+      }
+
+      const videoJob = await startVideoGeneration({
+        userId,
+        conversationId: conv.id,
+        messageId: userMsg.id,
+        prompt: intentResult.cleanedPrompt,
+        sourceImageBase64: videoSourceBase64,
+        sourceImageMimeType: videoSourceMime,
+        aspectRatio: (intentResult.aspectRatio as any) || "16:9",
+        durationSeconds: (intentResult.durationSeconds as any) || 8,
+      });
+
+      const assistantMsg = db.addMessage(
+        conv.id,
+        userId,
+        "assistant",
+        `I've queued this video for generation with Veo:\n\n*"${intentResult.cleanedPrompt}"*\n\nVeo generates high-fidelity video clips asynchronously. Rendering progress will update live below.`,
+        undefined,
+        videoJob.model,
+        [
+          {
+            id: videoJob.mediaId,
+            type: "video",
+            url: "",
+            mimeType: "video/mp4",
+            prompt: videoJob.prompt,
+            model: videoJob.model,
+            status: "processing",
+            operationId: videoJob.operationName,
+            aspectRatio: videoJob.aspectRatio,
+            durationSeconds: videoJob.durationSeconds,
+          },
+        ]
+      );
+
+      res.write(
+        `data: ${JSON.stringify({
+          type: "done",
+          messageId: assistantMsg.id,
+          fullText: assistantMsg.content,
+          model: videoJob.model,
+          media: assistantMsg.media,
+          videoJob: {
+            mediaId: videoJob.mediaId,
+            operationName: videoJob.operationName,
+          },
+        })}\n\n`
+      );
+      res.end();
+      return;
+    } catch (vidErr: unknown) {
+      console.error("[Video Generation Error]:", vidErr);
+      const friendlyErr = getFriendlyMultimodalError(vidErr, "video");
+      res.write(
+        `data: ${JSON.stringify({
+          type: "error",
+          error: friendlyErr,
+        })}\n\n`
+      );
+      res.end();
+      return;
+    }
+  }
 
   let fullResponse = "";
 
@@ -486,10 +704,13 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
               chunk,
             })}\n\n`
           );
+          if (typeof (res as any).flush === "function") {
+            (res as any).flush();
+          }
         },
         onError: (err: Error) => {
           console.error("[AI Streaming Error]:", err);
-          if (isClientDisconnected) return;
+          if (isClientDisconnected || res.writableEnded) return;
           const friendlyMessage = formatFriendlyErrorMessage(err);
           res.write(
             `data: ${JSON.stringify({
@@ -500,6 +721,7 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
           res.end();
         },
         onFinish: (completeText: string, metadata?: Record<string, unknown>) => {
+          if (isClientDisconnected || res.writableEnded) return;
           const finalContent = completeText || fullResponse;
 
           // Always persist assistant response to DB even if stopped prematurely
@@ -516,7 +738,7 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
             const estimatedTokens = Math.ceil((message.length + finalContent.length) / 3.8);
             db.recordUsage(userId, (metadata?.model as string) || "gemini-3.8-flash", estimatedTokens);
 
-            if (!isClientDisconnected) {
+            if (!isClientDisconnected && !res.writableEnded) {
               res.write(
                 `data: ${JSON.stringify({
                   type: "done",
@@ -528,7 +750,7 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
               );
             }
           }
-          if (!isClientDisconnected) {
+          if (!isClientDisconnected && !res.writableEnded) {
             res.end();
           }
         },
@@ -536,7 +758,7 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
     );
   } catch (err: unknown) {
     console.error("[AI Stream Exception]:", err);
-    if (!isClientDisconnected) {
+    if (!isClientDisconnected && !res.writableEnded) {
       const friendlyMessage = formatFriendlyErrorMessage(err);
       res.write(
         `data: ${JSON.stringify({
@@ -596,6 +818,126 @@ app.patch("/api/settings", (req: AuthenticatedRequest, res: Response) => {
   }
   const updated = db.updateUserSettings(req.userId!, parsed.data);
   res.json(updated);
+});
+
+// ---------------------------------------------------------------------------
+// MULTIMODAL ENDPOINTS (Real Image, Video, and Audio APIs)
+// ---------------------------------------------------------------------------
+
+// 1. Direct Image Generation Endpoint
+app.post("/api/generate-image", mediaGenLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  const parsed = GenerateImageSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error.issues[0]?.message || "Invalid image generation payload." });
+  }
+
+  const userId = req.userId!;
+  const { prompt, conversationId, aspectRatio, sourceImageBase64, sourceImageMimeType } = parsed.data;
+
+  try {
+    const result = await generateImage({
+      userId,
+      conversationId,
+      prompt,
+      aspectRatio,
+      sourceImageBase64,
+      sourceImageMimeType,
+    });
+    res.json(result);
+  } catch (err: unknown) {
+    console.error("[Direct Image Gen Error]:", err);
+    res.status(500).json({ error: getFriendlyMultimodalError(err, "image") });
+  }
+});
+
+// 2. Direct Video Generation Endpoint (Asynchronous Veo 3.1)
+app.post("/api/generate-video", mediaGenLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  const parsed = GenerateVideoSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error.issues[0]?.message || "Invalid video generation payload." });
+  }
+
+  const userId = req.userId!;
+  const { prompt, conversationId, aspectRatio, durationSeconds, sourceImageBase64, sourceImageMimeType } = parsed.data;
+
+  try {
+    const job = await startVideoGeneration({
+      userId,
+      conversationId,
+      prompt,
+      aspectRatio,
+      durationSeconds,
+      sourceImageBase64,
+      sourceImageMimeType,
+    });
+    res.json(job);
+  } catch (err: unknown) {
+    console.error("[Direct Video Gen Error]:", err);
+    res.status(500).json({ error: getFriendlyMultimodalError(err, "video") });
+  }
+});
+
+// 3. Asynchronous Video Polling Status Endpoint
+app.get("/api/video-status/:id", async (req: AuthenticatedRequest, res: Response) => {
+  const mediaId = req.params.id;
+  const userId = req.userId!;
+
+  try {
+    const statusResult = await checkVideoStatus(mediaId, userId);
+    res.json(statusResult);
+  } catch (err: unknown) {
+    console.error("[Video Status Polling Error]:", err);
+    res.status(500).json({ error: getFriendlyMultimodalError(err, "video") });
+  }
+});
+
+// 4. Secure Media Asset Serving (Strict User Ownership Enforced)
+app.get("/api/media/:id", (req: AuthenticatedRequest, res: Response) => {
+  const mediaId = req.params.id;
+  const userId = req.userId!;
+
+  const record = db.getMediaRecord(mediaId, userId);
+  if (!record) {
+    return res.status(404).json({ error: "Media file not found or unauthorized." });
+  }
+
+  if (!record.filePath || !fs.existsSync(record.filePath)) {
+    return res.status(404).json({ error: "Media file has expired or is not on disk." });
+  }
+
+  try {
+    const stat = fs.statSync(record.filePath);
+    res.setHeader("Content-Type", record.mimeType || "application/octet-stream");
+    res.setHeader("Content-Length", stat.size);
+    res.setHeader("Cache-Control", "private, max-age=86400");
+    const stream = fs.createReadStream(record.filePath);
+    stream.pipe(res);
+  } catch (err) {
+    console.error("Failed to stream media file:", err);
+    res.status(500).json({ error: "Failed to read media file." });
+  }
+});
+
+// 5. Speech-to-Text Transcription Endpoint (Direct Gemini Audio Processing)
+app.post("/api/audio/transcribe", transcribeLimiter, async (req: AuthenticatedRequest, res: Response) => {
+  const parsed = AudioTranscribeSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error.issues[0]?.message || "Invalid audio transcription payload." });
+  }
+
+  try {
+    const rawBase64 = parsed.data.audioBase64.replace(/^data:[^;]+;base64,/, "");
+    const buffer = Buffer.from(rawBase64, "base64");
+    if (buffer.length === 0) {
+      return res.status(400).json({ error: "Audio buffer is empty." });
+    }
+
+    const text = await transcribeAudioBuffer(buffer, parsed.data.mimeType);
+    res.json({ text });
+  } catch (err: unknown) {
+    console.error("[Speech Transcription Error]:", err);
+    res.status(500).json({ error: getFriendlyMultimodalError(err, "audio") });
+  }
 });
 
 // ---------------------------------------------------------------------------
