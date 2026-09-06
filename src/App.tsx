@@ -21,8 +21,6 @@ import {
   MoreVertical,
   Settings,
   HelpCircle,
-  Sun,
-  Moon,
   Trash2,
   SquarePen,
   PanelLeft,
@@ -31,10 +29,8 @@ import {
 } from "lucide-react";
 
 export default function App() {
-  // Theme state: Default to light theme with high contrast slate typography
-  const [theme, setTheme] = useState<"light" | "dark" | "system">(() => {
-    return (localStorage.getItem("arfa_theme") as any) || "light";
-  });
+  // Theme state: Enforce permanent single light luxury theme
+  const [theme] = useState<"light">("light");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
@@ -42,6 +38,8 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
+  const [streamingStatusText, setStreamingStatusText] = useState<string | null>(null);
+  const [activeMode, setActiveMode] = useState<"chat" | "image" | "video">("chat");
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const [audioVoiceEnabled, setAudioVoiceEnabled] = useState<boolean>(() => {
     return localStorage.getItem("arfa_audio_voice") === "true";
@@ -67,24 +65,12 @@ export default function App() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const headerMenuRef = useRef<HTMLDivElement>(null);
 
-  // Theme Sync
+  // Single Light Theme Enforcement (No dark mode)
   useEffect(() => {
-    localStorage.setItem("arfa_theme", theme);
+    localStorage.setItem("arfa_theme", "light");
     const root = document.documentElement;
-
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else if (theme === "light") {
-      root.classList.remove("dark");
-    } else {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      if (prefersDark) {
-        root.classList.add("dark");
-      } else {
-        root.classList.remove("dark");
-      }
-    }
-  }, [theme]);
+    root.classList.remove("dark");
+  }, []);
 
   // Audio Voice preference sync
   useEffect(() => {
@@ -200,11 +186,13 @@ export default function App() {
   const handleSendMessage = async (
     userPrompt: string,
     attachments?: MessageAttachment[],
+    mode?: "chat" | "image" | "video",
     isRetry: boolean = false
   ) => {
     if (!userPrompt.trim() && (!attachments || attachments.length === 0)) return;
 
     setErrorBanner(null);
+    setStreamingStatusText(null);
 
     // Build temporary user message
     const userMessage: Message = {
@@ -235,6 +223,7 @@ export default function App() {
           conversationId: activeConversationId || undefined,
           message: userPrompt,
           attachments,
+          mode: mode || activeMode,
         },
         {
           onInit: (data) => {
@@ -242,6 +231,9 @@ export default function App() {
               setActiveConversationId(data.conversationId);
               loadConversations();
             }
+          },
+          onStatus: (statusText: string) => {
+            setStreamingStatusText(statusText);
           },
           onChunk: (chunk: string) => {
             if (hasCompleted) return;
@@ -253,6 +245,7 @@ export default function App() {
             hasCompleted = true;
             setIsStreaming(false);
             setStreamingContent("");
+            setStreamingStatusText(null);
 
             const finalAssistantMsg: Message = {
               id: data.messageId || `assistant_${Date.now()}`,
@@ -261,6 +254,7 @@ export default function App() {
               content: data.fullText || fullAccumulatedResponse,
               createdAt: new Date().toISOString(),
               model: data.model || "ARFA AI",
+              media: data.media,
             };
 
             setMessages((prev) => [...prev, finalAssistantMsg]);
@@ -274,7 +268,8 @@ export default function App() {
             hasCompleted = true;
             setIsStreaming(false);
             setStreamingContent("");
-            setErrorBanner("Arfa AI couldn't complete that response.");
+            setStreamingStatusText(null);
+            setErrorBanner(errorMessage || "Arfa AI couldn't complete that response.");
             console.error("Chat streaming error:", errorMessage);
           },
           signal: abortControllerRef.current?.signal,
@@ -290,6 +285,7 @@ export default function App() {
         }
         setIsStreaming(false);
         setStreamingContent("");
+        setStreamingStatusText(null);
       }
     }
   };
@@ -299,6 +295,7 @@ export default function App() {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
     }
+    setStreamingStatusText(null);
     if (streamingContent.trim()) {
       const stoppedMsg: Message = {
         id: `assistant_${Date.now()}`,
@@ -323,7 +320,7 @@ export default function App() {
       setMessages((prev) => prev.slice(0, -1));
     }
 
-    handleSendMessage(lastUserMessage.content, lastUserMessage.attachments, true);
+    handleSendMessage(lastUserMessage.content, lastUserMessage.attachments, undefined, true);
   };
 
   const handleDeleteConfirmed = async () => {
@@ -371,7 +368,7 @@ export default function App() {
   const activeConv = conversations.find((c) => c.id === activeConversationId);
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#FFFFFF] dark:bg-[#171717] text-neutral-900 dark:text-neutral-100 select-none">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#FAF6F0] text-[#1A1718] select-none">
       {/* Sidebar with Navigation, Conversation History, and Auth Options */}
       <Sidebar
         conversations={conversations}
@@ -400,18 +397,18 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 h-full max-h-[100dvh] overflow-hidden relative bg-white dark:bg-[#171717]">
+      <main className="flex-1 flex flex-col min-w-0 h-full max-h-[100dvh] overflow-hidden relative bg-[#FAF8F7]">
         {/* Modern Pristine Header */}
         <header
           id="main-chat-header"
-          className="shrink-0 flex items-center justify-between px-3 sm:px-6 h-14 border-b border-neutral-200 dark:border-neutral-800 bg-white/90 dark:bg-[#171717]/90 backdrop-blur-md z-10"
+          className="shrink-0 flex items-center justify-between px-3 sm:px-6 h-14 border-b border-[#EFE9E6] bg-white/80 backdrop-blur-md z-10"
         >
-          {/* Left: Mobile Menu Toggle, Desktop Expand, & ARFA AI Identity */}
+          {/* Left: Mobile Menu Toggle, Desktop Expand, & Permanent ARFA AI Identity */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               id="mobile-sidebar-toggle-btn"
               onClick={() => setIsMobileSidebarOpen(true)}
-              className="md:hidden p-2 rounded-xl text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+              className="md:hidden p-2 rounded-xl text-[#5A5456] hover:text-[#1A1718] hover:bg-[#F6F3F1] transition-colors cursor-pointer"
               aria-label="Toggle navigation drawer"
             >
               <Menu className="w-5 h-5" />
@@ -425,62 +422,34 @@ export default function App() {
                   localStorage.setItem("arfa_sidebar_collapsed", "false");
                 }}
                 title="Open sidebar"
-                className="hidden md:flex p-2 rounded-xl text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+                className="hidden md:flex p-2 rounded-xl text-[#5A5456] hover:text-[#1A1718] hover:bg-[#F6F3F1] transition-colors cursor-pointer"
                 aria-label="Open sidebar"
               >
                 <PanelLeft className="w-4 h-4" />
               </button>
             )}
 
+            {/* Permanent ARFA AI Brand Identity - Header ALWAYS says ARFA AI */}
             <div className="flex items-center gap-2.5 min-w-0">
-              <ArfaLogo size="sm" showText={false} />
-              <div className="flex items-center gap-2 min-w-0">
-                <h1 className="text-sm font-bold tracking-tight text-neutral-900 dark:text-white truncate">
-                  {activeConv ? activeConv.title : "ARFA AI"}
-                </h1>
-                <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Online
-                </span>
-              </div>
+              <ArfaLogo size="sm" showText={true} />
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-[#FDF2F5] text-[#D84A70] border border-[#F7CDD8]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D84A70] animate-pulse" />
+                Online
+              </span>
             </div>
           </div>
 
-          {/* Right Controls: New Chat, Dark/Light Theme Toggle, Sign in & More Options */}
+          {/* Right Controls: New Chat, Sign in & More Options */}
           <div className="flex items-center gap-2 shrink-0">
             {/* New Chat Button */}
             <button
               id="header-new-chat-btn"
               onClick={handleNewChat}
               title="New Chat (⌘K)"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-black dark:text-white bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 hover:border-black dark:hover:border-neutral-400 cursor-pointer shadow-xs transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#1A1718] bg-white border border-[#EFE9E6] hover:border-[#D84A70] hover:bg-[#FDF2F5] hover:text-[#D84A70] cursor-pointer shadow-xs transition-all duration-150 active:scale-95"
             >
-              <SquarePen className="w-3.5 h-3.5 text-black dark:text-white" />
-              <span className="hidden sm:inline font-bold text-black dark:text-white">New chat</span>
-            </button>
-
-            {/* Theme Toggle (Dark / Light) */}
-            <button
-              id="header-theme-toggle-btn"
-              type="button"
-              onClick={() => {
-                const next = theme === "light" ? "dark" : "light";
-                setTheme(next);
-              }}
-              title={`Switch to ${theme === "light" ? "Dark" : "Light"} mode`}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium text-neutral-700 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 border border-neutral-200 dark:border-neutral-700 transition-colors cursor-pointer"
-            >
-              {theme === "light" ? (
-                <>
-                  <Moon className="w-3.5 h-3.5 text-neutral-700" />
-                  <span className="hidden sm:inline">Dark</span>
-                </>
-              ) : (
-                <>
-                  <Sun className="w-3.5 h-3.5 text-amber-400" />
-                  <span className="hidden sm:inline">Light</span>
-                </>
-              )}
+              <SquarePen className="w-3.5 h-3.5 text-[#D84A70]" />
+              <span className="hidden sm:inline font-semibold">New chat</span>
             </button>
 
             {/* Auth / Profile trigger */}
@@ -491,7 +460,7 @@ export default function App() {
                   setAuthInitialMode("login");
                   setIsAuthOpen(true);
                 }}
-                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer text-white bg-neutral-900 hover:bg-black dark:bg-white dark:hover:bg-neutral-200 dark:text-neutral-950 shadow-xs transition-colors"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer text-white bg-[#1A1718] hover:bg-black shadow-xs transition-colors active:scale-95"
               >
                 <LogIn className="w-3.5 h-3.5" />
                 <span>Sign in</span>
@@ -505,7 +474,7 @@ export default function App() {
                 type="button"
                 onClick={() => setIsHeaderMenuOpen((prev) => !prev)}
                 title="More options"
-                className="p-2 rounded-xl text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer transition-colors"
+                className="p-2 rounded-xl text-[#7E7779] hover:text-[#1A1718] hover:bg-[#F6F3F1] cursor-pointer transition-colors"
                 aria-label="More options"
                 aria-expanded={isHeaderMenuOpen}
               >
@@ -514,15 +483,15 @@ export default function App() {
 
               {/* Dropdown Menu */}
               {isHeaderMenuOpen && (
-                <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-white dark:bg-neutral-800 p-1.5 shadow-xl z-30 border border-neutral-200 dark:border-neutral-700 animate-fadeIn text-xs">
+                <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-white p-1.5 shadow-xl z-30 border border-[#EFE9E6] animate-fadeIn text-xs">
                   <button
                     onClick={() => {
                       setIsHeaderMenuOpen(false);
                       setIsSettingsOpen(true);
                     }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-medium text-[#1A1718] hover:bg-[#F6F3F1] transition-colors cursor-pointer"
                   >
-                    <Settings className="w-3.5 h-3.5 text-neutral-400" />
+                    <Settings className="w-3.5 h-3.5 text-[#7E7779]" />
                     <span>Settings & Models</span>
                   </button>
 
@@ -531,9 +500,9 @@ export default function App() {
                       setIsHeaderMenuOpen(false);
                       setIsHelpOpen(true);
                     }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-medium text-[#1A1718] hover:bg-[#F6F3F1] transition-colors cursor-pointer"
                   >
-                    <HelpCircle className="w-3.5 h-3.5 text-neutral-400" />
+                    <HelpCircle className="w-3.5 h-3.5 text-[#7E7779]" />
                     <span>Voice & Guide</span>
                   </button>
 
@@ -543,7 +512,7 @@ export default function App() {
                         setIsHeaderMenuOpen(false);
                         setDeleteTarget(activeConv);
                       }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer border-t border-neutral-100 dark:border-neutral-700 mt-1 pt-1.5"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-medium text-red-600 hover:bg-red-50 transition-colors cursor-pointer border-t border-[#EFE9E6] mt-1 pt-1.5"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       <span>Delete Conversation</span>
@@ -557,18 +526,18 @@ export default function App() {
 
         {/* Error Notification Banner */}
         {errorBanner && (
-          <div className="shrink-0 mx-4 sm:mx-6 mt-3 flex items-center justify-between px-4 py-2.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-xs text-red-700 dark:text-red-300 shadow-xs">
+          <div className="shrink-0 mx-4 sm:mx-6 mt-3 flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#FFF5F7] border border-[#F5C4D2] text-xs text-[#9B2A48] shadow-xs animate-fadeIn">
             <div className="flex items-center gap-2.5 min-w-0">
-              <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
-              <span className="font-semibold truncate">{errorBanner}</span>
+              <AlertCircle className="w-4 h-4 shrink-0 text-[#D84A70]" />
+              <span className="font-semibold truncate">Something went wrong. Try again.</span>
             </div>
             <button
               id="chat-error-retry-btn"
               onClick={handleRegenerate}
-              className="text-white bg-red-600 hover:bg-red-700 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold shrink-0 ml-3 cursor-pointer shadow-xs transition-colors"
+              className="text-white bg-[#D84A70] hover:bg-[#C0375D] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold shrink-0 ml-3 cursor-pointer shadow-xs transition-colors active:scale-95"
             >
               <RefreshCw className="w-3 h-3" />
-              <span>Try again</span>
+              <span>Retry</span>
             </button>
           </div>
         )}
@@ -595,6 +564,9 @@ export default function App() {
                       ? handleRegenerate
                       : undefined
                   }
+                  onPromptAction={(promptText) => {
+                    window.dispatchEvent(new CustomEvent("arfa:set-prompt", { detail: promptText }));
+                  }}
                 />
               ))}
 
@@ -624,6 +596,9 @@ export default function App() {
                 onSend={handleSendMessage}
                 isStreaming={isStreaming}
                 onStop={handleStopGeneration}
+                activeMode={activeMode}
+                onModeChange={setActiveMode}
+                statusText={streamingStatusText}
               />
             </div>
           )}
@@ -640,7 +615,6 @@ export default function App() {
           setIsAuthOpen(true);
         }}
         onLogout={handleLogout}
-        onThemeChange={(newTheme) => setTheme(newTheme)}
         onClearConversations={() => setDeleteTarget("all")}
       />
 

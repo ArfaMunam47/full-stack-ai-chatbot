@@ -39,6 +39,14 @@ export function detectIntent(params: {
   }
 
   // 1. Explicit mode override if specified
+  if (explicitMode === "chat") {
+    return {
+      intent: "chat",
+      cleanedPrompt: rawText,
+      confidence: 1.0,
+    };
+  }
+
   if (explicitMode === "image") {
     return {
       intent: imageAttachment ? "image_edit" : "image_generation",

@@ -616,7 +616,7 @@ class Database {
         userId,
         theme: "light",
         preferredProvider: "gemini",
-        preferredModel: "gemini-3.8-flash",
+        preferredModel: "gemini-3.1-flash-lite",
         customInstructions: "",
         temperature: 0.7,
         voiceEnabled: true,

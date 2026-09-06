@@ -94,14 +94,16 @@ export async function streamGeminiChat(
   });
 
   // Construct prioritized fallback list:
-  // 1. Requested model (e.g. gemini-3.8-flash)
-  // 2. gemini-3.1-flash-lite (high availability lightweight model)
-  // 3. gemini-flash-latest (latest alias)
+  // 1. Primary: gemini-3.1-flash-lite (fastest sub-second TTFT and response generation)
+  // 2. High-capacity fallback: gemini-3.8-flash
+  // 3. Robust fallbacks: gemini-3.6-flash, gemini-flash-latest
+  const requestedModel = (modelName && modelName !== "gemini-2.5-flash") ? modelName : "gemini-3.1-flash-lite";
   const candidatePool = [
-    modelName,
+    requestedModel,
     "gemini-3.1-flash-lite",
-    "gemini-flash-latest",
     "gemini-3.8-flash",
+    "gemini-3.6-flash",
+    "gemini-flash-latest",
   ];
 
   const candidateModels: string[] = [];
@@ -125,129 +127,114 @@ export async function streamGeminiChat(
   };
 
   let lastError: Error | null = null;
-  const MAX_RETRIES_PER_MODEL = 2;
+  const overallStartTime = Date.now();
 
   for (const candidate of candidateModels) {
-    for (let attempt = 0; attempt < MAX_RETRIES_PER_MODEL; attempt++) {
-      let chunkEmitted = false;
-      let fullAccumulated = "";
+    const candidateStartTime = Date.now();
+    let chunkEmitted = false;
+    let fullAccumulated = "";
+    let firstTokenTime: number | null = null;
 
-      // Low-latency configuration: set thinkingBudget to 0 so the model streams tokens immediately
-      const modelConfig: any = {
-        systemInstruction,
-        temperature: 0.7,
-      };
+    // Low-latency configuration: set thinkingBudget to 0 so flash models stream tokens immediately
+    const modelConfig: any = {
+      systemInstruction,
+      temperature: 0.7,
+    };
 
-      if (candidate.includes("flash")) {
-        modelConfig.thinkingConfig = { thinkingBudget: 0 };
-      }
+    if (candidate.includes("flash") || candidate.includes("lite")) {
+      modelConfig.thinkingConfig = { thinkingBudget: 0 };
+    }
 
+    try {
+      console.log(`[Gemini Stream] Connecting with model: ${candidate}...`);
+      let responseStream;
       try {
-        let responseStream;
-        try {
+        responseStream = await ai.models.generateContentStream({
+          model: candidate,
+          contents,
+          config: modelConfig,
+        });
+      } catch (configErr: any) {
+        // If thinkingConfig isn't accepted by a specific model alias, strip and retry immediately
+        if (modelConfig.thinkingConfig) {
+          delete modelConfig.thinkingConfig;
           responseStream = await ai.models.generateContentStream({
             model: candidate,
             contents,
             config: modelConfig,
           });
-        } catch (configErr: any) {
-          if (modelConfig.thinkingConfig) {
-            delete modelConfig.thinkingConfig;
-            responseStream = await ai.models.generateContentStream({
-              model: candidate,
-              contents,
-              config: modelConfig,
-            });
-          } else {
-            throw configErr;
-          }
-        }
-
-        for await (const chunk of responseStream) {
-          const textChunk = chunk.text || "";
-          if (textChunk) {
-            chunkEmitted = true;
-            fullAccumulated += textChunk;
-            callbacks.onChunk(textChunk);
-          }
-        }
-
-        if (chunkEmitted) {
-          safeFinish(fullAccumulated, {
-            model: candidate,
-            provider: "gemini",
-          });
-          return;
-        }
-
-        // If stream finished without yielding text, try unary generateContent
-        const response = await ai.models.generateContent({
-          model: candidate,
-          contents,
-          config: {
-            systemInstruction,
-            temperature: 0.7,
-          },
-        });
-
-        const unaryText = response.text || "";
-        if (unaryText) {
-          callbacks.onChunk(unaryText);
-          safeFinish(unaryText, {
-            model: candidate,
-            provider: "gemini",
-          });
-          return;
-        }
-      } catch (err: unknown) {
-        lastError = err instanceof Error ? err : new Error(String(err));
-        console.warn(
-          `Model ${candidate} attempt ${attempt + 1}/${MAX_RETRIES_PER_MODEL} failed:`,
-          lastError.message
-        );
-
-        // If chunks were already sent to user, we cannot switch models mid-flight
-        if (chunkEmitted) {
-          safeFinish(fullAccumulated, {
-            model: candidate,
-            provider: "gemini",
-          });
-          return;
-        }
-
-        // Try non-streaming fallback on the same model if this was a stream-transport failure
-        try {
-          const response = await ai.models.generateContent({
-            model: candidate,
-            contents,
-            config: {
-              systemInstruction,
-              temperature: 0.7,
-            },
-          });
-          const text = response.text || "";
-          if (text) {
-            callbacks.onChunk(text);
-            safeFinish(text, {
-              model: candidate,
-              provider: "gemini",
-            });
-            return;
-          }
-        } catch {
-          // Unary also failed, continue to retry or candidate fallback
-        }
-
-        // Check if transient error to apply backoff before next attempt
-        if (isTransientError(lastError) && attempt < MAX_RETRIES_PER_MODEL - 1) {
-          const backoffTime = 800 * (attempt + 1);
-          await sleep(backoffTime);
+        } else {
+          throw configErr;
         }
       }
-    }
 
-    // Brief delay before switching to the next candidate model
-    await sleep(300);
+      for await (const chunk of responseStream) {
+        const textChunk = chunk.text || "";
+        if (textChunk) {
+          if (!chunkEmitted) {
+            firstTokenTime = Date.now() - candidateStartTime;
+            console.log(`[Gemini Stream] ${candidate} First token received in ${firstTokenTime}ms`);
+          }
+          chunkEmitted = true;
+          fullAccumulated += textChunk;
+          callbacks.onChunk(textChunk);
+        }
+      }
+
+      if (chunkEmitted) {
+        const totalDuration = Date.now() - overallStartTime;
+        console.log(`[Gemini Stream] ${candidate} finished successfully in ${totalDuration}ms total`);
+        safeFinish(fullAccumulated, {
+          model: candidate,
+          provider: "gemini",
+        });
+        return;
+      }
+
+      // If stream finished without yielding text and without throwing, try quick unary generateContent
+      const response = await ai.models.generateContent({
+        model: candidate,
+        contents,
+        config: {
+          systemInstruction,
+          temperature: 0.7,
+        },
+      });
+
+      const unaryText = response.text || "";
+      if (unaryText) {
+        callbacks.onChunk(unaryText);
+        safeFinish(unaryText, {
+          model: candidate,
+          provider: "gemini",
+        });
+        return;
+      }
+    } catch (err: unknown) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      console.warn(`[Gemini Stream] Model ${candidate} failed: ${lastError.message}`);
+
+      // If chunks were already partially emitted to user, do not restart with another model mid-stream
+      if (chunkEmitted) {
+        safeFinish(fullAccumulated, {
+          model: candidate,
+          provider: "gemini",
+        });
+        return;
+      }
+
+      // Rate limit / Quota reached: Immediately advance to the next candidate model or provider without waiting
+      const isQuota = isTransientError(lastError) && (
+        lastError.message.includes("429") ||
+        lastError.message.includes("resource_exhausted") ||
+        lastError.message.includes("quota")
+      );
+
+      if (!isQuota) {
+        // Only brief pause for network transport hiccups
+        await sleep(150);
+      }
+    }
   }
 
   if (lastError) {

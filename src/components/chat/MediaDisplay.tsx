@@ -105,14 +105,14 @@ const ImageCard: React.FC<ImageCardProps> = ({ item, onOpenLightbox, onPromptAct
   };
 
   return (
-    <div className="group rounded-2xl overflow-hidden bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700/80 shadow-xs transition-all">
+    <div className="group rounded-2xl overflow-hidden bg-white border border-[#EFE9E6] shadow-xs transition-all">
       {/* Visual Header / Metadata */}
-      <div className="flex items-center justify-between px-3 py-2 bg-neutral-100/70 dark:bg-neutral-800/60 border-b border-neutral-200/60 dark:border-neutral-700/60 text-xs">
-        <div className="flex items-center gap-1.5 font-medium text-neutral-700 dark:text-neutral-300">
-          <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+      <div className="flex items-center justify-between px-3 py-2 bg-[#F8F6F4] border-b border-[#EFE9E6] text-xs">
+        <div className="flex items-center gap-1.5 font-medium text-[#1A1718]">
+          <Sparkles className="w-3.5 h-3.5 text-[#D84A70]" />
           <span className="text-[11px] font-semibold">{item.model || "Gemini Nano Banana"}</span>
           {item.aspectRatio && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300">
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white border border-[#EFE9E6] text-[#5A5456]">
               {item.aspectRatio}
             </span>
           )}
@@ -123,7 +123,7 @@ const ImageCard: React.FC<ImageCardProps> = ({ item, onOpenLightbox, onPromptAct
             type="button"
             onClick={handleCopyPrompt}
             title={copied ? "Copied!" : "Copy prompt"}
-            className="p-1 rounded-md text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-200/60 dark:hover:bg-neutral-700/60 transition-colors"
+            className="p-1 rounded-md text-[#7E7779] hover:text-[#1A1718] hover:bg-[#EFE9E6] transition-colors cursor-pointer"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
           </button>
@@ -131,7 +131,7 @@ const ImageCard: React.FC<ImageCardProps> = ({ item, onOpenLightbox, onPromptAct
             type="button"
             onClick={handleDownload}
             title="Download full-resolution image"
-            className="p-1 rounded-md text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-200/60 dark:hover:bg-neutral-700/60 transition-colors"
+            className="p-1 rounded-md text-[#7E7779] hover:text-[#1A1718] hover:bg-[#EFE9E6] transition-colors cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
           </button>
@@ -139,7 +139,7 @@ const ImageCard: React.FC<ImageCardProps> = ({ item, onOpenLightbox, onPromptAct
             type="button"
             onClick={() => onOpenLightbox(item.url)}
             title="View full screen"
-            className="p-1 rounded-md text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-200/60 dark:hover:bg-neutral-700/60 transition-colors"
+            className="p-1 rounded-md text-[#7E7779] hover:text-[#1A1718] hover:bg-[#EFE9E6] transition-colors cursor-pointer"
           >
             <Maximize2 className="w-3.5 h-3.5" />
           </button>
@@ -148,7 +148,7 @@ const ImageCard: React.FC<ImageCardProps> = ({ item, onOpenLightbox, onPromptAct
 
       {/* Image Preview */}
       <div
-        className="relative bg-neutral-900 flex items-center justify-center cursor-pointer overflow-hidden max-h-[460px]"
+        className="relative bg-[#1A1718] flex items-center justify-center cursor-pointer overflow-hidden max-h-[460px]"
         onClick={() => onOpenLightbox(item.url)}
       >
         <img
@@ -160,27 +160,27 @@ const ImageCard: React.FC<ImageCardProps> = ({ item, onOpenLightbox, onPromptAct
       </div>
 
       {/* Action Footer */}
-      <div className="p-3 bg-white dark:bg-[#1e1e1e] border-t border-neutral-100 dark:border-neutral-800 flex flex-col gap-2">
-        <p className="text-xs text-neutral-600 dark:text-neutral-400 italic line-clamp-2 m-0">
+      <div className="p-3 bg-white border-t border-[#EFE9E6] flex flex-col gap-2">
+        <p className="text-xs text-[#5A5456] italic line-clamp-2 m-0">
           "{item.prompt}"
         </p>
 
         {onPromptAction && (
-          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-neutral-100 dark:border-neutral-800">
+          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-[#EFE9E6]">
             <button
               type="button"
               onClick={() => onPromptAction(`Edit this image: make the lighting warmer and add subtle highlights`)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-[#F8F6F4] hover:bg-[#FDF2F5] hover:text-[#D84A70] text-[#5A5456] transition-colors cursor-pointer border border-[#EFE9E6]"
             >
-              <Palette className="w-3 h-3 text-neutral-500" />
+              <Palette className="w-3 h-3 text-[#D84A70]" />
               <span>Edit Image</span>
             </button>
             <button
               type="button"
               onClick={() => onPromptAction(`Animate this image into an 8-second cinematic video with gentle motion`)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-[#F8F6F4] hover:bg-[#FDF2F5] hover:text-[#D84A70] text-[#5A5456] transition-colors cursor-pointer border border-[#EFE9E6]"
             >
-              <Film className="w-3 h-3 text-neutral-500" />
+              <Film className="w-3 h-3 text-[#D84A70]" />
               <span>Turn into Video</span>
             </button>
           </div>
@@ -266,15 +266,15 @@ const VideoCard: React.FC<VideoCardProps> = ({ item, onPromptAction }) => {
 
   if (status === "failed") {
     return (
-      <div className="rounded-2xl p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 text-red-800 dark:text-red-300">
+      <div className="rounded-2xl p-4 bg-red-50 border border-red-200 text-red-800">
         <div className="flex items-start gap-2.5">
-          <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
+          <AlertCircle className="w-4 h-4 text-red-600 mt-0.5 shrink-0" />
           <div className="flex-1 text-xs">
             <p className="font-semibold mb-1">Video Generation Notice</p>
-            <p className="text-red-700 dark:text-red-300/90 leading-relaxed mb-2">
+            <p className="text-red-700 leading-relaxed mb-2">
               {errorMessage || "Veo video generation was unable to complete for this prompt."}
             </p>
-            <p className="text-[11px] text-red-600 dark:text-red-400 italic">
+            <p className="text-[11px] text-red-600 italic">
               Prompt: "{item.prompt}"
             </p>
           </div>
@@ -285,29 +285,29 @@ const VideoCard: React.FC<VideoCardProps> = ({ item, onPromptAction }) => {
 
   if (status === "processing" || status === "pending") {
     return (
-      <div className="rounded-2xl p-5 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700/80 shadow-xs">
+      <div className="rounded-2xl p-5 bg-[#FFFBF8] border border-[#F5C4D2] shadow-xs">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Clapperboard className="w-4 h-4 text-neutral-700 dark:text-neutral-300 animate-pulse" />
-            <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">
+            <Clapperboard className="w-4 h-4 text-[#D84A70] animate-pulse" />
+            <span className="text-xs font-semibold text-[#1A1718]">
               Rendering Video with Veo 3.1
             </span>
           </div>
-          <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
+          <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-white border border-[#F5C4D2] text-[#D84A70]">
             {item.durationSeconds ? `${item.durationSeconds}s` : "8s"} · 720p HD
           </span>
         </div>
 
         {/* Progress Graphic */}
-        <div className="relative w-full h-2 rounded-full bg-neutral-200 dark:bg-neutral-800 overflow-hidden mb-3">
-          <div className="absolute top-0 left-0 bottom-0 w-1/3 bg-neutral-700 dark:bg-neutral-300 rounded-full animate-[pulse_1.5s_ease-in-out_infinite]" />
+        <div className="relative w-full h-2 rounded-full bg-[#FCECEE] overflow-hidden mb-3">
+          <div className="absolute top-0 left-0 bottom-0 w-1/3 bg-[#D84A70] rounded-full animate-[pulse_1.5s_ease-in-out_infinite]" />
         </div>
 
-        <p className="text-xs text-neutral-600 dark:text-neutral-400 italic mb-2">
+        <p className="text-xs text-[#5A5456] italic mb-2">
           "{item.prompt}"
         </p>
 
-        <p className="text-[11px] text-neutral-400 dark:text-neutral-500 m-0">
+        <p className="text-[11px] text-[#A39B9E] m-0">
           Veo synthesizes high-definition frames asynchronously. You can continue chatting while rendering progresses.
         </p>
       </div>
@@ -315,13 +315,13 @@ const VideoCard: React.FC<VideoCardProps> = ({ item, onPromptAction }) => {
   }
 
   return (
-    <div className="rounded-2xl overflow-hidden bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700/80 shadow-xs">
+    <div className="rounded-2xl overflow-hidden bg-white border border-[#EFE9E6] shadow-xs">
       {/* Video Header */}
-      <div className="flex items-center justify-between px-3 py-2 bg-neutral-100/70 dark:bg-neutral-800/60 border-b border-neutral-200/60 dark:border-neutral-700/60 text-xs">
-        <div className="flex items-center gap-1.5 font-medium text-neutral-700 dark:text-neutral-300">
-          <Film className="w-3.5 h-3.5 text-neutral-700 dark:text-neutral-300" />
+      <div className="flex items-center justify-between px-3 py-2 bg-[#F8F6F4] border-b border-[#EFE9E6] text-xs">
+        <div className="flex items-center gap-1.5 font-medium text-[#1A1718]">
+          <Film className="w-3.5 h-3.5 text-[#D84A70]" />
           <span className="text-[11px] font-semibold">{item.model || "Veo 3.1"}</span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300">
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-white border border-[#EFE9E6] text-[#5A5456]">
             {item.durationSeconds ? `${item.durationSeconds}s` : "8s"}
           </span>
         </div>
@@ -331,7 +331,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ item, onPromptAction }) => {
             type="button"
             onClick={handleCopyPrompt}
             title={copied ? "Copied!" : "Copy prompt"}
-            className="p-1 rounded-md text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-200/60 dark:hover:bg-neutral-700/60 transition-colors"
+            className="p-1 rounded-md text-[#7E7779] hover:text-[#1A1718] hover:bg-[#EFE9E6] transition-colors cursor-pointer"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
           </button>
@@ -339,7 +339,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ item, onPromptAction }) => {
             type="button"
             onClick={handleDownload}
             title="Download MP4 Video"
-            className="p-1 rounded-md text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 hover:bg-neutral-200/60 dark:hover:bg-neutral-700/60 transition-colors"
+            className="p-1 rounded-md text-[#7E7779] hover:text-[#1A1718] hover:bg-[#EFE9E6] transition-colors cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
           </button>
@@ -359,8 +359,8 @@ const VideoCard: React.FC<VideoCardProps> = ({ item, onPromptAction }) => {
       </div>
 
       {/* Video Footer */}
-      <div className="p-3 bg-white dark:bg-[#1e1e1e] border-t border-neutral-100 dark:border-neutral-800 flex flex-col gap-1.5">
-        <p className="text-xs text-neutral-600 dark:text-neutral-400 italic m-0">
+      <div className="p-3 bg-white border-t border-[#EFE9E6] flex flex-col gap-1.5">
+        <p className="text-xs text-[#5A5456] italic m-0">
           "{item.prompt}"
         </p>
       </div>

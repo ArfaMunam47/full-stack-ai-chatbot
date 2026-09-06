@@ -110,7 +110,11 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
           console.warn("[SpeechRecognition Error]:", event.error);
           setIsListening(false);
           if (event.error === "not-allowed" || event.error === "permission-denied") {
-            setMicNotice("Microphone permission was denied. Please allow microphone access in your browser.");
+            setMicNotice("Microphone access is blocked. Allow microphone permission in your browser settings and try again.");
+          } else if (event.error === "no-speech") {
+            // User paused speaking, no error needed
+          } else {
+            setMicNotice("Voice input interrupted. You can speak again or type your prompt.");
           }
         };
 
@@ -125,11 +129,27 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
     }
   }, []);
 
+  // Helper to detect best supported audio format for MediaRecorder
+  const getSupportedAudioMimeType = (): string => {
+    if (typeof MediaRecorder === "undefined") return "";
+    const candidates = [
+      "audio/webm;codecs=opus",
+      "audio/webm",
+      "audio/mp4",
+      "audio/aac",
+      "audio/ogg;codecs=opus",
+    ];
+    for (const mime of candidates) {
+      if (MediaRecorder.isTypeSupported(mime)) return mime;
+    }
+    return "";
+  };
+
   // Toggle Microphone (With Web Speech API and MediaRecorder Fallback)
   const handleMicToggle = async () => {
     setMicNotice(null);
 
-    // If currently listening, stop
+    // If currently listening, stop immediately
     if (isListening) {
       if (recognitionRef.current) {
         try {
@@ -152,23 +172,25 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
         setIsListening(true);
         return;
       } catch (err) {
-        console.warn("Web Speech API start error, trying fallback:", err);
+        console.warn("Web Speech API start error, falling back to MediaRecorder:", err);
       }
     }
 
-    // 2. Fallback to MediaRecorder + Server-side Gemini transcription
+    // 2. Fallback to MediaRecorder + Server-side transcription
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setMicNotice("Microphone recording is not supported in this browser.");
+      setMicNotice("Microphone recording is not supported in this browser. Please type your message.");
       return;
     }
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       audioChunksRef.current = [];
-      const mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+      const selectedMime = getSupportedAudioMimeType();
+      const options = selectedMime ? { mimeType: selectedMime } : undefined;
+      const mediaRecorder = new MediaRecorder(stream, options);
 
       mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
+        if (event.data && event.data.size > 0) {
           audioChunksRef.current.push(event.data);
         }
       };
@@ -177,7 +199,8 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
         setIsListening(false);
         stream.getTracks().forEach((track) => track.stop());
 
-        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        const finalMime = mediaRecorder.mimeType || selectedMime || "audio/webm";
+        const audioBlob = new Blob(audioChunksRef.current, { type: finalMime });
         if (audioBlob.size === 0) return;
 
         setIsTranscribing(true);
@@ -186,12 +209,12 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
           reader.onloadend = async () => {
             try {
               const base64Audio = reader.result as string;
-              const transcribedText = await api.transcribeAudio(base64Audio, "audio/webm");
+              const transcribedText = await api.transcribeAudio(base64Audio, finalMime);
               if (transcribedText) {
                 setText((prev) => (prev.trim() ? `${prev.trim()} ${transcribedText}` : transcribedText));
               }
             } catch (transcribeErr: any) {
-              setMicNotice(transcribeErr.message || "Failed to transcribe audio.");
+              setMicNotice(transcribeErr.message || "Voice transcription failed. You can type your message directly.");
             } finally {
               setIsTranscribing(false);
             }
@@ -200,6 +223,7 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
         } catch (readErr) {
           console.error("Audio conversion failed:", readErr);
           setIsTranscribing(false);
+          setMicNotice("Failed to process audio recording.");
         }
       };
 
@@ -210,9 +234,11 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
       console.error("Microphone access error:", err);
       setIsListening(false);
       if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
-        setMicNotice("Microphone permission was denied. Please allow microphone access.");
+        setMicNotice("Microphone access is blocked. Allow microphone permission in your browser settings and try again.");
+      } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
+        setMicNotice("No microphone found on your device.");
       } else {
-        setMicNotice("Could not access microphone.");
+        setMicNotice("Could not access microphone. Please check your browser audio settings.");
       }
     }
   };
@@ -291,12 +317,12 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
 
       {/* Mic Warning or Status Notice */}
       {micNotice && (
-        <div className="mb-2 px-3 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-xs text-neutral-700 dark:text-neutral-300 flex items-center justify-between">
+        <div className="mb-2 px-3 py-1.5 rounded-xl bg-[#FFF5F7] border border-[#F5C4D2] text-xs text-[#9B2A48] flex items-center justify-between shadow-xs">
           <span>{micNotice}</span>
           <button
             type="button"
             onClick={() => setMicNotice(null)}
-            className="text-neutral-400 hover:text-neutral-700 dark:hover:text-white"
+            className="text-[#D84A70] hover:text-[#9B2A48] cursor-pointer"
           >
             <X className="w-3 h-3" />
           </button>
@@ -305,8 +331,8 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
 
       {/* Streaming Status Banner (e.g. Generating image, Veo rendering) */}
       {statusText && (
-        <div className="mb-2 px-3 py-1.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-xs text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
-          <Loader2 className="w-3.5 h-3.5 animate-spin text-neutral-600 dark:text-neutral-400" />
+        <div className="mb-2 px-3 py-1.5 rounded-xl bg-[#FDF2F5] border border-[#F7CDD8] text-xs text-[#D84A70] flex items-center gap-2 shadow-xs">
+          <Loader2 className="w-3.5 h-3.5 animate-spin text-[#D84A70]" />
           <span className="font-medium">{statusText}</span>
         </div>
       )}
@@ -317,7 +343,7 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
           {attachments.map((att, idx) => (
             <div
               key={idx}
-              className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-xs text-neutral-800 dark:text-neutral-200 shadow-xs"
+              className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-white border border-[#EFE9E6] text-xs text-[#1A1718] shadow-xs"
             >
               {att.type.startsWith("image/") ? (
                 <img
@@ -327,13 +353,13 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
                   className="w-5 h-5 rounded object-cover"
                 />
               ) : (
-                <FileText className="w-4 h-4 text-neutral-500" />
+                <FileText className="w-4 h-4 text-[#7E7779]" />
               )}
               <span className="max-w-[120px] truncate text-[11px] font-medium">{att.name}</span>
               <button
                 type="button"
                 onClick={() => handleRemoveAttachment(idx)}
-                className="text-neutral-400 hover:text-neutral-800 dark:hover:text-white transition-colors p-0.5"
+                className="text-[#A39B9E] hover:text-[#D84A70] transition-colors p-0.5 cursor-pointer"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -347,51 +373,51 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
         <button
           type="button"
           onClick={() => onModeChange?.("chat")}
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold transition-all cursor-pointer ${
             activeMode === "chat"
-              ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 shadow-xs"
-              : "text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              ? "bg-[#1A1718] text-white shadow-xs"
+              : "text-[#5A5456] hover:text-[#1A1718] hover:bg-[#F6F3F1]"
           }`}
         >
-          <MessageSquare className="w-3 h-3" />
+          <MessageSquare className="w-3.5 h-3.5" />
           <span>Chat</span>
         </button>
 
         <button
           type="button"
           onClick={() => onModeChange?.("image")}
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold transition-all cursor-pointer ${
             activeMode === "image"
-              ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 shadow-xs"
-              : "text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              ? "bg-[#D84A70] text-white shadow-xs"
+              : "text-[#5A5456] hover:text-[#D84A70] hover:bg-[#FDF2F5]"
           }`}
         >
-          <Sparkles className="w-3 h-3" />
-          <span>Image</span>
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Image (Nano Banana)</span>
         </button>
 
         <button
           type="button"
           onClick={() => onModeChange?.("video")}
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold transition-all cursor-pointer ${
             activeMode === "video"
-              ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 shadow-xs"
-              : "text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              ? "bg-[#1A1718] text-white shadow-xs"
+              : "text-[#5A5456] hover:text-[#1A1718] hover:bg-[#F6F3F1]"
           }`}
         >
-          <Film className="w-3 h-3" />
-          <span>Video</span>
+          <Film className="w-3.5 h-3.5" />
+          <span>Video (Veo)</span>
         </button>
       </div>
 
-      {/* Skeuomorphic Floating Composer Bar */}
-      <div className="relative rounded-2xl bg-white dark:bg-[#212121] border border-neutral-200 dark:border-neutral-700 shadow-md dark:shadow-none p-2 transition-all focus-within:border-neutral-400 dark:focus-within:border-neutral-500 flex items-end gap-2">
+      {/* Tactile Luxury Floating Composer Bar */}
+      <div className="relative rounded-2xl bg-white border border-[#EFE9E6] shadow-md p-2.5 transition-all focus-within:border-[#D84A70] focus-within:ring-2 focus-within:ring-[#D84A70]/15 flex items-end gap-2.5">
         {/* Plus Button for File Attachment */}
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled || isUploading}
-          className="w-8 h-8 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white flex items-center justify-center shrink-0 transition-colors cursor-pointer mb-0.5"
+          className="w-8 h-8 rounded-xl bg-[#F6F3F1] text-[#5A5456] hover:text-[#1A1718] hover:bg-[#EFE9E6] flex items-center justify-center shrink-0 transition-colors cursor-pointer mb-0.5"
           title="Add photo or document"
         >
           <Plus className="w-4 h-4" />
@@ -406,23 +432,23 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
           placeholder={getPlaceholder()}
           disabled={disabled}
           rows={1}
-          className="flex-1 max-h-[180px] py-2 px-1 text-sm bg-transparent border-none outline-none resize-none text-neutral-900 dark:text-white placeholder-neutral-400 leading-relaxed"
+          className="flex-1 max-h-[180px] py-2 px-1 text-sm bg-transparent border-none outline-none resize-none text-[#1A1718] placeholder-[#A39B9E] leading-relaxed font-normal"
         />
 
         {/* Action Controls: Mic + Send/Stop */}
-        <div className="flex items-center gap-1.5 shrink-0 mb-0.5">
-          {/* Tactile Listening Mic Button (Warm Ivory / Deep Coffee Theme, No Neon Colors) */}
+        <div className="flex items-center gap-2 shrink-0 mb-0.5">
+          {/* Tactile Rose Pulsing Mic Button */}
           <button
             type="button"
             onClick={handleMicToggle}
             className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all cursor-pointer ${
               isListening
-                ? "bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 ring-2 ring-neutral-400 dark:ring-neutral-500 animate-pulse shadow-sm"
+                ? "bg-[#D84A70] text-white ring-2 ring-[#F7CDD8] animate-pulse shadow-xs"
                 : isTranscribing
-                ? "bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300"
-                : "text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                ? "bg-[#FDF2F5] text-[#D84A70]"
+                : "text-[#7E7779] hover:text-[#D84A70] hover:bg-[#FDF2F5]"
             }`}
-            title={isListening ? "Listening... click to stop" : isTranscribing ? "Transcribing..." : "Dictate with voice"}
+            title={isListening ? "Listening... click to stop" : isTranscribing ? "Transcribing speech..." : "Dictate with voice"}
           >
             {isTranscribing ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -437,7 +463,7 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
             <button
               type="button"
               onClick={onStop}
-              className="w-8 h-8 rounded-xl bg-neutral-900 hover:bg-black dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-neutral-900 flex items-center justify-center shrink-0 transition-all shadow-xs cursor-pointer"
+              className="w-8 h-8 rounded-xl bg-[#1A1718] hover:bg-black text-white flex items-center justify-center shrink-0 transition-all shadow-xs cursor-pointer active:scale-95"
               title="Stop generation"
             >
               <Square className="w-3.5 h-3.5 fill-current" />
@@ -447,7 +473,7 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
               type="button"
               onClick={handleSend}
               disabled={disabled || (!text.trim() && attachments.length === 0)}
-              className="w-8 h-8 rounded-xl bg-neutral-900 hover:bg-black dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-neutral-900 disabled:opacity-30 disabled:hover:bg-neutral-900 dark:disabled:hover:bg-white flex items-center justify-center shrink-0 transition-all shadow-xs cursor-pointer"
+              className="w-8 h-8 rounded-xl bg-[#D84A70] hover:bg-[#C0375D] disabled:bg-[#EFE9E6] disabled:text-[#A39B9E] text-white disabled:cursor-not-allowed flex items-center justify-center shrink-0 transition-all shadow-xs cursor-pointer active:scale-95"
               title="Send message"
             >
               <ArrowUp className="w-4 h-4" />
@@ -456,8 +482,8 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
         </div>
       </div>
 
-      {/* Subtle ChatGPT-style disclaimer below composer */}
-      <p className="text-[11px] text-neutral-400 dark:text-neutral-500 text-center mt-2">
+      {/* Subtle disclaimer below composer */}
+      <p className="text-[11px] text-[#A39B9E] text-center mt-2">
         ARFA AI can make mistakes. Consider checking important information.
       </p>
     </div>

@@ -93,12 +93,12 @@ export async function generateImage(params: GenerateImageParams): Promise<Genera
 
   const ai = getGeminiClient();
 
-  // Model selection: Configurable via GEMINI_IMAGE_MODEL, fallback pool
-  const configuredModel = process.env.GEMINI_IMAGE_MODEL || "gemini-3.1-flash-image";
+  // Model selection: Prioritize fast Nano Banana (gemini-3.1-flash-lite-image) with fallback to gemini-3.1-flash-image
+  const configuredModel = process.env.GEMINI_IMAGE_MODEL || "gemini-3.1-flash-lite-image";
   const candidateModels = [
     configuredModel,
-    "gemini-3.1-flash-image",
     "gemini-3.1-flash-lite-image",
+    "gemini-3.1-flash-image",
   ].filter((v, i, a) => a.indexOf(v) === i);
 
   let lastError: Error | null = null;
@@ -363,7 +363,7 @@ export async function checkVideoStatus(
 
   try {
     const op = await ai.operations.getVideosOperation({
-      operation: { name: record.operationName },
+      operation: { name: record.operationName } as any,
     });
 
     if (!op.done) {
@@ -375,7 +375,10 @@ export async function checkVideoStatus(
     }
 
     if (op.error) {
-      const friendlyErr = getFriendlyMultimodalError(new Error(op.error.message || "Video rendering error"), "video");
+      const errMsg = typeof op.error === "object" && op.error !== null && "message" in op.error
+        ? String((op.error as any).message)
+        : "Video rendering error";
+      const friendlyErr = getFriendlyMultimodalError(new Error(errMsg), "video");
       db.updateMediaRecord(record.id, {
         status: "failed",
         error: friendlyErr,

@@ -1,6 +1,6 @@
 {
   "name": "ARFA AI",
-  "description": "A premium AI assistant featuring ultra-fast streaming responses, ChatGPT-style authentication, interactive templates, long-term memory, and modern monochrome aesthetics.",
+  "description": "A high-performance AI assistant created by Arfa, featuring ultra-fast streaming responses, Nano Banana image generation, voice dictation, and a refined luxury design.",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

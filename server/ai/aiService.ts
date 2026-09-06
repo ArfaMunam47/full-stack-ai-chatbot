@@ -43,14 +43,14 @@ export async function executeStreamingChat(
         `OpenAI stream failed before emitting tokens (${errMsg}). Falling back to Gemini...`
       );
       // Fallback to Gemini
-      const geminiModel = "gemini-3.8-flash";
+      const geminiModel = "gemini-3.1-flash-lite";
       await streamGeminiChat(systemInstruction, history, message, callbacks, geminiModel);
       return;
     }
   }
 
   // Gemini primary flow (high-speed streaming)
-  const selectedGeminiModel = modelName || "gemini-3.8-flash";
+  const selectedGeminiModel = (modelName && modelName !== "gemini-2.5-flash") ? modelName : "gemini-3.1-flash-lite";
   try {
     await streamGeminiChat(systemInstruction, history, message, callbacks, selectedGeminiModel);
   } catch (geminiErr: unknown) {

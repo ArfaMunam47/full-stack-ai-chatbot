@@ -1,72 +1,47 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 @layer base {
   :root {
     --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
     /* 
-     * ARFA AI Ultra-Professional Monochromatic Palette (ChatGPT-style)
-     * Timeless, high-contrast, zero bluish tints
+     * ARFA AI Luxury Beauty Technology Design System
+     * Single Light, Premium, Feminine Theme (No Dark Mode)
+     * Crisp ivory foundation + charcoal obsidian readability + delicate blush & rose accents
      */
-    --color-bg-canvas: #FFFFFF;        /* Pure white canvas */
-    --color-bg-surface: #FFFFFF;       /* Pure white cards & containers */
-    --color-bg-subtle: #F4F4F5;        /* Neutral-100 subtle hover & tags */
-    --color-bg-sidebar: #F9FAFB;       /* Crisp light neutral sidebar */
-    --color-bg-recessed: #F4F4F5;      /* Recessed input */
+    --color-bg-canvas: #FAF8F7;        /* Clean, radiant soft ivory canvas */
+    --color-bg-surface: #FFFFFF;       /* Pure white crisp elevated surfaces */
+    --color-bg-subtle: #F6F3F1;        /* Soft neutral stone for hover states */
+    --color-bg-sidebar: #F8F6F4;       /* Calm, architectural sidebar */
+    --color-bg-recessed: #F1ECE9;      /* Recessed container groove */
 
-    --color-border-subtle: #E4E4E7;    /* Neutral-200 hairline border */
-    --color-border-strong: #D4D4D8;    /* Neutral-300 boundary border */
-    --color-border-highlight: rgba(0, 0, 0, 0.05);
+    --color-border-subtle: #EFE9E6;    /* Delicate hairline border */
+    --color-border-strong: #DECFCB;    /* Defined boundary border */
+    --color-border-highlight: rgba(216, 74, 112, 0.12);
 
-    /* Primary Accent: Crisp Jet Black in light mode */
-    --color-brand-primary: #18181B;    /* Neutral-900 */
-    --color-brand-hover: #000000;      /* Pure black */
-    --color-brand-dark: #09090B;
-    --color-brand-soft: #F4F4F5;
-    --color-brand-border: #E4E4E7;
+    /* Primary Text & Deep Neutrals (WCAG AAA Contrast > 15:1) */
+    --color-text-primary: #1A1718;      /* Deep espresso charcoal - ultra legible */
+    --color-text-secondary: #5A5456;    /* Medium neutral gray (WCAG AA 6.2:1) */
+    --color-text-muted: #7E7779;        /* Metadata, timestamps & captions */
+    --color-placeholder: #A39B9E;
 
-    /* High Readability Typography (WCAG AAA Contrast) */
-    --color-text-primary: #18181B;      /* Neutral-900 - jet readable text */
-    --color-text-secondary: #52525B;    /* Neutral-600 - clear subheadings */
-    --color-text-muted: #71717A;        /* Neutral-500 - metadata */
-    --color-placeholder: #A1A1AA;       /* Neutral-400 */
+    /* Premium Rose & Blush Accent System (Luxury Beauty Tech) */
+    --color-rose-primary: #D84A70;     /* Refined rose - primary action */
+    --color-rose-hover: #C0375D;       /* Deep rich berry hover */
+    --color-rose-subtle: #FDF2F5;      /* Soft blush highlight background */
+    --color-rose-border: #F7CDD8;      /* Delicate rose hairline */
+    --color-rose-glow: rgba(216, 74, 112, 0.16);
 
-    --color-code-bg: #18181B;
-    --color-code-text: #FAFAFA;
-  }
+    /* Primary Brand Button */
+    --color-brand-primary: #1A1718;
+    --color-brand-hover: #050404;
+    --color-brand-dark: #121011;
+    --color-brand-soft: #F6F3F1;
+    --color-brand-border: #EFE9E6;
 
-  .dark {
-    /* 
-     * Deep Obsidian Dark Mode: 100% visible, high-contrast, zero bluish hue
-     */
-    --color-bg-canvas: #171717;        /* Clean charcoal obsidian canvas */
-    --color-bg-surface: #212121;       /* Neutral-800 container */
-    --color-bg-subtle: #2A2A2A;        /* Neutral-700 subtle fill */
-    --color-bg-sidebar: #171717;       /* Seamless dark sidebar */
-    --color-bg-recessed: #262626;      /* Input groove */
-
-    --color-border-subtle: #2F2F2F;    /* Visible dark border */
-    --color-border-strong: #404040;    /* Solid contrasting border */
-    --color-border-highlight: rgba(255, 255, 255, 0.1);
-
-    /* Primary Accent: Crisp White in dark mode */
-    --color-brand-primary: #FFFFFF;
-    --color-brand-hover: #F4F4F5;
-    --color-brand-dark: #E4E4E7;
-    --color-brand-soft: #2A2A2A;
-    --color-brand-border: #404040;
-
-    /* Bright, crisp, effortless legibility */
-    --color-text-primary: #F5F5F5;      /* Crisp pure light */
-    --color-text-secondary: #D4D4D8;    /* Neutral-300 */
-    --color-text-muted: #A1A1AA;        /* Neutral-400 */
-    --color-placeholder: #71717A;
-
-    --color-code-bg: #0D0D0D;
-    --color-code-text: #F5F5F5;
+    --color-code-bg: #1A1718;
+    --color-code-text: #FAF8F7;
   }
 
   html, body {
@@ -95,7 +70,7 @@
 .saas-card {
   background-color: var(--color-bg-surface);
   border: 1px solid var(--color-border-subtle);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 2px 8px rgba(216, 74, 112, 0.03);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -103,20 +78,41 @@
   border-color: var(--color-border-strong);
 }
 
-.dark .saas-card {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+/* Subtle Glossy Luxury Rose Buttons */
+.arfa-btn-rose {
+  background: linear-gradient(180deg, #E2587E 0%, #D84A70 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 6px var(--color-rose-glow), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Primary Button (Black in Light, White in Dark) */
+.arfa-btn-rose:hover {
+  background: linear-gradient(180deg, #D84A70 0%, #C0375D 100%);
+  box-shadow: 0 4px 12px rgba(216, 74, 112, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transform: translateY(-0.5px);
+}
+
+.arfa-btn-rose:active {
+  transform: translateY(0.5px);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+/* Selected Pill / Chip with Delicate Blush */
+.arfa-pill-active {
+  background-color: var(--color-rose-subtle);
+  color: var(--color-rose-primary);
+  border: 1px solid var(--color-rose-border);
+  box-shadow: 0 1px 3px rgba(216, 74, 112, 0.08);
+}
+
+/* Primary Button */
 .saas-btn-primary {
   background-color: var(--color-brand-primary);
   color: #FFFFFF;
   border: 1px solid transparent;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   transition: all 0.15s ease-in-out;
-}
-
-.dark .saas-btn-primary {
-  color: #18181B;
 }
 
 .saas-btn-primary:hover {
@@ -137,27 +133,17 @@
   border-color: var(--color-border-strong);
 }
 
-/* Input Bar & Recessed Containers */
+/* Glossy Floating Input Bar */
 .saas-input-bar {
   background-color: var(--color-bg-surface);
   border: 1px solid var(--color-border-subtle);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 16px -2px rgba(216, 74, 112, 0.05), 0 2px 6px rgba(0, 0, 0, 0.02);
   transition: all 0.2s ease-in-out;
 }
 
 .saas-input-bar:focus-within {
-  border-color: var(--color-border-strong);
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
-}
-
-.dark .saas-input-bar {
-  background-color: #212121;
-  border-color: #333333;
-}
-
-.dark .saas-input-bar:focus-within {
-  border-color: #555555;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08);
+  border-color: var(--color-rose-primary);
+  box-shadow: 0 0 0 3px rgba(216, 74, 112, 0.12), 0 4px 16px -2px rgba(216, 74, 112, 0.08);
 }
 
 /* Backward compatibility aliases */
@@ -180,10 +166,6 @@
 .tactile-espresso {
   background-color: var(--color-brand-primary);
   color: #FFFFFF;
-}
-
-.dark .tactile-espresso {
-  color: #18181B;
 }
 
 .tactile-recessed {

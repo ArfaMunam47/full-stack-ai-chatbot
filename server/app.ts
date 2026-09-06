@@ -498,20 +498,23 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
   }
 
   // 7. MULTIMODAL INTENT ROUTING (Real Gemini Nano Banana & Veo Generation)
-  const lastImage = db.getLastImageMedia(conv.id, userId);
-  const intentResult = detectIntent({
-    message: message.trim(),
-    attachments: mappedAttachments,
-    lastImageMedia: lastImage
-      ? {
-          filePath: lastImage.filePath,
-          mimeType: lastImage.mimeType,
-          url: `/api/media/${lastImage.id}`,
-          id: lastImage.id,
-        }
-      : undefined,
-    explicitMode: parsed.data.mode,
-  });
+  const isChatMode = parsed.data.mode === "chat";
+  const lastImage = isChatMode ? undefined : db.getLastImageMedia(conv.id, userId);
+  const intentResult = isChatMode
+    ? { intent: "chat" as const, cleanedPrompt: message.trim(), confidence: 1.0 }
+    : detectIntent({
+        message: message.trim(),
+        attachments: mappedAttachments,
+        lastImageMedia: lastImage
+          ? {
+              filePath: lastImage.filePath,
+              mimeType: lastImage.mimeType,
+              url: `/api/media/${lastImage.id}`,
+              id: lastImage.id,
+            }
+          : undefined,
+        explicitMode: parsed.data.mode,
+      });
 
   if (intentResult.intent === "image_generation" || intentResult.intent === "image_edit") {
     try {

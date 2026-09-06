@@ -3,13 +3,15 @@ import {
   Sparkles,
   Plus,
   Mic,
+  MicOff,
   ArrowUp,
   Brain,
   Code,
-  GraduationCap,
-  Lightbulb,
+  Film,
+  Palette,
 } from "lucide-react";
 import { User } from "../../types.ts";
+import { ArfaLogo } from "../ui/ArfaLogo.tsx";
 
 interface EmptyStateProps {
   currentUser?: User | null;
@@ -25,6 +27,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
   const [inputText, setInputText] = useState("");
   const [isListening, setIsListening] = useState(false);
+  const [voiceNotice, setVoiceNotice] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
 
   const triggerPrompt = (text: string) => {
@@ -32,7 +35,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     else if (onSelectPrompt) onSelectPrompt(text);
   };
 
-  // Time-of-day greeting (Matching reference image)
+  // Time-of-day greeting
   const getGreeting = () => {
     const hour = new Date().getHours();
     let timeGreeting = "Good morning";
@@ -40,44 +43,57 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     else if (hour >= 17) timeGreeting = "Good evening";
 
     const name = currentUser && !currentUser.isGuest ? currentUser.name : "Arfa";
-    return `${timeGreeting}, ${name} 👋`;
+    return `${timeGreeting}, ${name}`;
   };
 
-  // Speech Recognition
+  // Speech Recognition with friendly permissions
   const handleMicToggle = () => {
+    setVoiceNotice(null);
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert("Speech recognition is not supported in this browser.");
+      setVoiceNotice("Microphone recording is not supported in this browser. Please type your message.");
       return;
     }
 
     if (isListening) {
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        try {
+          recognitionRef.current.stop();
+        } catch {}
       }
       setIsListening(false);
     } else {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = true;
-      recognition.lang = "en-US";
+      try {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = "en-US";
 
-      recognition.onstart = () => setIsListening(true);
-      recognition.onresult = (event: any) => {
-        let transcript = "";
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript;
-        }
-        if (transcript) {
-          setInputText((prev) => (prev ? `${prev.trim()} ${transcript}` : transcript));
-        }
-      };
-      recognition.onerror = () => setIsListening(false);
-      recognition.onend = () => setIsListening(false);
+        recognition.onstart = () => setIsListening(true);
+        recognition.onresult = (event: any) => {
+          let transcript = "";
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            transcript += event.results[i][0].transcript;
+          }
+          if (transcript) {
+            setInputText((prev) => (prev ? `${prev.trim()} ${transcript}` : transcript));
+          }
+        };
+        recognition.onerror = (e: any) => {
+          setIsListening(false);
+          if (e.error === "not-allowed") {
+            setVoiceNotice("Microphone access is blocked. Allow microphone permission in your browser settings and try again.");
+          }
+        };
+        recognition.onend = () => setIsListening(false);
 
-      recognitionRef.current = recognition;
-      recognition.start();
+        recognitionRef.current = recognition;
+        recognition.start();
+      } catch (err) {
+        console.warn("Speech recognition error:", err);
+        setIsListening(false);
+      }
     }
   };
 
@@ -88,35 +104,39 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     setInputText("");
   };
 
-  // 4 Prompt Cards from Reference Image
+  // 4 Curated High-Value Prompt Suggestions
   const promptSuggestions = [
     {
+      id: "generate-image",
+      title: "Generate an image",
+      subtitle: "Nano Banana photorealistic art",
+      prompt: "Generate a photorealistic image of an elegant espresso studio at twilight with warm walnut counters and soft ambient lighting.",
+      icon: Palette,
+      badge: "Image",
+    },
+    {
+      id: "generate-video",
+      title: "Cinematic video",
+      subtitle: "Veo cinematic drone sequence",
+      prompt: "Generate a cinematic video of mountain mist slowly parting over a tranquil alpine lake at sunrise with smooth slow-motion camera movement.",
+      icon: Film,
+      badge: "Video",
+    },
+    {
       id: "explain-ai",
-      title: "Explain AI in simple terms",
-      prompt: "Explain artificial intelligence in simple terms that anyone can easily understand, with a relatable everyday analogy.",
+      title: "Concept breakdown",
+      subtitle: "Clear mental models & examples",
+      prompt: "Explain how large language models generate tokens step by step, using a vivid analogy that makes it effortless to grasp.",
       icon: Brain,
-      color: "text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800",
+      badge: "Explore",
     },
     {
       id: "coding-practices",
-      title: "Best practices for coding",
-      prompt: "What are the most essential modern best practices for clean code, maintainability, and scalable software architecture?",
+      title: "Software architecture",
+      subtitle: "Production clean-code principles",
+      prompt: "Analyze the most critical architectural patterns for scaling high-concurrency Node.js and React applications with zero latency.",
       icon: Code,
-      color: "text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800",
-    },
-    {
-      id: "study-plan",
-      title: "Make a study plan",
-      prompt: "Create a focused, realistic study plan for mastering a new subject in 30 days, with structured daily and weekly milestones.",
-      icon: GraduationCap,
-      color: "text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800",
-    },
-    {
-      id: "motivational-quote",
-      title: "Write a motivational quote",
-      prompt: "Share an inspiring, deeply motivational quote accompanied by a brief thought on overcoming obstacles and staying persistent.",
-      icon: Lightbulb,
-      color: "text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800",
+      badge: "Code",
     },
   ];
 
@@ -125,23 +145,23 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       id="arfa-empty-state"
       className="w-full max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col items-center justify-center flex-1 select-none animate-fadeIn"
     >
-      {/* Top Neutral Emblem */}
-      <div className="w-12 h-12 rounded-2xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center shadow-sm mb-4 transition-transform hover:scale-105">
-        <Sparkles className="w-6 h-6" />
+      {/* Official Geometric ARFA AI Emblem */}
+      <div className="mb-4">
+        <ArfaLogo size="lg" showText={false} />
       </div>
 
-      {/* Dynamic Headline */}
-      <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 dark:text-white text-center mb-1">
+      {/* Dynamic Greeting */}
+      <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#1A1718] text-center mb-1">
         {getGreeting()}
       </h1>
-      <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center mb-8">
-        How can I help you today?
+      <p className="text-sm text-[#5A5456] text-center mb-8">
+        What would you like to create or explore today?
       </p>
 
-      {/* Central Floating Search / Prompt Box */}
+      {/* Central Floating Luxury Search / Prompt Box */}
       <form
         onSubmit={handleSubmit}
-        className="w-full relative mb-8 rounded-2xl bg-white dark:bg-[#212121] border border-neutral-200 dark:border-neutral-700 shadow-md dark:shadow-none p-2.5 transition-all focus-within:border-neutral-400 dark:focus-within:border-neutral-500"
+        className="w-full relative mb-6 rounded-2xl bg-white border border-[#EFE9E6] shadow-sm hover:shadow-md p-2.5 transition-all focus-within:border-[#D84A70] focus-within:ring-2 focus-within:ring-[#D84A70]/15"
       >
         <div className="flex items-center gap-2">
           {/* Plus Button for File Upload */}
@@ -151,7 +171,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
               const fileInput = document.getElementById("file-upload-input");
               if (fileInput) fileInput.click();
             }}
-            className="w-8 h-8 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white flex items-center justify-center shrink-0 transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-[#F6F3F1] text-[#5A5456] hover:text-[#1A1718] hover:bg-[#EFE9E6] flex items-center justify-center shrink-0 transition-colors cursor-pointer"
             title="Attach file or photo"
           >
             <Plus className="w-4 h-4" />
@@ -163,35 +183,49 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder="Ask ARFA AI anything..."
-            className="flex-1 text-sm bg-transparent outline-none text-neutral-900 dark:text-white placeholder-neutral-400 px-2 py-1"
+            placeholder="Ask ARFA AI anything, or ask to generate images & videos..."
+            className="flex-1 text-sm bg-transparent outline-none text-[#1A1718] placeholder-[#A39B9E] px-2 py-1 font-normal"
           />
 
           {/* Microphone Voice Button */}
           <button
             type="button"
             onClick={handleMicToggle}
-            className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors cursor-pointer ${
+            className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all cursor-pointer ${
               isListening
-                ? "bg-red-500 text-white animate-pulse"
-                : "text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                ? "bg-[#D84A70] text-white ring-2 ring-[#F7CDD8] animate-pulse shadow-xs"
+                : "text-[#7E7779] hover:text-[#D84A70] hover:bg-[#FDF2F5]"
             }`}
-            title={isListening ? "Listening..." : "Dictate with voice"}
+            title={isListening ? "Listening... click to stop" : "Dictate with voice"}
           >
-            <Mic className="w-4 h-4" />
+            {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
           </button>
 
-          {/* Send Button (Solid Black in Light Mode, Solid White in Dark Mode - ChatGPT style) */}
+          {/* Send Button */}
           <button
             type="submit"
             disabled={!inputText.trim()}
-            className="w-8 h-8 rounded-xl bg-neutral-900 hover:bg-black dark:bg-white dark:hover:bg-neutral-200 text-white dark:text-neutral-900 disabled:opacity-30 disabled:hover:bg-neutral-900 dark:disabled:hover:bg-white flex items-center justify-center shrink-0 transition-all shadow-xs cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-[#D84A70] hover:bg-[#C0375D] disabled:bg-[#EFE9E6] disabled:text-[#A39B9E] text-white disabled:cursor-not-allowed flex items-center justify-center shrink-0 transition-all shadow-xs cursor-pointer active:scale-95"
             title="Send prompt"
           >
             <ArrowUp className="w-4 h-4" />
           </button>
         </div>
       </form>
+
+      {/* Voice Warning Banner */}
+      {voiceNotice && (
+        <div className="w-full mb-6 p-2.5 rounded-xl bg-[#FFF5F7] border border-[#F5C4D2] text-xs text-[#9B2A48] flex items-center justify-between shadow-xs">
+          <span>{voiceNotice}</span>
+          <button
+            type="button"
+            onClick={() => setVoiceNotice(null)}
+            className="text-[#9B2A48] hover:opacity-80 font-bold ml-2 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* 2x2 Grid of Prompt Suggestions */}
       <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -202,16 +236,24 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
               key={item.id}
               type="button"
               onClick={() => triggerPrompt(item.prompt)}
-              className="p-3.5 rounded-xl bg-white dark:bg-[#212121] border border-neutral-200 dark:border-neutral-700 hover:border-neutral-400 dark:hover:border-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800/70 hover:shadow-xs transition-all flex items-center gap-3 text-left cursor-pointer group"
+              className="p-3.5 rounded-2xl bg-white border border-[#EFE9E6] hover:border-[#D84A70] hover:bg-[#FDF2F5]/40 hover:shadow-xs transition-all flex items-start gap-3.5 text-left cursor-pointer group"
             >
-              <div
-                className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${item.color}`}
-              >
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 bg-[#FDF2F5] text-[#D84A70]">
                 <Icon className="w-4 h-4" />
               </div>
-              <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-200 group-hover:text-neutral-900 dark:group-hover:text-white truncate">
-                {item.title}
-              </span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-1 mb-0.5">
+                  <span className="text-xs font-bold text-[#1A1718] group-hover:text-[#D84A70] transition-colors truncate">
+                    {item.title}
+                  </span>
+                  <span className="text-[10px] font-medium px-1.5 py-0.2 rounded bg-[#F6F3F1] text-[#7E7779]">
+                    {item.badge}
+                  </span>
+                </div>
+                <p className="text-[11px] text-[#5A5456] truncate">
+                  {item.subtitle}
+                </p>
+              </div>
             </button>
           );
         })}
