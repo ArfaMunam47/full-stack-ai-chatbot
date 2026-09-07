@@ -6,9 +6,10 @@ import {
   MicOff,
   ArrowUp,
   Brain,
-  Code,
   Film,
   Palette,
+  Presentation,
+  Languages,
 } from "lucide-react";
 import { User } from "../../types.ts";
 import { ArfaLogo } from "../ui/ArfaLogo.tsx";
@@ -100,45 +101,51 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!inputText.trim()) return;
-    triggerPrompt(inputText.trim());
+    triggerPrompt(inputText);
     setInputText("");
   };
 
-  // 4 Curated High-Value Prompt Suggestions
+  // 4 Curated High-Value Prompt Suggestions showcasing $10,000 Capabilities
   const promptSuggestions = [
     {
+      id: "urdu-chat",
+      title: "اردو میں بات چیت",
+      subtitle: "Full Urdu & bilingual fluency",
+      prompt: "lets talk in urdu",
+      icon: Languages,
+      badge: "اردو / Urdu",
+      highlight: true,
+    },
+    {
+      id: "generate-presentation",
+      title: "Interactive Presentation Deck",
+      subtitle: "Executive slides & data breakdown",
+      prompt: "Generate an executive presentation deck on the Future of Artificial Intelligence and its impact on global industries.",
+      icon: Presentation,
+      badge: "Slides Deck",
+      highlight: true,
+    },
+    {
       id: "generate-image",
-      title: "Generate an image",
-      subtitle: "Nano Banana photorealistic art",
-      prompt: "Generate a photorealistic image of an elegant espresso studio at twilight with warm walnut counters and soft ambient lighting.",
+      title: "8K Photorealistic Studio Image",
+      subtitle: "Photorealistic art & concept design",
+      prompt: "Generate a photorealistic 8K image of a serene high-tech glass pavilion floating over a mist-covered mountain lake at dawn.",
       icon: Palette,
-      badge: "Image",
+      badge: "8K Image",
+      highlight: false,
     },
     {
       id: "generate-video",
-      title: "Cinematic video",
-      subtitle: "Veo cinematic drone sequence",
+      title: "Cinematic Video Clip",
+      subtitle: "Motion synthesis & drone flow",
       prompt: "Generate a cinematic video of mountain mist slowly parting over a tranquil alpine lake at sunrise with smooth slow-motion camera movement.",
       icon: Film,
-      badge: "Video",
-    },
-    {
-      id: "explain-ai",
-      title: "Concept breakdown",
-      subtitle: "Clear mental models & examples",
-      prompt: "Explain how large language models generate tokens step by step, using a vivid analogy that makes it effortless to grasp.",
-      icon: Brain,
-      badge: "Explore",
-    },
-    {
-      id: "coding-practices",
-      title: "Software architecture",
-      subtitle: "Production clean-code principles",
-      prompt: "Analyze the most critical architectural patterns for scaling high-concurrency Node.js and React applications with zero latency.",
-      icon: Code,
-      badge: "Code",
+      badge: "Motion Video",
+      highlight: false,
     },
   ];
+
+  const isUrduInput = /[\u0600-\u06FF]/.test(inputText);
 
   return (
     <div
@@ -154,9 +161,29 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#1A1718] text-center mb-1">
         {getGreeting()}
       </h1>
-      <p className="text-sm text-[#5A5456] text-center mb-8">
-        What would you like to create or explore today?
+      <p className="text-sm text-[#5A5456] text-center mb-4">
+        The Next-Generation Intelligence Engine for Reasoning, Media & Creation
       </p>
+
+      {/* Feature Capabilities Pill Showcase */}
+      <div className="flex flex-wrap items-center justify-center gap-2 mb-6 text-[11px] font-medium text-[#5A5456]">
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-[#EFE9E6] shadow-xs text-[#1A1718]">
+          <Languages className="w-3.5 h-3.5 text-[#D84A70]" />
+          <span>Multilingual (اردو / English)</span>
+        </span>
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-[#EFE9E6] shadow-xs text-[#1A1718]">
+          <Palette className="w-3.5 h-3.5 text-[#D84A70]" />
+          <span>8K Studio Images</span>
+        </span>
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-[#EFE9E6] shadow-xs text-[#1A1718]">
+          <Film className="w-3.5 h-3.5 text-[#D84A70]" />
+          <span>Cinematic Video</span>
+        </span>
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-[#EFE9E6] shadow-xs text-[#1A1718]">
+          <Presentation className="w-3.5 h-3.5 text-amber-600" />
+          <span>Presentation Decks</span>
+        </span>
+      </div>
 
       {/* Central Floating Luxury Search / Prompt Box */}
       <form
@@ -181,10 +208,13 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           <input
             id="empty-state-prompt-input"
             type="text"
+            dir={isUrduInput ? "rtl" : "ltr"}
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder="Ask ARFA AI anything, or ask to generate images & videos..."
-            className="flex-1 text-sm bg-transparent outline-none text-[#1A1718] placeholder-[#A39B9E] px-2 py-1 font-normal"
+            placeholder="Ask anything, talk in Urdu (اردو میں بات کریں), generate media or presentations..."
+            className={`flex-1 text-sm bg-transparent outline-none text-[#1A1718] placeholder-[#A39B9E] px-2 py-1 font-normal ${
+              isUrduInput ? "font-serif text-right" : "text-left"
+            }`}
           />
 
           {/* Microphone Voice Button */}

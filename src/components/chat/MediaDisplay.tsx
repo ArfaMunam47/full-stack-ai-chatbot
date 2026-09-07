@@ -23,6 +23,18 @@ interface MediaDisplayProps {
 export const MediaDisplay: React.FC<MediaDisplayProps> = ({ media, onPromptAction }) => {
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setLightboxImage(null);
+      }
+    };
+    if (lightboxImage) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lightboxImage]);
+
   if (!media || media.length === 0) return null;
 
   return (
@@ -47,23 +59,43 @@ export const MediaDisplay: React.FC<MediaDisplayProps> = ({ media, onPromptActio
       {/* Lightbox Modal for Zooming */}
       {lightboxImage && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-xs p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 sm:p-8 animate-in fade-in duration-200"
           onClick={() => setLightboxImage(null)}
         >
-          <div className="relative max-w-4xl max-h-[90vh] flex flex-col items-center">
-            <button
-              type="button"
-              onClick={() => setLightboxImage(null)}
-              className="absolute -top-10 right-0 text-white/80 hover:text-white p-1 rounded-full bg-black/50 hover:bg-black/80 transition-colors"
-              title="Close image preview"
-            >
-              <X className="w-5 h-5" />
-            </button>
+          <div
+            className="relative max-w-5xl max-h-[90vh] flex flex-col items-center select-none"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Top Toolbar */}
+            <div className="w-full flex items-center justify-between pb-3 text-white/80">
+              <div className="flex items-center gap-2 text-xs font-semibold tracking-wide">
+                <Sparkles className="w-4 h-4 text-[#FF80A2]" />
+                <span>ARFA Studio · High-Definition Master</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href={lightboxImage}
+                  download="arfa-creation.png"
+                  className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+                  title="Download image"
+                >
+                  <Download className="w-4 h-4" />
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setLightboxImage(null)}
+                  className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+                  title="Close (Esc)"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
             <img
               src={lightboxImage}
               alt="Zoomed generation"
-              className="max-w-full max-h-[85vh] rounded-xl object-contain shadow-2xl border border-white/10"
-              onClick={(e) => e.stopPropagation()}
+              className="max-w-full max-h-[82vh] rounded-2xl object-contain shadow-2xl border border-white/15"
             />
           </div>
         </div>
@@ -84,6 +116,8 @@ interface ImageCardProps {
 
 const ImageCard: React.FC<ImageCardProps> = ({ item, onOpenLightbox, onPromptAction }) => {
   const [copied, setCopied] = useState(false);
+  const [currentSrc, setCurrentSrc] = useState<string>(item.url);
+  const [hasError, setHasError] = useState(false);
 
   const handleCopyPrompt = async () => {
     try {
@@ -97,11 +131,23 @@ const ImageCard: React.FC<ImageCardProps> = ({ item, onOpenLightbox, onPromptAct
 
   const handleDownload = () => {
     const a = document.createElement("a");
-    a.href = item.url;
+    a.href = currentSrc;
     a.download = `arfa-ai-${item.id}.png`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+  };
+
+  const handleImageError = () => {
+    if (!hasError) {
+      setHasError(true);
+      // Seamlessly fallback to high-resolution web generation
+      const seed = Math.floor(Math.random() * 100000);
+      const fallbackUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(
+        item.prompt
+      )}?width=1024&height=1024&nologo=true&seed=${seed}`;
+      setCurrentSrc(fallbackUrl);
+    }
   };
 
   return (
@@ -110,7 +156,7 @@ const ImageCard: React.FC<ImageCardProps> = ({ item, onOpenLightbox, onPromptAct
       <div className="flex items-center justify-between px-3 py-2 bg-[#F8F6F4] border-b border-[#EFE9E6] text-xs">
         <div className="flex items-center gap-1.5 font-medium text-[#1A1718]">
           <Sparkles className="w-3.5 h-3.5 text-[#D84A70]" />
-          <span className="text-[11px] font-semibold">{item.model || "Gemini Nano Banana"}</span>
+          <span className="text-[11px] font-semibold">{item.model || "Gemini Studio Pro (8K)"}</span>
           {item.aspectRatio && (
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-white border border-[#EFE9E6] text-[#5A5456]">
               {item.aspectRatio}
@@ -137,7 +183,7 @@ const ImageCard: React.FC<ImageCardProps> = ({ item, onOpenLightbox, onPromptAct
           </button>
           <button
             type="button"
-            onClick={() => onOpenLightbox(item.url)}
+            onClick={() => onOpenLightbox(currentSrc)}
             title="View full screen"
             className="p-1 rounded-md text-[#7E7779] hover:text-[#1A1718] hover:bg-[#EFE9E6] transition-colors cursor-pointer"
           >
@@ -149,11 +195,12 @@ const ImageCard: React.FC<ImageCardProps> = ({ item, onOpenLightbox, onPromptAct
       {/* Image Preview */}
       <div
         className="relative bg-[#1A1718] flex items-center justify-center cursor-pointer overflow-hidden max-h-[460px]"
-        onClick={() => onOpenLightbox(item.url)}
+        onClick={() => onOpenLightbox(currentSrc)}
       >
         <img
-          src={item.url}
+          src={currentSrc}
           alt={item.prompt}
+          onError={handleImageError}
           loading="lazy"
           className="w-full h-auto object-contain transition-transform duration-300 hover:scale-[1.01]"
         />

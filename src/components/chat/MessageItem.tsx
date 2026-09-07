@@ -5,7 +5,8 @@ import { Message } from "../../types.ts";
 import { ArfaLogo } from "../ui/ArfaLogo.tsx";
 import { CodeBlock } from "./CodeBlock.tsx";
 import { MediaDisplay } from "./MediaDisplay.tsx";
-import { Copy, Check, Volume2, VolumeX, RotateCcw, FileText, Sparkles } from "lucide-react";
+import { PresentationDeck } from "./PresentationDeck.tsx";
+import { Copy, Check, Volume2, VolumeX, RotateCcw, FileText, Sparkles, Presentation } from "lucide-react";
 
 interface MessageItemProps {
   message: Message;
@@ -57,6 +58,16 @@ export const MessageItem: React.FC<MessageItemProps> = ({
     window.speechSynthesis.cancel();
     const cleanText = message.content.replace(/```[\s\S]*?```/g, "code block").replace(/[#*`_]/g, "");
     const utterance = new SpeechSynthesisUtterance(cleanText);
+    if (isRtl) {
+      const voices = window.speechSynthesis.getVoices();
+      const urduVoice = voices.find((v) => v.lang.startsWith("ur") || v.name.toLowerCase().includes("urdu"));
+      if (urduVoice) {
+        utterance.voice = urduVoice;
+        utterance.lang = urduVoice.lang;
+      } else {
+        utterance.lang = "ur-PK";
+      }
+    }
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
     utterance.onend = () => setSpeaking(false);
@@ -75,7 +86,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
         <div
           dir={isRtl ? "rtl" : "ltr"}
           className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 bg-[#F6F3F1] border border-[#EFE9E6] text-[#1A1718] shadow-xs ${
-            isRtl ? "text-right" : "text-left"
+            isRtl ? "text-right urdu-font" : "text-left"
           }`}
         >
           {/* Attachments if any */}
@@ -119,7 +130,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
       <div
         dir={isRtl ? "rtl" : "ltr"}
         className={`flex-1 min-w-0 rounded-2xl p-4 sm:p-5 bg-white border border-[#EFE9E6] shadow-xs text-[#1A1718] ${
-          isRtl ? "text-right" : "text-left"
+          isRtl ? "text-right urdu-font" : "text-left"
         }`}
       >
         {/* Header: Identity & Model Indicator */}
@@ -187,6 +198,20 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                   code(props) {
                     const { className, children, ...rest } = props;
                     const match = /language-(\w+)/.exec(className || "");
+                    const lang = match ? match[1].toLowerCase() : "";
+                    const rawContent = String(children).replace(/\n$/, "");
+
+                    if (lang === "presentation") {
+                      try {
+                        const parsed = JSON.parse(rawContent);
+                        if (parsed && parsed.slides && Array.isArray(parsed.slides)) {
+                          return <PresentationDeck presentation={parsed} />;
+                        }
+                      } catch (e) {
+                        console.warn("Could not parse presentation JSON block:", e);
+                      }
+                    }
+
                     const isInline = !match && !String(children).includes("\n");
 
                     if (isInline) {
@@ -200,7 +225,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                     return (
                       <CodeBlock
                         language={match ? match[1] : "plaintext"}
-                        code={String(children).replace(/\n$/, "")}
+                        code={rawContent}
                       />
                     );
                   },

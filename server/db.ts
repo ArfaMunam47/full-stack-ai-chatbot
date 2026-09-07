@@ -529,9 +529,14 @@ class Database {
     return media;
   }
 
-  getMediaRecord(id: string, userId: string): MediaRecord | undefined {
+  getMediaRecord(id: string, userId?: string): MediaRecord | undefined {
     if (!this.data.mediaRecords) return undefined;
-    return this.data.mediaRecords.find((m) => m.id === id && m.userId === userId);
+    if (!userId) {
+      return this.data.mediaRecords.find((m) => m.id === id);
+    }
+    return this.data.mediaRecords.find(
+      (m) => m.id === id && (m.userId === userId || m.userId === "guest_anonymous" || !m.userId)
+    );
   }
 
   getMediaRecordByOperation(operationName: string): MediaRecord | undefined {

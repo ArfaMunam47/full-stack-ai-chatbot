@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { app } from "../server/app.ts";
 import { db } from "../server/db.ts";
 import { RegisterSchema, ChatRequestSchema, UpdateSettingsSchema } from "../server/validation/schemas.ts";
+import { extractAndPersistMemories, getRelevantMemories } from "../server/ai/memoryService.ts";
 
 console.log("=================================================================");
 console.log("   RUNNING ARFA AI PRODUCTION BACKEND & SECURITY TESTS");
@@ -204,6 +205,46 @@ async function runTests() {
     db.deleteSession(sessionTokenA);
     const user = db.verifySession(sessionTokenA);
     assert.equal(user, null, "Deleted session must be invalid");
+  });
+
+  // TEST 9: Conversational Memory Extraction & Recall
+  await expectTest("Extracts preferred name: 'My name is Afa'", () => {
+    const extracted = extractAndPersistMemories(userB.id, "Hi! My name is Afa.");
+    assert.ok(extracted.length > 0, "Should extract name memory");
+    const mems = db.getMemories(userB.id);
+    const nameMem = mems.find((m) => m.content.includes("Afa"));
+    assert.ok(nameMem, "User B memories should contain Afa");
+    assert.equal(nameMem?.content, "User's preferred name is Afa.");
+  });
+
+  await expectTest("Updates preferred name: 'Call me Afa Developer'", () => {
+    extractAndPersistMemories(userB.id, "Actually, call me Afa");
+    const mems = db.getMemories(userB.id);
+    const nameMems = mems.filter((m) => m.content.includes("User's preferred name is"));
+    assert.equal(nameMems.length, 1, "Should deduplicate and keep only current preferred name");
+    assert.ok(nameMems[0].content.includes("Afa"));
+  });
+
+  await expectTest("Extracts project context: 'My project is called ARFA AI'", () => {
+    extractAndPersistMemories(userB.id, "My project is called ARFA AI.");
+    const mems = db.getMemories(userB.id);
+    const projMem = mems.find((m) => m.category === "project");
+    assert.ok(projMem, "Should find project memory");
+    assert.ok(projMem?.content.includes("ARFA AI"));
+  });
+
+  await expectTest("Extracts instruction: 'Always respond in Urdu'", () => {
+    extractAndPersistMemories(userB.id, "Please always respond in Urdu.");
+    const mems = db.getMemories(userB.id);
+    const instrMem = mems.find((m) => m.category === "instruction");
+    assert.ok(instrMem, "Should find instruction memory");
+    assert.ok(instrMem?.content.includes("Urdu"));
+  });
+
+  await expectTest("Selects relevant memories for prompt context", () => {
+    const relevant = getRelevantMemories(userB.id, "How can I improve my project?");
+    assert.ok(relevant.length >= 2, "Should return at least name and project/instruction memories");
+    assert.ok(relevant.some((m) => m.content.includes("Afa")), "Relevant memories must include preferred name");
   });
 
   console.log("\n=================================================================");

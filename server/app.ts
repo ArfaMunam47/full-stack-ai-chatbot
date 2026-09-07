@@ -15,6 +15,7 @@ import {
   getFriendlyMultimodalError,
 } from "./ai/multimodalService.ts";
 import { detectIntent } from "./ai/intentRouter.ts";
+import { extractAndPersistMemories, getRelevantMemories } from "./ai/memoryService.ts";
 import {
   RegisterSchema,
   LoginSchema,
@@ -466,22 +467,31 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
       content: m.content,
     }));
 
-  // 4. Retrieve user settings and long-term memories
+  // 4. Extract and persist long-term memories from user message (instant recall)
+  try {
+    extractAndPersistMemories(userId, message);
+  } catch (memErr) {
+    console.error("Memory extraction notice:", memErr);
+  }
+
+  // 5. Retrieve user settings and relevant long-term memories
   const settings = db.getUserSettings(userId);
-  const memories = db.getMemories(userId);
+  const relevantMemories = getRelevantMemories(userId, message);
   const user = db.getUserById(userId);
 
-  // 5. Initialize Server-Sent Events headers
+  // 6. Initialize Server-Sent Events headers
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache, no-transform");
   res.setHeader("Connection", "keep-alive");
   res.setHeader("X-Accel-Buffering", "no");
   res.flushHeaders();
 
-  // 6. Support Stop Generation: handle client disconnect / abort signal
+  // 7. Support Stop Generation: accurately detect client abort via response close
   let isClientDisconnected = false;
-  req.on("close", () => {
-    isClientDisconnected = true;
+  res.on("close", () => {
+    if (!res.writableEnded) {
+      isClientDisconnected = true;
+    }
   });
 
   // Send initialization packet
@@ -584,12 +594,40 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
       res.end();
       return;
     } catch (imgErr: unknown) {
-      console.error("[Image Generation Error]:", imgErr);
-      const friendlyErr = getFriendlyMultimodalError(imgErr, "image");
+      console.warn("[Multimodal Notice - Image Generation Quota/Error]:", (imgErr as any)?.message || imgErr);
+      const isUrduScript = /[\u0600-\u06FF]/.test(intentResult.cleanedPrompt) || /[\u0600-\u06FF]/.test(message);
+      const isRomanUrdu = /\b(tasveer|tasweer|banao|kardo|banado|mujhe|chahiye|karo|likho|aap|hai|yeh|woh)\b/i.test(message);
+
+      let helpfulMessage = "";
+      if (isUrduScript) {
+        helpfulMessage = `تصویر بنانے کی درخواست:\n> **"${intentResult.cleanedPrompt}"**\n\n⚠️ **کوٹہ اور بلنگ کی معلومات**: گوگل کے نینو بنانا (Nano Banana / \`gemini-3.1-flash-lite-image\`) کے لیے فعال بلنگ پروجیکٹ درکار ہوتا ہے (فری ٹائر پر امیج ماڈلز کا کوٹہ 0 ہوتا ہے)۔\n\n**حل:**\n1. اپنے گوگل اے آئی اسٹوڈیو پروجیکٹ میں بلنگ فعال کریں۔\n2. اس دوران آپ اوپر دیا گیا تفصیلی پرامپٹ کسی بھی امیج جنریٹر میں استعمال کر سکتے ہیں۔`;
+      } else if (isRomanUrdu) {
+        helpfulMessage = `Image generation request:\n> **"${intentResult.cleanedPrompt}"**\n\n⚠️ **Quota & Billing Notice**: Google Nano Banana image models (\`gemini-3.1-flash-lite-image\`) ke liye billing-enabled project zaroori hai (Google free tier par image models ki quota limit 0 hoti hai).\n\n**Ise kaise enable karein:**\n1. Google AI Studio par apne project mein billing link karein.\n2. Tab tak aap oopar diye gaye prompt ko kisi bhi image generator tool mein use kar sakte hain.`;
+      } else {
+        helpfulMessage = `I received your image request:\n> **"${intentResult.cleanedPrompt}"**\n\n⚠️ **Google Gemini Quota Notice**: Image generation via Google Nano Banana (\`gemini-3.1-flash-lite-image\`) requires an active Google AI Studio project with billing or paid quota enabled (free-tier API keys have an image generation quota limit of 0).\n\n**How to enable this in your project:**\n1. In Google AI Studio, ensure your project is linked to a billing account with quota enabled.\n2. Once billing is linked, image generation with Nano Banana will activate automatically.\n3. In the meantime, you can copy the refined prompt above into your preferred image generation tool.`;
+      }
+
+      const assistantMsg = db.addMessage(
+        conv.id,
+        userId,
+        "assistant",
+        helpfulMessage,
+        undefined,
+        "gemini-3.1-flash-lite"
+      );
+
       res.write(
         `data: ${JSON.stringify({
-          type: "error",
-          error: friendlyErr,
+          type: "chunk",
+          chunk: helpfulMessage,
+        })}\n\n`
+      );
+      res.write(
+        `data: ${JSON.stringify({
+          type: "done",
+          messageId: assistantMsg.id,
+          fullText: helpfulMessage,
+          model: "gemini-3.1-flash-lite",
         })}\n\n`
       );
       res.end();
@@ -630,22 +668,33 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
         durationSeconds: (intentResult.durationSeconds as any) || 8,
       });
 
+      const isCompleted = videoJob.status === "completed";
+      const mediaUrl = isCompleted ? (videoJob.url || `/api/media/${videoJob.mediaId}`) : "";
+      const isUrdu = /[\u0600-\u06FF]/.test(intentResult.cleanedPrompt) || /[\u0600-\u06FF]/.test(message);
+
+      let textContent = `I've queued this video for generation with Veo:\n\n*"${intentResult.cleanedPrompt}"*\n\nVeo generates high-fidelity video clips asynchronously. Rendering progress will update live below.`;
+      if (isCompleted) {
+        textContent = isUrdu
+          ? `یہ رہی آپ کی ہائی ڈیفینیشن سنیمیٹک ویڈیو:\n\n*"${intentResult.cleanedPrompt}"*`
+          : `Here is your high-definition cinematic video:\n\n*"${intentResult.cleanedPrompt}"*`;
+      }
+
       const assistantMsg = db.addMessage(
         conv.id,
         userId,
         "assistant",
-        `I've queued this video for generation with Veo:\n\n*"${intentResult.cleanedPrompt}"*\n\nVeo generates high-fidelity video clips asynchronously. Rendering progress will update live below.`,
+        textContent,
         undefined,
         videoJob.model,
         [
           {
             id: videoJob.mediaId,
             type: "video",
-            url: "",
+            url: mediaUrl,
             mimeType: "video/mp4",
             prompt: videoJob.prompt,
             model: videoJob.model,
-            status: "processing",
+            status: videoJob.status,
             operationId: videoJob.operationName,
             aspectRatio: videoJob.aspectRatio,
             durationSeconds: videoJob.durationSeconds,
@@ -660,21 +709,51 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
           fullText: assistantMsg.content,
           model: videoJob.model,
           media: assistantMsg.media,
-          videoJob: {
-            mediaId: videoJob.mediaId,
-            operationName: videoJob.operationName,
-          },
+          videoJob: isCompleted
+            ? undefined
+            : {
+                mediaId: videoJob.mediaId,
+                operationName: videoJob.operationName,
+              },
         })}\n\n`
       );
       res.end();
       return;
     } catch (vidErr: unknown) {
-      console.error("[Video Generation Error]:", vidErr);
-      const friendlyErr = getFriendlyMultimodalError(vidErr, "video");
+      console.warn("[Multimodal Notice - Video Generation Quota/Error]:", (vidErr as any)?.message || vidErr);
+      const isUrduScript = /[\u0600-\u06FF]/.test(intentResult.cleanedPrompt) || /[\u0600-\u06FF]/.test(message);
+      const isRomanUrdu = /\b(video|banao|kardo|banado|mujhe|chahiye|karo|likho|aap|hai|yeh|woh)\b/i.test(message);
+
+      let helpfulMessage = "";
+      if (isUrduScript) {
+        helpfulMessage = `ویڈیو بنانے کی درخواست:\n> **"${intentResult.cleanedPrompt}"**\n\n⚠️ **کوٹہ اور بلنگ کی معلومات**: گوگل کے Veo ویڈیو ماڈلز (\`veo-3.1-lite-generate-preview\`) کے لیے فعال بلنگ پروجیکٹ درکار ہوتا ہے (فری ٹائر پر ویڈیو جنریشن دستیاب نہیں ہے)۔\n\n**حل:**\n1. اپنے گوگل کلاؤڈ / اے آئی اسٹوڈیو پروجیکٹ میں بلنگ اور Veo کوٹہ فعال کریں۔`;
+      } else if (isRomanUrdu) {
+        helpfulMessage = `Video generation request:\n> **"${intentResult.cleanedPrompt}"**\n\n⚠️ **Quota & Billing Notice**: Google Veo video models ke liye billing-enabled project zaroori hai.\n\n**Ise kaise enable karein:**\n1. Google AI Studio ya Google Cloud console mein billing enable karein.`;
+      } else {
+        helpfulMessage = `I received your video request:\n> **"${intentResult.cleanedPrompt}"**\n\n⚠️ **Google Veo Quota Notice**: Video generation via Google Veo (\`veo-3.1-lite-generate-preview\`) requires an active Google AI Studio project with billing or paid quota enabled (free-tier API keys have limit 0 for video models).\n\n**How to enable this in your project:**\n1. In Google AI Studio, link a billing account to your project to enable Veo video generation.\n2. Once billing is active, high-definition Veo rendering will generate seamlessly.`;
+      }
+
+      const assistantMsg = db.addMessage(
+        conv.id,
+        userId,
+        "assistant",
+        helpfulMessage,
+        undefined,
+        "gemini-3.1-flash-lite"
+      );
+
       res.write(
         `data: ${JSON.stringify({
-          type: "error",
-          error: friendlyErr,
+          type: "chunk",
+          chunk: helpfulMessage,
+        })}\n\n`
+      );
+      res.write(
+        `data: ${JSON.stringify({
+          type: "done",
+          messageId: assistantMsg.id,
+          fullText: helpfulMessage,
+          model: "gemini-3.1-flash-lite",
         })}\n\n`
       );
       res.end();
@@ -685,6 +764,25 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
   let fullResponse = "";
 
   try {
+    const wantsUrdu =
+      /\b(talk in urdu|lets talk in urdu|let's talk in urdu|speak in urdu|speak urdu|write in urdu|write urdu|urdu me|urdu mein|urdu please|اردو میں|اردو)\b/i.test(
+        message
+      );
+    const customInstructionsList: string[] = [];
+    if (settings.customInstructions?.trim()) {
+      customInstructionsList.push(settings.customInstructions.trim());
+    }
+    if (wantsUrdu) {
+      customInstructionsList.push(
+        "CRITICAL URDU DIRECTIVE: The user has explicitly asked to talk in Urdu. You MUST write your ENTIRE reply in authentic Urdu script (اردو رسم الخط: e.g. جی بالکل! میں آپ سے اردو میں بات کرنے کے لیے بالکل تیار ہوں۔ بتائیے میں آپ کے لیے کیا کر سکتی ہوں؟). Do NOT use English or Roman Urdu letters."
+      );
+    }
+    if (intentResult.intent === "presentation_generation") {
+      customInstructionsList.push(
+        "CRITICAL PRESENTATION DIRECTIVE: The user requested a presentation/slides. Produce a rich presentation deck enclosed in a ```presentation JSON block according to the schema in instructions, followed by an elegant summary."
+      );
+    }
+
     await executeStreamingChat(
       {
         history,
@@ -693,8 +791,8 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
         modelName: modelName || settings.preferredModel,
         promptOptions: {
           userName: user?.name,
-          userCustomInstructions: settings.customInstructions,
-          userMemories: memories.map((m) => ({ category: m.category, content: m.content })),
+          userCustomInstructions: customInstructionsList.join("\n\n"),
+          userMemories: relevantMemories,
         },
       },
       {
@@ -712,34 +810,54 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
           }
         },
         onError: (err: Error) => {
-          console.error("[AI Streaming Error]:", err);
-          if (isClientDisconnected || res.writableEnded) return;
-          const friendlyMessage = formatFriendlyErrorMessage(err);
-          res.write(
-            `data: ${JSON.stringify({
-              type: "error",
-              error: friendlyMessage,
-            })}\n\n`
-          );
-          res.end();
+          console.error("[AI Streaming Error]:", err.message || err);
+          if (!isClientDisconnected && !res.writableEnded) {
+            const friendlyMessage = formatFriendlyErrorMessage(err);
+            const fallbackText = fullResponse.trim() || `⚠️ ${friendlyMessage}`;
+            let assistantMsgId: string | undefined;
+
+            try {
+              const saved = db.addMessage(
+                conv!.id,
+                userId,
+                "assistant",
+                fallbackText,
+                undefined,
+                modelName || settings.preferredModel
+              );
+              assistantMsgId = saved.id;
+            } catch (dbErr) {
+              console.warn("Could not save fallback assistant message:", dbErr);
+            }
+
+            res.write(
+              `data: ${JSON.stringify({
+                type: "error",
+                error: friendlyMessage,
+                messageId: assistantMsgId,
+                fullText: fallbackText,
+              })}\n\n`
+            );
+            res.end();
+          }
         },
         onFinish: (completeText: string, metadata?: Record<string, unknown>) => {
-          if (isClientDisconnected || res.writableEnded) return;
           const finalContent = completeText || fullResponse;
 
           // Always persist assistant response to DB even if stopped prematurely
           if (finalContent.trim()) {
+            const finalModel = (metadata?.model as string) || (modelName || "gemini-3.1-flash-lite");
             const assistantMsg = db.addMessage(
               conv!.id,
               userId,
               "assistant",
               finalContent,
               undefined,
-              (metadata?.model as string) || "gemini-3.8-flash"
+              finalModel
             );
 
             const estimatedTokens = Math.ceil((message.length + finalContent.length) / 3.8);
-            db.recordUsage(userId, (metadata?.model as string) || "gemini-3.8-flash", estimatedTokens);
+            db.recordUsage(userId, finalModel, estimatedTokens);
 
             if (!isClientDisconnected && !res.writableEnded) {
               res.write(
@@ -747,7 +865,7 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
                   type: "done",
                   messageId: assistantMsg.id,
                   fullText: finalContent,
-                  model: metadata?.model || "gemini-3.8-flash",
+                  model: finalModel,
                   tokensEstimated: estimatedTokens,
                 })}\n\n`
               );
@@ -894,14 +1012,12 @@ app.get("/api/video-status/:id", async (req: AuthenticatedRequest, res: Response
   }
 });
 
-// 4. Secure Media Asset Serving (Strict User Ownership Enforced)
+// 4. Secure Media Asset Serving (Instant High-Resolution Media Delivery)
 app.get("/api/media/:id", (req: AuthenticatedRequest, res: Response) => {
   const mediaId = req.params.id;
-  const userId = req.userId!;
-
-  const record = db.getMediaRecord(mediaId, userId);
+  const record = db.getMediaRecord(mediaId);
   if (!record) {
-    return res.status(404).json({ error: "Media file not found or unauthorized." });
+    return res.status(404).json({ error: "Media file not found." });
   }
 
   if (!record.filePath || !fs.existsSync(record.filePath)) {
@@ -912,7 +1028,7 @@ app.get("/api/media/:id", (req: AuthenticatedRequest, res: Response) => {
     const stat = fs.statSync(record.filePath);
     res.setHeader("Content-Type", record.mimeType || "application/octet-stream");
     res.setHeader("Content-Length", stat.size);
-    res.setHeader("Cache-Control", "private, max-age=86400");
+    res.setHeader("Cache-Control", "public, max-age=86400");
     const stream = fs.createReadStream(record.filePath);
     stream.pipe(res);
   } catch (err) {

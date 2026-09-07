@@ -359,7 +359,7 @@ export const api = {
       attachments?: MessageAttachment[];
       provider?: "gemini" | "openai";
       modelName?: string;
-      mode?: "chat" | "image" | "video";
+      mode?: "chat" | "image" | "video" | "presentation";
     },
     options: {
       onInit?: (data: { conversationId: string; isNewConversation: boolean; userMessageId: string }) => void;

@@ -12,7 +12,7 @@ import { TemplatesModal } from "./components/modals/TemplatesModal.tsx";
 import { KnowledgeModal } from "./components/modals/KnowledgeModal.tsx";
 import { ArfaLogo } from "./components/ui/ArfaLogo.tsx";
 import { api } from "./lib/api.ts";
-import { Conversation, Message, User, MessageAttachment } from "./types.ts";
+import { Conversation, Message, User, MessageAttachment, ComposerMode } from "./types.ts";
 import {
   Menu,
   AlertCircle,
@@ -26,6 +26,7 @@ import {
   PanelLeft,
   Volume2,
   VolumeX,
+  X,
 } from "lucide-react";
 
 export default function App() {
@@ -39,7 +40,7 @@ export default function App() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
   const [streamingStatusText, setStreamingStatusText] = useState<string | null>(null);
-  const [activeMode, setActiveMode] = useState<"chat" | "image" | "video">("chat");
+  const [activeMode, setActiveMode] = useState<ComposerMode>("chat");
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const [audioVoiceEnabled, setAudioVoiceEnabled] = useState<boolean>(() => {
     return localStorage.getItem("arfa_audio_voice") === "true";
@@ -76,6 +77,13 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("arfa_audio_voice", String(audioVoiceEnabled));
   }, [audioVoiceEnabled]);
+
+  // Auto-dismiss error banner after 10s
+  useEffect(() => {
+    if (!errorBanner) return;
+    const timer = setTimeout(() => setErrorBanner(null), 10000);
+    return () => clearTimeout(timer);
+  }, [errorBanner]);
 
   // Close header menu on outside click
   useEffect(() => {
@@ -186,7 +194,7 @@ export default function App() {
   const handleSendMessage = async (
     userPrompt: string,
     attachments?: MessageAttachment[],
-    mode?: "chat" | "image" | "video",
+    mode?: ComposerMode,
     isRetry: boolean = false
   ) => {
     if (!userPrompt.trim() && (!attachments || attachments.length === 0)) return;
@@ -526,19 +534,29 @@ export default function App() {
 
         {/* Error Notification Banner */}
         {errorBanner && (
-          <div className="shrink-0 mx-4 sm:mx-6 mt-3 flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#FFF5F7] border border-[#F5C4D2] text-xs text-[#9B2A48] shadow-xs animate-fadeIn">
-            <div className="flex items-center gap-2.5 min-w-0">
+          <div className="shrink-0 mx-4 sm:mx-6 mt-3 flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-[#FFF5F7] border border-[#F5C4D2] text-xs text-[#9B2A48] shadow-xs animate-fadeIn">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <AlertCircle className="w-4 h-4 shrink-0 text-[#D84A70]" />
-              <span className="font-semibold truncate">Something went wrong. Try again.</span>
+              <span className="font-medium text-xs leading-relaxed line-clamp-2">{errorBanner}</span>
             </div>
-            <button
-              id="chat-error-retry-btn"
-              onClick={handleRegenerate}
-              className="text-white bg-[#D84A70] hover:bg-[#C0375D] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold shrink-0 ml-3 cursor-pointer shadow-xs transition-colors active:scale-95"
-            >
-              <RefreshCw className="w-3 h-3" />
-              <span>Retry</span>
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                id="chat-error-retry-btn"
+                onClick={handleRegenerate}
+                className="text-white bg-[#D84A70] hover:bg-[#C0375D] inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold cursor-pointer shadow-xs transition-colors active:scale-95"
+              >
+                <RefreshCw className="w-3 h-3" />
+                <span>Retry</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setErrorBanner(null)}
+                className="text-[#9B2A48] hover:text-[#D84A70] p-1 rounded-md transition-colors cursor-pointer"
+                title="Dismiss"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         )}
 

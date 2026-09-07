@@ -3,7 +3,8 @@ export type DetectedIntent =
   | "image_generation"
   | "image_edit"
   | "video_generation"
-  | "image_to_video";
+  | "image_to_video"
+  | "presentation_generation";
 
 export interface IntentAnalysisResult {
   intent: DetectedIntent;
@@ -38,10 +39,18 @@ export function detectIntent(params: {
     detectedAspectRatio = "1:1";
   }
 
-  // 1. Explicit mode override if specified
+  // 1. Explicit mode overrides
   if (explicitMode === "chat") {
     return {
       intent: "chat",
+      cleanedPrompt: rawText,
+      confidence: 1.0,
+    };
+  }
+
+  if (explicitMode === "presentation") {
+    return {
+      intent: "presentation_generation",
       cleanedPrompt: rawText,
       confidence: 1.0,
     };
@@ -69,8 +78,29 @@ export function detectIntent(params: {
     };
   }
 
-  // 2. Video intent detection
+  // 2. Presentation intent detection
+  const isPresentationPrompt =
+    /\b(presentation|pitch deck|slide deck|slides|deck|keynote|سلائیڈز|پریزنٹیشن|پریذنٹیشن)\b/i.test(
+      rawText
+    ) &&
+    /\b(generate|create|make|build|design|produce|prepare|banao|chahiye|about|on|for|بناؤ|بنائِیں|تیار کرو)\b/i.test(
+      rawText
+    );
+
+  if (isPresentationPrompt) {
+    return {
+      intent: "presentation_generation",
+      cleanedPrompt: rawText,
+      confidence: 0.95,
+    };
+  }
+
+  // 3. Video intent detection
+  const isUrduVideoPrompt =
+    /\b(video\s+banao|video\s+banado|ویڈیو\s+بناؤ|ویڈیو\s+بنائیں|ویڈیو\s+چاہیے)\b/i.test(rawText);
+
   const isVideoGenerationPrompt =
+    isUrduVideoPrompt ||
     /^(generate|create|make|render|produce)\s+(an?\s+)?(\d+\s*(?:sec|second|s)\s+)?(cinematic\s+)?(video|animation|clip|short film)\b/i.test(
       rawText
     ) ||
@@ -104,8 +134,7 @@ export function detectIntent(params: {
     };
   }
 
-  // 3. Image editing detection
-  // If image attachment is present and prompt describes edit/transformation
+  // 4. Image editing detection
   if (imageAttachment) {
     const isEditWord =
       /\b(edit|change|modify|replace|remove|add|make it|turn|transform|filter|recolor|adjust|swap|enhance)\b/i.test(
@@ -143,16 +172,26 @@ export function detectIntent(params: {
     }
   }
 
-  // 4. Image Generation detection
+  // 5. Image Generation detection
+  const isCodingOrTextQuery =
+    /\b(code|react|component|html|css|jsx|tsx|svg|ascii|diagram|prompt|idea|script|function|api|regex|template|markdown)\b/i.test(
+      rawText
+    );
+
+  const isUrduImagePrompt =
+    /\b(tasveer\s+banao|tasweer\s+banao|tasveer\s+banado|tasveer\s+chahiye|تصویر\s+بناؤ|تصویر\s+بنائیں|تصویر\s+چاہیے)\b/i.test(rawText);
+
   const isImageGenerationPrompt =
-    /^(generate|create|draw|paint|sketch|illustrate|render|make)\s+(an?\s+)?(image|picture|photo|illustration|drawing|artwork|portrait|render|painting|wallpaper)\b/i.test(
-      rawText
-    ) ||
-    /\b(generate|create|render)\s+(an?\s+)?(image|picture|illustration|photo)\s+(of|depicting|showing|with)\b/i.test(
-      rawText
-    ) ||
-    /^(draw|paint)\s+(me\s+)?(a|an)\s+[a-z]/i.test(rawText) ||
-    /^(a\s+photo\s+of|an\s+image\s+of|a\s+rendering\s+of|digital\s+art\s+of)\b/i.test(rawText);
+    !isCodingOrTextQuery &&
+    (isUrduImagePrompt ||
+      /^(generate|create|draw|paint|sketch|illustrate|render|make)\s+(an?\s+)?(image|picture|photo|illustration|drawing|artwork|portrait|render|painting|wallpaper)\b/i.test(
+        rawText
+      ) ||
+      /\b(generate|create|render)\s+(an?\s+)?(image|picture|illustration|photo)\s+(of|depicting|showing|with)\b/i.test(
+        rawText
+      ) ||
+      /^(draw|paint)\s+(me\s+)?(a|an)\s+[a-z]/i.test(rawText) ||
+      /^(a\s+photo\s+of|an\s+image\s+of|a\s+rendering\s+of|digital\s+art\s+of)\b/i.test(rawText));
 
   if (isImageGenerationPrompt) {
     return {
@@ -163,7 +202,7 @@ export function detectIntent(params: {
     };
   }
 
-  // 5. Default to standard conversational chat
+  // 6. Default to standard conversational chat
   return {
     intent: "chat",
     cleanedPrompt: rawText,

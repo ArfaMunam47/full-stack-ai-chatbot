@@ -11,17 +11,19 @@ import {
   Film,
   MessageSquare,
   Loader2,
+  Presentation,
+  Languages,
 } from "lucide-react";
-import { MessageAttachment } from "../../types.ts";
+import { MessageAttachment, ComposerMode } from "../../types.ts";
 import { api } from "../../lib/api.ts";
 
 interface MessageComposerProps {
-  onSend: (message: string, attachments?: MessageAttachment[], mode?: "chat" | "image" | "video") => void;
+  onSend: (message: string, attachments?: MessageAttachment[], mode?: ComposerMode) => void;
   isStreaming: boolean;
   onStop: () => void;
   disabled?: boolean;
-  activeMode?: "chat" | "image" | "video";
-  onModeChange?: (mode: "chat" | "image" | "video") => void;
+  activeMode?: ComposerMode;
+  onModeChange?: (mode: ComposerMode) => void;
   statusText?: string | null;
 }
 
@@ -298,10 +300,13 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
   const getPlaceholder = () => {
     if (isListening) return "Listening... speak naturally to transcribe into composer";
     if (isTranscribing) return "Transcribing speech into text with Gemini...";
-    if (activeMode === "image") return "Describe the image to generate or edit (Nano Banana)...";
-    if (activeMode === "video") return "Describe the video to render (Veo 3.1)...";
-    return "Ask ARFA AI anything, or ask to generate images & videos...";
+    if (activeMode === "image") return "Describe the image to generate or edit (in English or اردو)...";
+    if (activeMode === "video") return "Describe the cinematic video to render (in English or اردو)...";
+    if (activeMode === "presentation") return "Describe presentation topic (e.g. Pitch Deck, AI Strategy, اردو سلائیڈز)...";
+    return "Ask ARFA AI anything (English, اردو, Roman Urdu, presentations, media)...";
   };
+
+  const isUrduInput = /[\u0600-\u06FF]/.test(text);
 
   return (
     <div className="w-full max-w-3xl mx-auto px-4 pb-3 sm:pb-5">
@@ -368,45 +373,77 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
         </div>
       )}
 
-      {/* Modality Mode Selector (Chat, Image, Video) */}
-      <div className="flex items-center gap-1.5 mb-2 px-1 text-xs">
-        <button
-          type="button"
-          onClick={() => onModeChange?.("chat")}
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold transition-all cursor-pointer ${
-            activeMode === "chat"
-              ? "bg-[#1A1718] text-white shadow-xs"
-              : "text-[#5A5456] hover:text-[#1A1718] hover:bg-[#F6F3F1]"
-          }`}
-        >
-          <MessageSquare className="w-3.5 h-3.5" />
-          <span>Chat</span>
-        </button>
+      {/* Modality Mode Selector (Chat, Image, Video, Presentation) */}
+      <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2 px-1 text-xs">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => onModeChange?.("chat")}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold transition-all cursor-pointer ${
+              activeMode === "chat"
+                ? "bg-[#1A1718] text-white shadow-xs"
+                : "text-[#5A5456] hover:text-[#1A1718] hover:bg-[#F6F3F1]"
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+            <span>Chat</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => onModeChange?.("image")}
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold transition-all cursor-pointer ${
-            activeMode === "image"
-              ? "bg-[#D84A70] text-white shadow-xs"
-              : "text-[#5A5456] hover:text-[#D84A70] hover:bg-[#FDF2F5]"
-          }`}
-        >
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Image (Nano Banana)</span>
-        </button>
+          <button
+            type="button"
+            onClick={() => onModeChange?.("image")}
+            title="Generate high-resolution images"
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold transition-all cursor-pointer ${
+              activeMode === "image"
+                ? "bg-[#D84A70] text-white shadow-xs"
+                : "text-[#5A5456] hover:text-[#D84A70] hover:bg-[#FDF2F5]"
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Image Studio</span>
+          </button>
 
+          <button
+            type="button"
+            onClick={() => onModeChange?.("video")}
+            title="Generate cinematic motion video clips"
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold transition-all cursor-pointer ${
+              activeMode === "video"
+                ? "bg-[#1A1718] text-white shadow-xs"
+                : "text-[#5A5456] hover:text-[#1A1718] hover:bg-[#F6F3F1]"
+            }`}
+          >
+            <Film className="w-3.5 h-3.5" />
+            <span>Video Motion</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onModeChange?.("presentation")}
+            title="Generate executive presentation decks & slides"
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold transition-all cursor-pointer ${
+              activeMode === "presentation"
+                ? "bg-amber-600 text-white shadow-xs"
+                : "text-[#5A5456] hover:text-amber-700 hover:bg-amber-50"
+            }`}
+          >
+            <Presentation className="w-3.5 h-3.5" />
+            <span>Presentation</span>
+          </button>
+        </div>
+
+        {/* Multilingual Urdu Indicator / Quick Toggle */}
         <button
           type="button"
-          onClick={() => onModeChange?.("video")}
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold transition-all cursor-pointer ${
-            activeMode === "video"
-              ? "bg-[#1A1718] text-white shadow-xs"
-              : "text-[#5A5456] hover:text-[#1A1718] hover:bg-[#F6F3F1]"
-          }`}
+          onClick={() => {
+            setText("Lets talk in Urdu (اردو میں بات کریں)");
+            textareaRef.current?.focus();
+          }}
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium text-[#5A5456] hover:text-[#D84A70] hover:bg-[#FDF2F5] transition-colors cursor-pointer border border-[#EFE9E6]"
+          title="Multi-language support (English, اردو, Roman Urdu)"
         >
-          <Film className="w-3.5 h-3.5" />
-          <span>Video (Veo)</span>
+          <Languages className="w-3.5 h-3.5 text-[#D84A70]" />
+          <span>اردو / EN</span>
         </button>
       </div>
 
@@ -427,12 +464,15 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
         <textarea
           ref={textareaRef}
           value={text}
+          dir={isUrduInput ? "rtl" : "ltr"}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={getPlaceholder()}
           disabled={disabled}
           rows={1}
-          className="flex-1 max-h-[180px] py-2 px-1 text-sm bg-transparent border-none outline-none resize-none text-[#1A1718] placeholder-[#A39B9E] leading-relaxed font-normal"
+          className={`flex-1 max-h-[180px] py-2 px-1 text-sm bg-transparent border-none outline-none resize-none text-[#1A1718] placeholder-[#A39B9E] leading-relaxed font-normal ${
+            isUrduInput ? "font-serif text-right" : "text-left"
+          }`}
         />
 
         {/* Action Controls: Mic + Send/Stop */}

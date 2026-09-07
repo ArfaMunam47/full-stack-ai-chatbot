@@ -2,7 +2,11 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  isGuest: boolean;
+  avatar?: string;
+  isGuest?: boolean;
+  status?: string;
+  plan?: string;
+  createdAt?: string;
 }
 
 export interface MessageAttachment {
@@ -11,6 +15,29 @@ export interface MessageAttachment {
   type: string;
   size: number;
   dataUrl?: string;
+}
+
+export type ComposerMode = "chat" | "image" | "video" | "presentation";
+
+export interface PresentationSlide {
+  id: string;
+  title: string;
+  subtitle?: string;
+  badge?: string;
+  bulletPoints: string[];
+  metric?: {
+    value: string;
+    label: string;
+  };
+  speakerNotes?: string;
+}
+
+export interface PresentationDeckData {
+  title: string;
+  topic: string;
+  language?: "en" | "ur" | string;
+  theme?: "midnight" | "rose" | "emerald" | "ivory";
+  slides: PresentationSlide[];
 }
 
 export interface MessageMediaItem {
@@ -60,6 +87,7 @@ export interface UserSettings {
   theme: "light" | "dark" | "system";
   preferredProvider: "gemini" | "openai";
   preferredModel: string;
+  preferredLanguage?: string;
   customInstructions: string;
   temperature: number;
   voiceEnabled: boolean;
