@@ -121,30 +121,30 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-xs animate-fadeIn">
-      <div className="bg-white border border-[#EFE9E6] relative w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col md:flex-row overflow-hidden max-h-[85vh] text-[#1A1718]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#32121E]/30 backdrop-blur-xs animate-fadeIn">
+      <div className="relative w-full max-w-2xl rounded-3xl felt-card-marshmallow shadow-2xl flex flex-col md:flex-row overflow-hidden max-h-[85vh] text-[#32121E]">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 p-1.5 rounded-xl text-[#7E7779] hover:text-[#1A1718] hover:bg-[#EFE9E6] transition-colors cursor-pointer"
+          className="absolute top-4 right-4 z-20 p-2 rounded-2xl felt-btn-marshmallow text-[#8E6F7A] hover:text-[#EC4899] transition-colors cursor-pointer"
           aria-label="Close modal"
         >
           <X className="w-4 h-4" />
         </button>
 
         {/* Left Tabs Nav */}
-        <div className="w-full md:w-52 shrink-0 border-b md:border-b-0 md:border-r border-[#EFE9E6] bg-[#F8F6F4] p-3 flex md:flex-col gap-1 overflow-x-auto select-none">
-          <div className="hidden md:block px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-[#A39B9E]">
+        <div className="w-full md:w-52 shrink-0 border-b md:border-b-0 md:border-r border-[#EFE6DC] bg-[#FFF5F7] p-3 flex md:flex-col gap-1.5 overflow-x-auto select-none">
+          <div className="hidden md:block px-3 py-2 text-[11px] font-extrabold uppercase tracking-wider text-[#B298A1]">
             Settings
           </div>
           {tabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
+              className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === tab.key
-                  ? "bg-[#FDF2F5] text-[#D84A70] font-semibold border border-[#F7CDD8] shadow-xs"
-                  : "text-[#5A5456] hover:text-[#1A1718] hover:bg-[#EFE9E6]"
+                  ? "bg-[#FFDFE8] text-[#EC4899] font-extrabold border border-[#FBCFE8] shadow-xs"
+                  : "text-[#8E6F7A] hover:text-[#32121E] hover:bg-[#FFEBF0]"
               }`}
             >
               {tab.icon}
@@ -154,7 +154,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         {/* Tab Content Area */}
-        <div className="flex-1 p-5 sm:p-6 overflow-y-auto bg-white text-[#1A1718]">
+        <div className="flex-1 p-5 sm:p-6 overflow-y-auto bg-white text-[#32121E]">
           {saveStatus && (
             <div className="flex items-center gap-2 p-2.5 mb-4 rounded-xl bg-emerald-50 text-emerald-800 text-xs border border-emerald-200 font-medium">
               <Check className="w-3.5 h-3.5" />
@@ -166,36 +166,36 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {activeTab === "appearance" && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-base font-semibold mb-1 text-[#1A1718]">Appearance</h3>
-                <p className="text-xs text-[#5A5456]">
-                  ARFA AI uses a single, dedicated signature visual theme.
+                <h3 className="text-base font-extrabold mb-1 text-[#32121E]">Appearance</h3>
+                <p className="text-xs text-[#8E6F7A] font-medium">
+                  ARFA AI uses a calibrated tactile needle-felted design system.
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-[#FFFBF8] border border-[#F5C4D2] shadow-xs space-y-3">
+              <div className="p-4 rounded-3xl felt-card-marshmallow space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-3.5 h-3.5 rounded-full bg-[#D84A70] ring-4 ring-[#F7CDD8]" />
-                    <span className="text-sm font-bold text-[#1A1718]">
-                      ARFA Signature Beauty-Tech
+                    <div className="w-4 h-4 rounded-full bg-[#EC4899] ring-4 ring-[#FCE7F3]" />
+                    <span className="text-sm font-extrabold text-[#32121E]">
+                      Cozy Knitcore & Needle-Felt
                     </span>
                   </div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#FDF2F5] text-[#D84A70] border border-[#F7CDD8]">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#FFDFE8] text-[#EC4899] border border-[#FBCFE8]">
                     Active Theme
                   </span>
                 </div>
-                <p className="text-xs text-[#5A5456] leading-relaxed">
-                  A calibrated, single-theme interface combining warm ivory canvas, deep espresso typography, and subtle rose and glossy accents. Designed for optimal readability and effortless luxury.
+                <p className="text-xs text-[#8E6F7A] leading-relaxed font-medium">
+                  A high-contrast, tactile interface featuring plush marshmallow cards, strawberry candy pink accents, and deep berry typography. Built for supreme readability across every language.
                 </p>
-                <div className="flex items-center gap-2 pt-1">
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white border border-[#EFE9E6] text-[#5A5456]">
-                    Canvas: Warm Ivory
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-xl text-[11px] font-bold bg-[#FFFBF8] border border-[#EFE6DC] text-[#32121E]">
+                    Canvas: Cable-Knit Ivory
                   </span>
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white border border-[#EFE9E6] text-[#5A5456]">
-                    Text: Deep Espresso
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-xl text-[11px] font-bold bg-[#FFFBF8] border border-[#EFE6DC] text-[#32121E]">
+                    Text: Deep Berry Espresso
                   </span>
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-medium bg-[#FDF2F5] border border-[#F7CDD8] text-[#D84A70]">
-                    Accent: Soft Rose
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-xl text-[11px] font-bold bg-[#FFDFE8] border border-[#FBCFE8] text-[#EC4899]">
+                    Accent: Strawberry Candy Pink
                   </span>
                 </div>
               </div>
@@ -535,18 +535,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {activeTab === "about" && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-base font-semibold mb-1 text-[#1A1718]">About ARFA AI</h3>
-                <p className="text-xs text-[#5A5456]">
-                  Modern High-Performance SaaS Edition
+                <h3 className="text-base font-extrabold mb-1 text-[#32121E]">About ARFA AI</h3>
+                <p className="text-xs text-[#8E6F7A] font-medium">
+                  Multi-Language Supporter & Creative AI Companion
                 </p>
               </div>
 
-              <div className="text-xs leading-relaxed text-[#5A5456] space-y-3 font-normal">
+              <div className="text-xs leading-relaxed text-[#8E6F7A] space-y-3 font-medium">
                 <p>
-                  <strong className="text-[#1A1718]">ARFA AI</strong> is a production-grade conversational intelligence platform featuring instant streaming responses, persistent conversation memory, and multimodal generation.
+                  <strong className="text-[#32121E] font-extrabold">ARFA AI</strong> is a premium conversational intelligence companion featuring instant streaming responses, persistent memory, and universal multi-language support.
                 </p>
                 <p>
-                  Styled exclusively in the 2026 signature Luxury Beauty-Tech aesthetic with sub-second response latency.
+                  Styled in a cozy needle-felted wool & plush claymorphism aesthetic designed for maximum warmth, creative joy, and supreme legibility.
                 </p>
               </div>
             </div>

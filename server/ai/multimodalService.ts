@@ -601,12 +601,15 @@ export async function checkVideoStatus(
 
 export async function transcribeAudioBuffer(
   audioBuffer: Buffer,
-  mimeType: string = "audio/webm"
+  rawMimeType: string = "audio/webm"
 ): Promise<string> {
   const ai = getGeminiClient();
   const base64Data = audioBuffer.toString("base64");
 
-  const candidateModels = ["gemini-3.5-transcribe", "gemini-3.1-flash-lite", "gemini-3.8-flash"];
+  // Strip codec parameters for Gemini inlineData compatibility (e.g., 'audio/webm;codecs=opus' -> 'audio/webm')
+  const mimeType = rawMimeType.split(";")[0].trim() || "audio/webm";
+
+  const candidateModels = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-3.1-flash-lite", "gemini-3.8-flash"];
   let lastErr: Error | null = null;
 
   for (const model of candidateModels) {

@@ -11,6 +11,8 @@ import { HelpModal } from "./components/modals/HelpModal.tsx";
 import { TemplatesModal } from "./components/modals/TemplatesModal.tsx";
 import { KnowledgeModal } from "./components/modals/KnowledgeModal.tsx";
 import { ArfaLogo } from "./components/ui/ArfaLogo.tsx";
+import { NeedleFeltBow } from "./components/ui/NeedleFeltBow.tsx";
+import { UserAvatar } from "./components/ui/UserAvatar.tsx";
 import { api } from "./lib/api.ts";
 import { Conversation, Message, User, MessageAttachment, ComposerMode } from "./types.ts";
 import {
@@ -46,9 +48,8 @@ export default function App() {
     return localStorage.getItem("arfa_audio_voice") === "true";
   });
   const [isHeaderMenuOpen, setIsHeaderMenuOpen] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
-    return localStorage.getItem("arfa_sidebar_collapsed") === "true";
-  });
+  // Hide chat history sidebar on open so it starts fresh from start
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(true);
 
   // Modals & Drawers
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -376,7 +377,10 @@ export default function App() {
   const activeConv = conversations.find((c) => c.id === activeConversationId);
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#FAF6F0] text-[#1A1718] select-none">
+    <div
+      className="flex flex-row h-screen w-screen overflow-hidden bg-[#FDF8F5] text-[#2B1E25] select-none"
+      style={{ height: "100vh", display: "flex", flexDirection: "row", overflow: "hidden" }}
+    >
       {/* Sidebar with Navigation, Conversation History, and Auth Options */}
       <Sidebar
         conversations={conversations}
@@ -405,136 +409,125 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 h-full max-h-[100dvh] overflow-hidden relative bg-[#FAF8F7]">
-        {/* Modern Pristine Header */}
+      <main className="flex-1 flex flex-col min-w-0 h-full max-h-[100dvh] overflow-hidden relative cozy-felt-bg">
+        {/* Simple Professional Needle-Felted Navigation Bar */}
         <header
           id="main-chat-header"
-          className="shrink-0 flex items-center justify-between px-3 sm:px-6 h-14 border-b border-[#EFE9E6] bg-white/80 backdrop-blur-md z-10"
+          className="shrink-0 flex items-center justify-between px-3.5 sm:px-6 h-16 sm:h-20 border-b border-[#E95D95]/12 bg-[#FFFDFB]/90 backdrop-blur-md z-20 select-none"
         >
-          {/* Left: Mobile Menu Toggle, Desktop Expand, & Permanent ARFA AI Identity */}
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          {/* LEFT SIDE: small sidebar/menu toggle + ARFA AI logo + ARFA AI wordmark + subtle "Online" status */}
+          <div className="flex items-center gap-2.5 sm:gap-4 min-w-0">
+            {/* Mobile Hamburger Toggle */}
             <button
               id="mobile-sidebar-toggle-btn"
+              type="button"
               onClick={() => setIsMobileSidebarOpen(true)}
-              className="md:hidden p-2 rounded-xl text-[#5A5456] hover:text-[#1A1718] hover:bg-[#F6F3F1] transition-colors cursor-pointer"
+              className="md:hidden p-2.5 rounded-2xl felt-btn-marshmallow text-[#8E7882] hover:text-[#E95D95] transition-colors cursor-pointer"
               aria-label="Toggle navigation drawer"
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="w-4 h-4" />
             </button>
 
-            {isSidebarCollapsed && (
-              <button
-                id="desktop-sidebar-expand-btn"
-                onClick={() => {
-                  setIsSidebarCollapsed(false);
-                  localStorage.setItem("arfa_sidebar_collapsed", "false");
-                }}
-                title="Open sidebar"
-                className="hidden md:flex p-2 rounded-xl text-[#5A5456] hover:text-[#1A1718] hover:bg-[#F6F3F1] transition-colors cursor-pointer"
-                aria-label="Open sidebar"
-              >
-                <PanelLeft className="w-4 h-4" />
-              </button>
-            )}
+            {/* Desktop Sidebar Toggle */}
+            <button
+              id="desktop-sidebar-toggle-btn"
+              type="button"
+              onClick={() => {
+                const next = !isSidebarCollapsed;
+                setIsSidebarCollapsed(next);
+                localStorage.setItem("arfa_sidebar_collapsed", String(next));
+              }}
+              title={isSidebarCollapsed ? "Open past chats" : "Collapse sidebar"}
+              className="hidden md:inline-flex p-2.5 rounded-2xl felt-btn-marshmallow text-[#8E7882] hover:text-[#E95D95] transition-colors cursor-pointer"
+              aria-label={isSidebarCollapsed ? "Open past chats" : "Collapse sidebar"}
+            >
+              <Menu className="w-4 h-4" />
+            </button>
 
-            {/* Permanent ARFA AI Brand Identity - Header ALWAYS says ARFA AI */}
-            <div className="flex items-center gap-2.5 min-w-0">
+            {/* ARFA AI Logo & Wordmark */}
+            <div className="flex items-center gap-2">
               <ArfaLogo size="sm" showText={true} />
-              <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-[#FDF2F5] text-[#D84A70] border border-[#F7CDD8]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#D84A70] animate-pulse" />
-                Online
-              </span>
+            </div>
+
+            {/* Small Subtle Status Indicator: "● Online" */}
+            <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EBF8F2] border border-[#A7E3C7]/80 text-[11.5px] font-bold text-[#1E7750] shadow-2xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
+              <span>Online</span>
             </div>
           </div>
 
-          {/* Right Controls: New Chat, Sign in & More Options */}
-          <div className="flex items-center gap-2 shrink-0">
-            {/* New Chat Button */}
+          {/* CENTER: Keep mostly empty. No unnecessary text or decorative cards. */}
+          <div className="flex-1" />
+
+          {/* RIGHT SIDE: Fluffy 3D Authentication actions [Sign in] [Sign up] + Optional Settings */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {currentUser ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setIsSettingsOpen(true)}
+                  className="flex items-center gap-2 px-3.5 py-1.5 rounded-full felt-btn-marshmallow text-xs sm:text-sm font-bold text-[#2B1E25] cursor-pointer"
+                  title="Account Settings"
+                >
+                  <UserAvatar user={currentUser} size="xs" />
+                  <span className="hidden sm:inline max-w-[120px] truncate">{currentUser.name}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="px-3.5 py-1.5 rounded-full fluffy-btn-signin text-xs sm:text-sm font-bold text-[#8E7882] hover:text-[#9B2A48] cursor-pointer transition-colors"
+                  title="Log out"
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
+              <>
+                {/* [Sign in] = Fluffy 3D tactile marshmallow needle-felted pill button */}
+                <button
+                  id="header-signin-btn"
+                  type="button"
+                  onClick={() => {
+                    setAuthInitialMode("login");
+                    setIsAuthOpen(true);
+                  }}
+                  className="px-3.5 sm:px-5 py-2 text-xs sm:text-sm font-bold fluffy-btn-signin cursor-pointer shadow-sm"
+                >
+                  Sign in
+                </button>
+
+                {/* [Sign up] = Fluffy 3D primary plush pink needle-felted pill button */}
+                <button
+                  id="header-signup-btn"
+                  type="button"
+                  onClick={() => {
+                    setAuthInitialMode("register");
+                    setIsAuthOpen(true);
+                  }}
+                  className="px-4 sm:px-6 py-2 text-xs sm:text-sm font-extrabold text-white fluffy-btn-signup cursor-pointer shadow-md"
+                >
+                  Sign up
+                </button>
+              </>
+            )}
+
+            {/* Subtle Settings Icon beside actions */}
             <button
-              id="header-new-chat-btn"
-              onClick={handleNewChat}
-              title="New Chat (⌘K)"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#1A1718] bg-white border border-[#EFE9E6] hover:border-[#D84A70] hover:bg-[#FDF2F5] hover:text-[#D84A70] cursor-pointer shadow-xs transition-all duration-150 active:scale-95"
+              id="header-settings-btn"
+              type="button"
+              onClick={() => setIsSettingsOpen(true)}
+              className="p-2 sm:p-2.5 rounded-full felt-btn-marshmallow text-[#8E7882] hover:text-[#E95D95] cursor-pointer transition-colors"
+              title="Settings"
+              aria-label="Settings"
             >
-              <SquarePen className="w-3.5 h-3.5 text-[#D84A70]" />
-              <span className="hidden sm:inline font-semibold">New chat</span>
+              <Settings className="w-4 h-4" />
             </button>
-
-            {/* Auth / Profile trigger */}
-            {currentUser?.isGuest ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthInitialMode("login");
-                  setIsAuthOpen(true);
-                }}
-                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer text-white bg-[#1A1718] hover:bg-black shadow-xs transition-colors active:scale-95"
-              >
-                <LogIn className="w-3.5 h-3.5" />
-                <span>Sign in</span>
-              </button>
-            ) : null}
-
-            {/* More Options Dropdown */}
-            <div className="relative" ref={headerMenuRef}>
-              <button
-                id="header-more-options-btn"
-                type="button"
-                onClick={() => setIsHeaderMenuOpen((prev) => !prev)}
-                title="More options"
-                className="p-2 rounded-xl text-[#7E7779] hover:text-[#1A1718] hover:bg-[#F6F3F1] cursor-pointer transition-colors"
-                aria-label="More options"
-                aria-expanded={isHeaderMenuOpen}
-              >
-                <MoreVertical className="w-4 h-4" />
-              </button>
-
-              {/* Dropdown Menu */}
-              {isHeaderMenuOpen && (
-                <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-white p-1.5 shadow-xl z-30 border border-[#EFE9E6] animate-fadeIn text-xs">
-                  <button
-                    onClick={() => {
-                      setIsHeaderMenuOpen(false);
-                      setIsSettingsOpen(true);
-                    }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-medium text-[#1A1718] hover:bg-[#F6F3F1] transition-colors cursor-pointer"
-                  >
-                    <Settings className="w-3.5 h-3.5 text-[#7E7779]" />
-                    <span>Settings & Models</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setIsHeaderMenuOpen(false);
-                      setIsHelpOpen(true);
-                    }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-medium text-[#1A1718] hover:bg-[#F6F3F1] transition-colors cursor-pointer"
-                  >
-                    <HelpCircle className="w-3.5 h-3.5 text-[#7E7779]" />
-                    <span>Voice & Guide</span>
-                  </button>
-
-                  {activeConv && (
-                    <button
-                      onClick={() => {
-                        setIsHeaderMenuOpen(false);
-                        setDeleteTarget(activeConv);
-                      }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl font-medium text-red-600 hover:bg-red-50 transition-colors cursor-pointer border-t border-[#EFE9E6] mt-1 pt-1.5"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      <span>Delete Conversation</span>
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
           </div>
         </header>
 
         {/* Error Notification Banner */}
         {errorBanner && (
-          <div className="shrink-0 mx-4 sm:mx-6 mt-3 flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-[#FFF5F7] border border-[#F5C4D2] text-xs text-[#9B2A48] shadow-xs animate-fadeIn">
+          <div className="shrink-0 mx-4 sm:mx-6 mt-3 flex items-center justify-between gap-3 px-4 py-2.5 rounded-2xl bg-[#FFF5F7] border border-[#F5C4D2] text-xs text-[#9B2A48] shadow-xs animate-fadeIn z-10">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <AlertCircle className="w-4 h-4 shrink-0 text-[#D84A70]" />
               <span className="font-medium text-xs leading-relaxed line-clamp-2">{errorBanner}</span>
@@ -543,7 +536,7 @@ export default function App() {
               <button
                 id="chat-error-retry-btn"
                 onClick={handleRegenerate}
-                className="text-white bg-[#D84A70] hover:bg-[#C0375D] inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold cursor-pointer shadow-xs transition-colors active:scale-95"
+                className="text-white bg-[#D84A70] hover:bg-[#C0375D] inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-semibold cursor-pointer shadow-xs transition-colors active:scale-95"
               >
                 <RefreshCw className="w-3 h-3" />
                 <span>Retry</span>
@@ -560,56 +553,57 @@ export default function App() {
           </div>
         )}
 
-        {/* Main Conversation Container */}
+        {/* Main Conversation Container & Docked Chat Bar (Zero Overlap, Clean Flow) */}
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden relative">
-          {messages.length === 0 && !isStreaming ? (
-            /* Empty state matching user's reference layout */
-            <div className="flex-1 min-h-0 flex flex-col justify-center items-center overflow-y-auto">
-              <EmptyState
-                currentUser={currentUser}
-                onSelectPrompt={(prompt) => handleSendMessage(prompt)}
-              />
-            </div>
-          ) : (
-            /* Conversation messages */
-            <div className="flex-1 min-h-0 overflow-y-auto px-2 sm:px-4 py-4 space-y-2">
-              {messages.map((msg, index) => (
-                <MessageItem
-                  key={msg.id || index}
-                  message={msg}
-                  onRegenerate={
-                    msg.role === "assistant" && index === messages.length - 1
-                      ? handleRegenerate
-                      : undefined
-                  }
-                  onPromptAction={(promptText) => {
-                    window.dispatchEvent(new CustomEvent("arfa:set-prompt", { detail: promptText }));
-                  }}
+          {/* Main Chat Stream: Smooth vertical scroll container with zero element overlap */}
+          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative flex flex-col">
+            {messages.length === 0 && !isStreaming ? (
+              <div className="flex-1 min-h-0 flex flex-col justify-center items-center px-3 sm:px-4 py-4 sm:py-6 my-auto">
+                <EmptyState
+                  currentUser={currentUser}
+                  onSelectPrompt={(prompt) => handleSendMessage(prompt)}
                 />
-              ))}
+              </div>
+            ) : (
+              <div className="w-full max-w-3xl mx-auto px-4 pt-4 pb-4 space-y-3 sm:space-y-4">
+                {messages.map((msg, index) => (
+                  <MessageItem
+                    key={msg.id || index}
+                    message={msg}
+                    onRegenerate={
+                      msg.role === "assistant" && index === messages.length - 1
+                        ? handleRegenerate
+                        : undefined
+                    }
+                    onPromptAction={(promptText) => {
+                      window.dispatchEvent(new CustomEvent("arfa:set-prompt", { detail: promptText }));
+                    }}
+                  />
+                ))}
 
-              {/* Progressive Live Streaming Message */}
-              {isStreaming && (
-                <MessageItem
-                  message={{
-                    id: "streaming_live_msg",
-                    conversationId: activeConversationId || "active",
-                    role: "assistant",
-                    content: streamingContent || "",
-                    createdAt: new Date().toISOString(),
-                    model: "ARFA AI",
-                  }}
-                  isStreaming={true}
-                />
-              )}
+                {/* Progressive Live Streaming Message */}
+                {isStreaming && (
+                  <MessageItem
+                    message={{
+                      id: "streaming_live_msg",
+                      conversationId: activeConversationId || "active",
+                      role: "assistant",
+                      content: streamingContent || "",
+                      createdAt: new Date().toISOString(),
+                      model: "ARFA AI",
+                    }}
+                    isStreaming={true}
+                  />
+                )}
 
-              <div ref={messagesEndRef} />
-            </div>
-          )}
+                <div ref={messagesEndRef} />
+              </div>
+            )}
+          </div>
 
-          {/* Bottom Message Composer ONLY when conversation is active or streaming */}
-          {(messages.length > 0 || isStreaming) && (
-            <div className="shrink-0 border-t border-transparent">
+          {/* Clean Docked Bottom Composer Area (Zero Overlap, Clean Padding) */}
+          <div className="shrink-0 w-full px-3 sm:px-6 pt-1 pb-3 sm:pb-5 bg-gradient-to-t from-[#FBF8F5] via-[#FBF8F5]/95 to-transparent z-20">
+            <div className="w-full max-w-3xl mx-auto">
               <MessageComposer
                 onSend={handleSendMessage}
                 isStreaming={isStreaming}
@@ -619,7 +613,7 @@ export default function App() {
                 statusText={streamingStatusText}
               />
             </div>
-          )}
+          </div>
         </div>
       </main>
 

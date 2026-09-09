@@ -16,54 +16,107 @@ export const ArfaLogo: React.FC<ArfaLogoProps> = ({
   isAnimated = false,
 }) => {
   const sizeMap = {
-    xs: { text: "text-xs", box: "w-5 h-5", rounded: "rounded-md", iconSize: "w-3 h-3" },
-    sm: { text: "text-sm", box: "w-7 h-7", rounded: "rounded-lg", iconSize: "w-4 h-4" },
-    md: { text: "text-base font-bold", box: "w-9 h-9", rounded: "rounded-xl", iconSize: "w-5 h-5" },
-    lg: { text: "text-xl font-bold", box: "w-11 h-11", rounded: "rounded-2xl", iconSize: "w-6 h-6" },
-    xl: { text: "text-2xl font-extrabold tracking-tight", box: "w-14 h-14", rounded: "rounded-2xl", iconSize: "w-8 h-8" },
+    xs: { text: "text-xs font-bold", box: "w-6 h-6", rounded: "rounded-xl", iconSize: "w-3.5 h-3.5" },
+    sm: { text: "text-sm font-bold", box: "w-8 h-8", rounded: "rounded-2xl", iconSize: "w-5 h-5" },
+    md: { text: "text-base font-bold", box: "w-10 h-10", rounded: "rounded-2xl", iconSize: "w-6 h-6" },
+    lg: { text: "text-lg font-extrabold", box: "w-12 h-12", rounded: "rounded-3xl", iconSize: "w-7 h-7" },
+    xl: { text: "text-2xl font-extrabold tracking-tight", box: "w-16 h-16", rounded: "rounded-3xl", iconSize: "w-10 h-10" },
   };
 
   const { text, box, rounded, iconSize } = sizeMap[size];
 
   return (
     <div id="arfa-brand-logo" className={`inline-flex items-center gap-2.5 select-none ${className}`}>
-      {/* Bespoke Luxury Emblem Mark */}
+      {/* 3D Needle-Felted Pink Bow Medallion */}
       <div
-        className={`${box} ${rounded} relative flex items-center justify-center bg-gradient-to-br from-[#2D1B22] to-[#1A1718] text-white shadow-xs shrink-0 transition-transform duration-200 hover:scale-105 border border-[#4A2D37]/30`}
+        className={`${box} ${rounded} relative flex items-center justify-center felt-btn-pink shrink-0 transition-transform duration-200 hover:scale-105 overflow-hidden group cursor-pointer`}
       >
+        {/* Soft inner wool highlight */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-white/40 pointer-events-none" />
+
+        {/* 3D Needle-Felted Bow Emblem */}
         <svg
-          viewBox="0 0 24 24"
+          viewBox="0 0 32 32"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className={`${iconSize} ${isAnimated ? "animate-pulse" : ""}`}
+          className={`${iconSize} relative z-10 drop-shadow-sm ${isAnimated ? "animate-bounce" : ""}`}
         >
-          {/* Outer Monolith Prism: Structural Apex */}
+          <defs>
+            {/* Soft plush wool gradients */}
+            <linearGradient id="feltBowLeft" x1="4" y1="8" x2="16" y2="18" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#FFFFFF" />
+              <stop offset="50%" stopColor="#FDF2F6" />
+              <stop offset="100%" stopColor="#FCE7F3" />
+            </linearGradient>
+            <linearGradient id="feltBowRight" x1="28" y1="8" x2="16" y2="18" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#FFFFFF" />
+              <stop offset="50%" stopColor="#FDF2F6" />
+              <stop offset="100%" stopColor="#FCE7F3" />
+            </linearGradient>
+            <linearGradient id="feltRibbonTail" x1="16" y1="16" x2="16" y2="28" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#FFFFFF" />
+              <stop offset="100%" stopColor="#FBCFE8" />
+            </linearGradient>
+            <radialGradient id="feltKnotGrad" cx="16" cy="14" r="5" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#FFFFFF" />
+              <stop offset="70%" stopColor="#FDF2F6" />
+              <stop offset="100%" stopColor="#F472B6" />
+            </radialGradient>
+          </defs>
+
+          {/* Left Ribbon Tail */}
           <path
-            d="M12 2.5L20.5 19.5H3.5L12 2.5Z"
-            stroke="currentColor"
-            strokeWidth="2.2"
-            strokeLinejoin="round"
+            d="M13.5 16L7.5 27C7 28 8.5 28.5 9.5 27.5L14.5 22.5L16 26.5C16.5 27.5 17.5 27 17.5 26L16 16"
+            fill="url(#feltRibbonTail)"
+            opacity="0.95"
           />
-          {/* Inner Radiant Facet with Subtle Rose Hue */}
+
+          {/* Right Ribbon Tail */}
           <path
-            d="M12 7.5L16.5 16.5H7.5L12 7.5Z"
-            fill="#E8618C"
+            d="M18.5 16L24.5 27C25 28 23.5 28.5 22.5 27.5L17.5 22.5L16 26.5"
+            fill="url(#feltRibbonTail)"
+            opacity="0.95"
           />
-          {/* Central Precision Core Light */}
-          <circle cx="12" cy="13.2" r="1.2" fill="#FFFFFF" />
+
+          {/* Left Puffy Bow Loop */}
+          <path
+            d="M15 13.5C12.5 8 5 6.5 4 11.5C3 16 9.5 18 14.5 15.2L15 13.5Z"
+            fill="url(#feltBowLeft)"
+            stroke="rgba(255,255,255,0.8)"
+            strokeWidth="0.75"
+          />
+
+          {/* Right Puffy Bow Loop */}
+          <path
+            d="M17 13.5C19.5 8 27 6.5 28 11.5C29 16 22.5 18 17.5 15.2L17 13.5Z"
+            fill="url(#feltBowRight)"
+            stroke="rgba(255,255,255,0.8)"
+            strokeWidth="0.75"
+          />
+
+          {/* Center Plush Bow Knot */}
+          <ellipse
+            cx="16"
+            cy="14"
+            rx="3.5"
+            ry="4"
+            fill="url(#feltKnotGrad)"
+            stroke="rgba(255,255,255,0.9)"
+            strokeWidth="0.75"
+          />
         </svg>
       </div>
 
       {showText && (
         <div className="flex flex-col text-left leading-tight">
           <div className="flex items-center gap-1.5">
-            <span className={`tracking-tight text-[#1A1718] font-bold uppercase ${text}`}>
+            <span className={`tracking-tight text-[#32121E] ${text}`}>
               ARFA AI
             </span>
-            <span className="hidden sm:inline-block w-1.5 h-1.5 rounded-full bg-[#D84A70]" />
+            <span className="w-2 h-2 rounded-full bg-[#EC4899] shadow-xs" />
           </div>
           {subtitle && (
-            <span className="text-[10px] text-[#7E7779] font-medium tracking-normal mt-0.5">
+            <span className="text-[10px] text-[#8E6F7A] font-semibold tracking-normal mt-0.5">
               {subtitle}
             </span>
           )}

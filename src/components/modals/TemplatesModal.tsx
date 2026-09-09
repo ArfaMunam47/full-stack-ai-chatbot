@@ -112,24 +112,24 @@ export const TemplatesModal: React.FC<TemplatesModalProps> = ({
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-xs animate-fadeIn">
-      <div className="bg-white border border-[#EFE9E6] relative w-full max-w-2xl rounded-2xl p-6 shadow-2xl text-[#1A1718] flex flex-col max-h-[85vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#32121E]/30 backdrop-blur-xs animate-fadeIn">
+      <div className="relative w-full max-w-2xl rounded-3xl p-6 sm:p-7 shadow-2xl text-[#32121E] felt-card-marshmallow flex flex-col max-h-[85vh]">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-[#EFE9E6]">
+        <div className="flex items-center justify-between pb-4 border-b border-[#EFE6DC]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#FDF2F5] text-[#D84A70] flex items-center justify-center shadow-xs">
+            <div className="w-9 h-9 rounded-2xl bg-[#FFDFE8] text-[#EC4899] flex items-center justify-center shadow-xs">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-[#1A1718]">Prompt Templates</h2>
-              <p className="text-xs text-[#5A5456]">
+              <h2 className="text-base font-extrabold text-[#32121E]">Prompt Templates</h2>
+              <p className="text-xs text-[#8E6F7A] font-medium">
                 Ready-to-use workflows designed for speed, clarity, and precision
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-[#7E7779] hover:text-[#1A1718] hover:bg-[#EFE9E6] transition-colors cursor-pointer"
+            className="p-2 rounded-2xl felt-btn-marshmallow text-[#8E6F7A] hover:text-[#EC4899] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -138,13 +138,13 @@ export const TemplatesModal: React.FC<TemplatesModalProps> = ({
         {/* Search & Filter Categories */}
         <div className="py-4 space-y-3">
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-2.5 text-[#A39B9E]" />
+            <Search className="w-4 h-4 absolute left-3 top-3 text-[#B298A1]" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search templates..."
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-[#F8F6F4] border border-[#EFE9E6] outline-none focus:border-[#D84A70] text-[#1A1718] placeholder-[#A39B9E]"
+              className="w-full pl-9 pr-3 py-2.5 text-xs rounded-2xl felt-card-marshmallow outline-none text-[#32121E] placeholder-[#B298A1] font-medium"
             />
           </div>
 
@@ -153,10 +153,10 @@ export const TemplatesModal: React.FC<TemplatesModalProps> = ({
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer shrink-0 ${
+                className={`px-3.5 py-1.5 rounded-xl font-bold transition-all cursor-pointer shrink-0 ${
                   selectedCategory === cat
-                    ? "bg-[#D84A70] text-white shadow-xs"
-                    : "bg-[#F8F6F4] text-[#5A5456] hover:bg-[#EFE9E6] hover:text-[#1A1718]"
+                    ? "felt-btn-pink text-white shadow-xs"
+                    : "felt-btn-marshmallow text-[#8E6F7A] hover:text-[#32121E]"
                 }`}
               >
                 {cat}
@@ -168,7 +168,7 @@ export const TemplatesModal: React.FC<TemplatesModalProps> = ({
         {/* Template List */}
         <div className="flex-1 overflow-y-auto pr-1 space-y-2.5">
           {filtered.length === 0 ? (
-            <div className="text-center py-10 text-xs text-[#A39B9E]">
+            <div className="text-center py-10 text-xs text-[#B298A1] font-medium">
               No templates found matching "{search}"
             </div>
           ) : (
@@ -181,21 +181,21 @@ export const TemplatesModal: React.FC<TemplatesModalProps> = ({
                     onSelectTemplate(tpl.prompt);
                     onClose();
                   }}
-                  className="p-3.5 rounded-xl border border-[#EFE9E6] hover:border-[#D84A70]/50 hover:bg-[#FFFBF8] cursor-pointer transition-all flex items-start gap-3 group"
+                  className="p-3.5 rounded-2xl felt-card-marshmallow hover:border-[#FBCFE8] hover:bg-[#FFF5F7] cursor-pointer transition-all flex items-start gap-3 group active:scale-[0.99]"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-[#F8F6F4] text-[#5A5456] group-hover:bg-[#FDF2F5] group-hover:text-[#D84A70] flex items-center justify-center shrink-0 transition-colors">
+                  <div className="w-8 h-8 rounded-xl bg-[#FFF5F7] text-[#8E6F7A] group-hover:bg-[#FFDFE8] group-hover:text-[#EC4899] flex items-center justify-center shrink-0 transition-colors">
                     <Icon className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-xs font-semibold text-[#1A1718] group-hover:text-[#D84A70] transition-colors">
+                      <h4 className="text-xs font-bold text-[#32121E] group-hover:text-[#EC4899] transition-colors">
                         {tpl.title}
                       </h4>
-                      <span className="text-[10px] font-medium text-[#7E7779] bg-[#F8F6F4] px-2 py-0.5 rounded-md border border-[#EFE9E6]">
+                      <span className="text-[10px] font-bold text-[#8E6F7A] bg-[#FFF5F7] px-2 py-0.5 rounded-lg border border-[#EFE6DC]">
                         {tpl.category}
                       </span>
                     </div>
-                    <p className="text-[11px] text-[#5A5456] mt-1 line-clamp-2">
+                    <p className="text-[11px] text-[#8E6F7A] mt-1 line-clamp-2 font-medium">
                       {tpl.description}
                     </p>
                   </div>

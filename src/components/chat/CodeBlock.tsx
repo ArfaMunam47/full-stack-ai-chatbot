@@ -19,20 +19,20 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ language = "plaintext", co
     }
   };
 
-  const cleanLang = language.replace(/^language-/, "") || "plaintext";
+  const cleanLang = language.replace(/^language-/, "") || "code";
 
   return (
-    <div className="relative my-3 rounded-xl overflow-hidden border border-[#3D291C] bg-[#140D08] shadow-sm text-neutral-200">
+    <div className="relative my-3 rounded-2xl overflow-hidden border border-[#2B2527] bg-[#161314] shadow-sm text-neutral-100">
       {/* Header bar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-[#3D291C] bg-[#1C120B] text-xs">
-        <span className="font-mono text-[#C8B8A8] font-medium lowercase">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-[#2B2527] bg-[#1E1A1B] text-xs">
+        <span className="font-mono text-[#D4C8C5] font-medium text-[11px] lowercase tracking-wider">
           {cleanLang}
         </span>
         <button
           id={`copy-code-btn-${cleanLang}`}
           onClick={handleCopy}
           aria-label="Copy code to clipboard"
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium text-[#FAF6F0] bg-[#2B1B11] hover:bg-[#3D2619] transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium text-white/90 bg-[#2B2527] hover:bg-[#3B3437] transition-colors cursor-pointer"
         >
           {copied ? (
             <>
@@ -49,7 +49,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ language = "plaintext", co
       </div>
 
       {/* Code body */}
-      <div className="overflow-x-auto p-4 text-[13px] font-mono leading-relaxed text-[#FAF6F0]">
+      <div className="overflow-x-auto p-4 text-[13.5px] font-mono leading-relaxed text-[#FAF8F7]">
         <pre className="m-0 p-0 whitespace-pre">
           <code>{code}</code>
         </pre>

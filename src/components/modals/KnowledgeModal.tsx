@@ -59,24 +59,24 @@ export const KnowledgeModal: React.FC<KnowledgeModalProps> = ({ isOpen, onClose 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-xs animate-fadeIn">
-      <div className="bg-white border border-[#EFE9E6] relative w-full max-w-xl rounded-2xl p-6 shadow-2xl text-[#1A1718] flex flex-col max-h-[85vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#32121E]/30 backdrop-blur-xs animate-fadeIn">
+      <div className="relative w-full max-w-xl rounded-3xl p-6 sm:p-7 shadow-2xl text-[#32121E] felt-card-marshmallow flex flex-col max-h-[85vh]">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-[#EFE9E6]">
+        <div className="flex items-center justify-between pb-4 border-b border-[#EFE6DC]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#FDF2F5] text-[#D84A70] flex items-center justify-center shadow-xs">
+            <div className="w-9 h-9 rounded-2xl bg-[#FFDFE8] text-[#EC4899] flex items-center justify-center shadow-xs">
               <BookOpen className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-[#1A1718]">Personal Knowledge & Memory</h2>
-              <p className="text-xs text-[#5A5456]">
-                Teach ARFA AI facts, preferences, or coding conventions to remember across chats
+              <h2 className="text-base font-extrabold text-[#32121E]">Personal Knowledge & Memory</h2>
+              <p className="text-xs text-[#8E6F7A] font-medium">
+                Teach ARFA AI facts, preferences, or conventions to remember across chats
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-[#7E7779] hover:text-[#1A1718] hover:bg-[#EFE9E6] transition-colors cursor-pointer"
+            className="p-2 rounded-2xl felt-btn-marshmallow text-[#8E6F7A] hover:text-[#EC4899] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -88,7 +88,7 @@ export const KnowledgeModal: React.FC<KnowledgeModalProps> = ({ isOpen, onClose 
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as any)}
-              className="text-xs px-2.5 py-2 rounded-xl bg-[#F8F6F4] border border-[#EFE9E6] text-[#5A5456] outline-none cursor-pointer"
+              className="text-xs px-3 py-2.5 rounded-2xl felt-btn-marshmallow text-[#32121E] outline-none font-bold cursor-pointer"
             >
               <option value="preference">Preference</option>
               <option value="fact">Fact</option>
@@ -100,12 +100,12 @@ export const KnowledgeModal: React.FC<KnowledgeModalProps> = ({ isOpen, onClose 
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="e.g. I prefer TypeScript and React for all frontend solutions..."
-              className="flex-1 text-xs px-3 py-2 rounded-xl bg-[#F8F6F4] border border-[#EFE9E6] outline-none focus:border-[#D84A70] text-[#1A1718] placeholder-[#A39B9E]"
+              className="flex-1 text-xs px-3.5 py-2.5 rounded-2xl felt-card-marshmallow outline-none text-[#32121E] placeholder-[#B298A1] font-medium"
             />
             <button
               type="submit"
               disabled={isLoading || !content.trim()}
-              className="px-3.5 py-2 rounded-xl bg-[#D84A70] hover:bg-[#C0375D] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer shadow-xs active:scale-95"
+              className="px-4 py-2.5 rounded-2xl felt-btn-pink text-white text-xs font-extrabold flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer shadow-xs active:scale-95"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add</span>
@@ -113,7 +113,7 @@ export const KnowledgeModal: React.FC<KnowledgeModalProps> = ({ isOpen, onClose 
           </div>
 
           {successNotice && (
-            <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 font-medium">
+            <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 font-bold">
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>{successNotice}</span>
             </div>
@@ -123,25 +123,25 @@ export const KnowledgeModal: React.FC<KnowledgeModalProps> = ({ isOpen, onClose 
         {/* Knowledge List */}
         <div className="flex-1 overflow-y-auto pr-1 space-y-2 mt-2">
           {memories.length === 0 ? (
-            <div className="text-center py-10 text-xs text-[#A39B9E]">
+            <div className="text-center py-10 text-xs text-[#B298A1] font-medium">
               No saved knowledge yet. Add rules or personal preferences above!
             </div>
           ) : (
             memories.map((m) => (
               <div
                 key={m.id}
-                className="p-3 rounded-xl bg-[#F8F6F4] border border-[#EFE9E6] flex items-start justify-between gap-3 group"
+                className="p-3.5 rounded-2xl felt-card-marshmallow flex items-start justify-between gap-3 group"
               >
                 <div className="space-y-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#D84A70] bg-[#FDF2F5] border border-[#F7CDD8] px-2 py-0.5 rounded-md">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#EC4899] bg-[#FFDFE8] border border-[#FBCFE8] px-2 py-0.5 rounded-lg">
                     {m.category}
                   </span>
-                  <p className="text-xs text-[#1A1718]">{m.content}</p>
+                  <p className="text-xs text-[#32121E] font-medium mt-1">{m.content}</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => handleDelete(m.id)}
-                  className="opacity-0 group-hover:opacity-100 text-[#A39B9E] hover:text-red-500 transition-all p-1 cursor-pointer"
+                  className="opacity-0 group-hover:opacity-100 text-[#B298A1] hover:text-rose-500 transition-all p-1 cursor-pointer"
                   title="Remove knowledge"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -152,8 +152,8 @@ export const KnowledgeModal: React.FC<KnowledgeModalProps> = ({ isOpen, onClose 
         </div>
 
         {/* Footer info */}
-        <div className="pt-3 mt-2 border-t border-[#EFE9E6] flex items-center gap-2 text-[11px] text-[#A39B9E]">
-          <Shield className="w-3.5 h-3.5 text-[#7E7779]" />
+        <div className="pt-3 mt-2 border-t border-[#EFE6DC] flex items-center gap-2 text-[11px] text-[#8E6F7A] font-medium">
+          <Shield className="w-3.5 h-3.5 text-[#EC4899]" />
           <span>Knowledge is private and only used to personalize your responses.</span>
         </div>
       </div>

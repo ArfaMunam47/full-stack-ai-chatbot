@@ -180,9 +180,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
         </div>
 
         {/* Multilingual Support Pill Banner */}
-        <div className="flex items-center justify-center gap-2 mb-5 px-3 py-1.5 rounded-full bg-[#FFFBF8] border border-[#F7CDD8] text-[11px] text-[#7E7779]">
-          <Globe className="w-3.5 h-3.5 text-[#D84A70]" />
-          <span className="font-medium text-[#1A1718]">Supports English, اردو, Roman Urdu & More</span>
+        <div className="flex items-center justify-center gap-2 mb-5 px-3.5 py-1.5 rounded-full bg-[#FFF5F7] border border-[#FBCFE8] text-[11px] text-[#8E6F7A]">
+          <Globe className="w-3.5 h-3.5 text-[#EC4899]" />
+          <span className="font-bold text-[#32121E]">Multi-Language Supporter & Global Script AI</span>
         </div>
 
         {/* Tabs: Sign In / Create Account (when not in recovery) */}

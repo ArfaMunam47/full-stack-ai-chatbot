@@ -1,6 +1,6 @@
 {
   "name": "ARFA AI",
-  "description": "A high-performance AI assistant created by Arfa, featuring ultra-fast streaming responses, Nano Banana image generation, voice dictation, and a refined luxury design.",
+  "description": "A premium multilingual AI companion designed with emotional awareness, high-contrast readability, voice dictation, and natural multilingual conversation.",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

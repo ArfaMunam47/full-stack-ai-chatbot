@@ -43,15 +43,14 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   if (!isOpen || !currentUser) return null;
 
   const languages = [
-    { code: "auto", name: "Auto Detect (Recommended)", native: "Natural Multilingual" },
+    { code: "auto", name: "Auto Detect (Recommended)", native: "Universal Multi-Language" },
     { code: "en", name: "English", native: "English" },
-    { code: "ur", name: "Urdu", native: "اردو" },
-    { code: "ur-roman", name: "Roman Urdu", native: "Roman Urdu" },
-    { code: "ar", name: "Arabic", native: "العربية" },
     { code: "es", name: "Spanish", native: "Español" },
     { code: "fr", name: "French", native: "Français" },
     { code: "de", name: "German", native: "Deutsch" },
+    { code: "ar", name: "Arabic", native: "العربية" },
     { code: "zh", name: "Chinese", native: "中文" },
+    { code: "ja", name: "Japanese", native: "日本語" },
   ];
 
   const handleLanguageSelect = (code: string) => {
@@ -109,7 +108,9 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           <div className="mb-5">
             <h2 className="text-xl font-bold tracking-tight text-[#1A1718] flex items-center gap-2">
               <span>{currentUser.name || "Explorer"}</span>
-              <ShieldCheck className="w-4 h-4 text-[#D84A70]" title="Verified Account" />
+              <span title="Verified Account" className="inline-flex items-center">
+                <ShieldCheck className="w-4 h-4 text-[#D84A70]" />
+              </span>
             </h2>
             <p className="text-xs text-[#7E7779] mt-0.5 flex items-center gap-1.5 font-medium">
               <Mail className="w-3.5 h-3.5 text-[#A39B9E]" />
@@ -166,8 +167,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                 ))}
               </select>
             </div>
-            <p className="text-[11px] text-[#7E7779] mt-1.5">
-              Auto Detect lets you switch between English, اردو, Roman Urdu, Arabic, and Spanish in any message.
+            <p className="text-[11px] text-[#8E6F7A] mt-1.5 font-medium">
+              Auto Detect lets you seamlessly converse in any world language with intelligent script recognition.
             </p>
           </div>
 

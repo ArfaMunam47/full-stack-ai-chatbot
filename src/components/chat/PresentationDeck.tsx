@@ -34,8 +34,9 @@ export const PresentationDeck: React.FC<PresentationDeckProps> = ({ presentation
 
   const slides = presentation.slides || [];
   const currentSlide: PresentationSlide | undefined = slides[currentSlideIndex];
-  const isUrdu =
+  const isRtl =
     presentation.language === "ur" ||
+    presentation.language === "ar" ||
     /[\u0600-\u06FF]/.test(presentation.title) ||
     /[\u0600-\u06FF]/.test(currentSlide?.title || "");
 
@@ -92,15 +93,15 @@ export const PresentationDeck: React.FC<PresentationDeckProps> = ({ presentation
 
   const handleDownloadHtml = () => {
     const htmlContent = `<!DOCTYPE html>
-<html lang="${isUrdu ? "ur" : "en"}" dir="${isUrdu ? "rtl" : "ltr"}">
+<html lang="${isRtl ? "ar" : "en"}" dir="${isRtl ? "rtl" : "ltr"}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${presentation.title}</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');
-    body { font-family: ${isUrdu ? "'Noto Nastaliq Urdu', serif" : "'Plus Jakarta Sans', sans-serif"}; background: #0c0f17; color: #f8fafc; margin: 0; }
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0c0f17; color: #f8fafc; margin: 0; }
     .slide { display: none; }
     .slide.active { display: flex; }
   </style>
@@ -235,8 +236,8 @@ export const PresentationDeck: React.FC<PresentationDeckProps> = ({ presentation
         isFullscreen
           ? "fixed inset-0 z-50 rounded-none border-none p-6 md:p-12 flex flex-col justify-between"
           : "w-full"
-      } ${isUrdu ? "font-serif" : ""}`}
-      dir={isUrdu ? "rtl" : "ltr"}
+      } ${isRtl ? "font-serif" : ""}`}
+      dir={isRtl ? "rtl" : "ltr"}
     >
       {/* Top Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-current/10 text-xs">
@@ -245,9 +246,9 @@ export const PresentationDeck: React.FC<PresentationDeckProps> = ({ presentation
             <Presentation className={`w-4 h-4 ${currentTheme.accent}`} />
             <span>{presentation.title}</span>
           </div>
-          {isUrdu && (
-            <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-              اردو پریزنٹیشن
+          {isRtl && (
+            <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-[#FFDFE8] text-[#EC4899] border border-[#FBCFE8]">
+              Multi-Language Deck
             </span>
           )}
         </div>
