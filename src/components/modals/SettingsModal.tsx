@@ -427,22 +427,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="p-4 rounded-xl bg-[#F8F6F4] border border-[#EFE9E6] flex items-center justify-between">
                 <div>
                   <div className="text-sm font-semibold text-[#1A1718]">
-                    {currentUser?.name || "Guest User"}
+                    {currentUser?.name || "Not Signed In"}
                   </div>
                   <div className="text-xs text-[#5A5456]">
-                    {currentUser?.isGuest ? "Temporary guest session" : currentUser?.email}
+                    {currentUser?.email || "Create an account or sign in to sync your messages"}
                   </div>
                 </div>
 
-                {currentUser?.isGuest ? (
+                {!currentUser ? (
                   <button
                     onClick={() => {
                       onClose();
                       onOpenAuth();
                     }}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-[#1A1718] hover:bg-black transition-colors cursor-pointer shadow-xs"
+                    className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-[#D94680] hover:bg-[#C0376D] transition-colors cursor-pointer shadow-xs"
                   >
-                    Sign In
+                    Log In / Sign Up
                   </button>
                 ) : (
                   <button

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import {
-  ArrowUp,
+  SendHorizontal,
   Square,
   Plus,
   Mic,
@@ -9,6 +9,7 @@ import {
   FileText,
   Loader2,
   Check,
+  Heart,
 } from "lucide-react";
 import { MessageAttachment, ComposerMode } from "../../types.ts";
 import { api } from "../../lib/api.ts";
@@ -322,28 +323,24 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
         </div>
       )}
 
-      {/* 3D Needle-Felted Marshmallow Floating Composer Bar */}
+      {/* Handcrafted Needle-Felted Floating Composer Capsule */}
       <div
         id="floating-prompt-input-bar"
-        className="relative rounded-[32px] felt-card-marshmallow p-2 sm:p-2.5 transition-all flex items-end gap-2 border-2 border-white/90 shadow-xl"
-        style={{
-          boxShadow:
-            "inset 0px 2px 4px rgba(255, 255, 255, 0.95), 0px 12px 28px rgba(220, 100, 150, 0.16)",
-        }}
+        className="relative rounded-full felt-composer-pill p-2 sm:p-2.5 transition-all flex items-center gap-2.5"
       >
-        {/* Left: Plus / Attach Button (Circular Plush Pill) */}
+        {/* Left: 3D Plush Pink Circular Plus Button */}
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled || isUploading || isListening}
-          className="w-10 h-10 rounded-full felt-btn-marshmallow text-[#5A4750] hover:text-[#E95D95] flex items-center justify-center shrink-0 cursor-pointer mb-0.5 border border-[#FFB7D5]/40 transition-transform active:scale-95"
+          className="w-10 h-10 rounded-full felt-circle-pink flex items-center justify-center shrink-0 cursor-pointer transition-transform active:scale-95"
           title="Add photo or document"
           aria-label="Add attachment"
         >
-          <Plus className="w-4 h-4 stroke-[2.5]" />
+          <Plus className="w-5 h-5 stroke-[2.8] text-white" />
         </button>
 
-        {/* Central: Auto-expanding Textarea (Strict line-height: 1.3, no text overlap) */}
+        {/* Central: Auto-expanding Textarea */}
         <textarea
           ref={textareaRef}
           value={text}
@@ -353,23 +350,23 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
           placeholder={getPlaceholder()}
           disabled={disabled}
           rows={1}
-          className={`flex-1 max-h-[180px] py-2.5 px-2 text-sm sm:text-[15px] bg-transparent border-none outline-none resize-none text-[#2B1E25] placeholder-[#B8A3AD] leading-[1.3] font-medium ${
+          className={`flex-1 max-h-[160px] py-2 px-2 text-sm sm:text-[15px] bg-transparent border-none outline-none resize-none text-[#2B1E25] placeholder-[#AA929D] leading-[1.3] font-semibold ${
             isRtlInput ? "text-right" : "text-left"
           }`}
         />
 
-        {/* Right Action Controls: Functional Microphone + Circular Pink Send Button */}
-        <div className="flex items-center gap-2 shrink-0 mb-0.5">
-          {/* Functional Needle-Felted Microphone Button with Pulsing Glow Animation */}
+        {/* Right Action Controls: Circular Cream Microphone + Circular Pink Send Button */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Functional Needle-Felted Microphone Button */}
           <button
             id="composer-mic-toggle-btn"
             type="button"
             onClick={handleMicToggle}
             disabled={disabled}
-            className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all active:scale-95 border ${
+            className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all active:scale-95 ${
               isListening
-                ? "felt-btn-pink text-white mic-pulse-glow border-white/80 shadow-lg"
-                : "felt-btn-marshmallow text-[#8E7882] hover:text-[#E95D95] border-[#FFB7D5]/40"
+                ? "felt-circle-pink mic-pulse-glow"
+                : "felt-circle-cream"
             }`}
             title={
               isListening
@@ -381,11 +378,11 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
             {isListening ? (
               <MicOff className="w-4 h-4 text-white" />
             ) : (
-              <Mic className="w-4 h-4 stroke-[2.3]" />
+              <Mic className="w-4 h-4 stroke-[2.4]" />
             )}
           </button>
 
-          {/* Send or Stop Button (Pink Circular Send Button) */}
+          {/* Send or Stop Button (3D Plush Pink Circular Button) */}
           {isStreaming ? (
             <button
               type="button"
@@ -402,11 +399,11 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
               type="button"
               onClick={handleSend}
               disabled={disabled || (!text.trim() && attachments.length === 0)}
-              className="w-10 h-10 rounded-full felt-btn-pink disabled:opacity-40 disabled:scale-100 disabled:cursor-not-allowed text-white flex items-center justify-center shrink-0 cursor-pointer active:scale-95 shadow-md border-2 border-white/60"
+              className="w-10 h-10 rounded-full felt-circle-pink disabled:opacity-40 disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center shrink-0 cursor-pointer active:scale-95"
               title="Send message"
               aria-label="Send message"
             >
-              <ArrowUp className="w-4 h-4 stroke-[2.7]" />
+              <SendHorizontal className="w-4 h-4 stroke-[2.6] text-white" />
             </button>
           )}
         </div>
@@ -414,10 +411,11 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
 
       {/* Subtle supporting line below composer */}
       <div className="flex items-center justify-center gap-1.5 mt-2.5 select-none">
-        <NeedleFeltBow color="pink" size="xs" />
-        <p className="text-[11px] text-[#8E7882] font-semibold text-center leading-[1.3]">
-          ARFA AI • Thoughts made easier
+        <Heart className="w-2.5 h-2.5 fill-[#E95D95] text-[#E95D95]" />
+        <p className="text-[11.5px] text-[#8E7882] font-semibold text-center leading-[1.3]">
+          Thoughts made easier
         </p>
+        <Heart className="w-2.5 h-2.5 fill-[#E95D95] text-[#E95D95]" />
       </div>
     </div>
   );

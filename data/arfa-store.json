@@ -1,0 +1,835 @@
+{
+  "users": [
+    {
+      "id": "usr_b3ec962d-54cc-479b-95f2-972756dbf7ca",
+      "email": "alex@example.com",
+      "name": "Alex",
+      "salt": "9daae1f10dc7ca51cc6bb82d14dee52e",
+      "passwordHash": "3c8a62ef44c287513659e7f0033cfaf3f6a89918a3ed29e024feb637887102dbe782f6cda95f011652c39864dbbd2b54c720fbb1e936596c3fb73e2596e91f66",
+      "createdAt": "2026-09-03T12:11:42.409Z"
+    },
+    {
+      "id": "usr_820e2361-21c6-496a-87e1-857094696358",
+      "email": "testuser_a_1788536669653@example.com",
+      "name": "User Alpha",
+      "salt": "b05d9357b420956aa68e2873990a780d",
+      "passwordHash": "eedf3fa96a89b2e2424ee622140bf9a3ecffad742402b8a465c6c849f9682f8569029bb085b9165edd1d0f5c251c84fdd84088ecab44dfbbc15765b25b02081f",
+      "createdAt": "2026-09-04T15:44:29.662Z"
+    },
+    {
+      "id": "usr_e8a4fe22-d3e7-410f-9892-191c56f02565",
+      "email": "testuser_b_1788536669653@example.com",
+      "name": "User Beta",
+      "salt": "aed7e6f2e7a9f0b35a1d271d8cdfd7d4",
+      "passwordHash": "ab76ab47e0a60543603ab421f3d1692d038fea99fbdee38bd079fd749174945ddb8db113a98500ab75afd739620fe602366d2ed13654468981ec790c6f0276a3",
+      "createdAt": "2026-09-04T15:44:29.670Z"
+    },
+    {
+      "id": "usr_f5262ce4-75ae-45d8-be10-d0a7d0ea125a",
+      "email": "testuser_a_1788536722135@example.com",
+      "name": "User Alpha",
+      "salt": "759801fa369e9020fb69ea1c90047f79",
+      "passwordHash": "5e5671595b1c692c1acd2b6c8f88ce35480cbbf29880b71a9837e61d5d0b7057d79339281ac0d832fd3839cabe1cef2f5935687ea2195e5f7459a701b39d2d6c",
+      "createdAt": "2026-09-04T15:45:22.143Z"
+    },
+    {
+      "id": "usr_01deb784-310e-4b84-9cdb-3e03570e3cc9",
+      "email": "testuser_b_1788536722135@example.com",
+      "name": "User Beta",
+      "salt": "dd8dbe6a3a2f8da19ef44803c206e91c",
+      "passwordHash": "c05d6e52c358c8ead821e349ab59248800c30435a2066cdf1f7b88af8958990ae9e367d92217f1ce0fe94af38ff0e11949a737f1a607e0e1c4aefc4dbfc412a4",
+      "createdAt": "2026-09-04T15:45:22.151Z"
+    },
+    {
+      "id": "usr_7db3d9a4-6ba0-4a58-9d6a-77c87f915b7a",
+      "email": "testuser_a_1788794771200@example.com",
+      "name": "User Alpha",
+      "salt": "3476029bc6a24a8fd74fd470e3efa9b7",
+      "passwordHash": "d2ebc5e49be576288a14ff4e94e20c681a5c0937ebe533aadcdd55bfbe5634f07e5df96dc78695466c90182f58d08e47e013a604f58ac01a89d45355f4e496bc",
+      "createdAt": "2026-09-07T15:26:11.209Z"
+    },
+    {
+      "id": "usr_5653a393-09e7-4709-8786-052447ff16b5",
+      "email": "testuser_b_1788794771200@example.com",
+      "name": "User Beta",
+      "salt": "ea22e2ae08704caaaa3e87957e2ffc50",
+      "passwordHash": "c3f3692fbb636c01cebd8840845572d9ee8eef5ea76d3708c9c2349754b261c4903f0ebedce737934faf4fdb00d4969d1e2c42080584743f67bffb5536431e8f",
+      "createdAt": "2026-09-07T15:26:11.217Z"
+    },
+    {
+      "id": "usr_394580a2-6489-4bf0-9fb9-933540f5c7c6",
+      "email": "testuser_a_1788794854456@example.com",
+      "name": "User Alpha",
+      "salt": "9a1cf72c9bdb0f4b6a5f85b8da83cbf8",
+      "passwordHash": "704a4db92aef10c27446a1354f3e77b1cd3e21529354d73637dc6a78c349709407245906d66fa6bf73d584cc1dd5b6c4e31c1e1a399ab643a3dfab9ac189f3c4",
+      "createdAt": "2026-09-07T15:27:34.466Z"
+    },
+    {
+      "id": "usr_7139c164-2f5b-41b2-b57e-f38bba62f50e",
+      "email": "testuser_b_1788794854456@example.com",
+      "name": "User Beta",
+      "salt": "0312ebc48544db5e34c09f5559ec5122",
+      "passwordHash": "4901893c00753aaa9580a8d8d0f870157fec0886e53391d272660aa9d799f31b227dadb44302dc5743d8edc8a0abed2cdf8dfa749247be48a44baa1c1f0dde48",
+      "createdAt": "2026-09-07T15:27:34.475Z"
+    },
+    {
+      "id": "usr_e645bf4c-0bcc-47a2-9bd5-9ad58ea897a6",
+      "email": "testuser_a_1788794877754@example.com",
+      "name": "User Alpha",
+      "salt": "d48d4c285cdb40cef7a552d187a28d67",
+      "passwordHash": "d3f766c67a8e10939ef7b0d9e2e5595cb03e0c16e741ee284f0bdb92a7f3833d1b639b08f08dbc35c82c430ad0a6d6de0dea02380204f6c70c31a2010e1ca407",
+      "createdAt": "2026-09-07T15:27:57.762Z"
+    },
+    {
+      "id": "usr_9a310b6f-0d3b-42a3-b550-3caeb0080809",
+      "email": "testuser_b_1788794877754@example.com",
+      "name": "User Beta",
+      "salt": "2be04158a3734d80a2b85fe92248b08c",
+      "passwordHash": "9ffe7ae7a393223266d36a15211acbb6342dedea79802928597c44646d1c061c9e1ebee01953b1c428647509680f6c762b27d6959d62430669b8ceb8fc3a5559",
+      "createdAt": "2026-09-07T15:27:57.771Z"
+    }
+  ],
+  "sessions": [
+    {
+      "token": "67a75b7aa8bb3eecea85af838b2d04e7e3586fbb2bc2370824f7c9dc8102406c",
+      "userId": "usr_b3ec962d-54cc-479b-95f2-972756dbf7ca",
+      "createdAt": "2026-09-03T12:11:42.410Z",
+      "expiresAt": "2026-10-03T12:11:42.410Z"
+    }
+  ],
+  "passwordResetCodes": [
+    {
+      "email": "alex@example.com",
+      "code": "637422",
+      "expiresAt": 1788438427498
+    }
+  ],
+  "conversations": [
+    {
+      "id": "conv_13e78df0-c533-4072-bac0-1d578effd379",
+      "userId": "guest_anonymous",
+      "title": "Generate a presentation on AI in...",
+      "createdAt": "2026-09-07T16:06:10.035Z",
+      "updatedAt": "2026-09-07T16:06:14.320Z"
+    },
+    {
+      "id": "conv_4d7e81d6-11a5-4f1a-ac09-d3c33930b82a",
+      "userId": "guest_anonymous",
+      "title": "lets talk in urdu",
+      "createdAt": "2026-09-07T16:06:03.058Z",
+      "updatedAt": "2026-09-07T16:06:06.499Z"
+    },
+    {
+      "id": "conv_8c2710f2-6776-4138-b88d-8f36a64815af",
+      "userId": "guest_anonymous",
+      "title": "lets talk in urdu",
+      "createdAt": "2026-09-07T16:05:55.951Z",
+      "updatedAt": "2026-09-07T16:06:00.940Z"
+    },
+    {
+      "id": "conv_1a93b7e7-907b-47a4-8576-a4bfcc7abbeb",
+      "userId": "guest_anonymous",
+      "title": "urdu me likhein mujhe ek bachay...",
+      "createdAt": "2026-09-07T15:38:33.376Z",
+      "updatedAt": "2026-09-07T15:38:34.531Z"
+    },
+    {
+      "id": "conv_e48eef56-02c0-4fa3-aa74-d5aa447e8d69",
+      "userId": "guest_anonymous",
+      "title": "generate an image of a red...",
+      "createdAt": "2026-09-07T15:38:27.562Z",
+      "updatedAt": "2026-09-07T15:38:27.875Z"
+    },
+    {
+      "id": "conv_fef6e665-1db7-49e9-b754-88b0b93bb6f6",
+      "userId": "guest_anonymous",
+      "title": "hello",
+      "createdAt": "2026-09-07T15:38:19.847Z",
+      "updatedAt": "2026-09-07T15:38:21.712Z"
+    },
+    {
+      "id": "conv_86cb19d1-62e7-4c42-b043-c7ce2138d97a",
+      "userId": "guest_anonymous",
+      "title": "generate an image of a red...",
+      "createdAt": "2026-09-07T15:38:03.049Z",
+      "updatedAt": "2026-09-07T15:38:51.510Z"
+    },
+    {
+      "id": "conv_07d133fc-e565-4ae8-98d0-a1276d28f93a",
+      "userId": "guest_anonymous",
+      "title": "hello",
+      "createdAt": "2026-09-07T15:29:04.102Z",
+      "updatedAt": "2026-09-07T15:37:40.743Z"
+    },
+    {
+      "id": "conv_b07d6cab-f1ce-40de-b6eb-f5369f70701c",
+      "userId": "usr_9a310b6f-0d3b-42a3-b550-3caeb0080809",
+      "title": "Beta Confidential Notes",
+      "createdAt": "2026-09-07T15:27:57.790Z",
+      "updatedAt": "2026-09-07T15:27:57.790Z"
+    },
+    {
+      "id": "conv_f91c8cfd-2553-48f8-a20d-0b654cddea21",
+      "userId": "usr_e645bf4c-0bcc-47a2-9bd5-9ad58ea897a6",
+      "title": "Alpha Project Discussion",
+      "createdAt": "2026-09-07T15:27:57.789Z",
+      "updatedAt": "2026-09-07T15:27:57.791Z"
+    },
+    {
+      "id": "conv_769774be-f1b6-4fa0-9bcd-b0a4cc421e25",
+      "userId": "usr_7139c164-2f5b-41b2-b57e-f38bba62f50e",
+      "title": "Beta Confidential Notes",
+      "createdAt": "2026-09-07T15:27:34.498Z",
+      "updatedAt": "2026-09-07T15:27:34.498Z"
+    },
+    {
+      "id": "conv_91415a52-9d2e-4c10-aa42-8bff874d44c3",
+      "userId": "usr_394580a2-6489-4bf0-9fb9-933540f5c7c6",
+      "title": "Alpha Project Discussion",
+      "createdAt": "2026-09-07T15:27:34.498Z",
+      "updatedAt": "2026-09-07T15:27:34.499Z"
+    },
+    {
+      "id": "conv_de5c16bb-5acb-4992-8aa7-d88ec9cdcc9a",
+      "userId": "usr_5653a393-09e7-4709-8786-052447ff16b5",
+      "title": "Beta Confidential Notes",
+      "createdAt": "2026-09-07T15:26:11.235Z",
+      "updatedAt": "2026-09-07T15:26:11.235Z"
+    },
+    {
+      "id": "conv_0e4286a7-c63f-4439-b023-4974de2855bb",
+      "userId": "usr_7db3d9a4-6ba0-4a58-9d6a-77c87f915b7a",
+      "title": "Alpha Project Discussion",
+      "createdAt": "2026-09-07T15:26:11.235Z",
+      "updatedAt": "2026-09-07T15:26:11.236Z"
+    },
+    {
+      "id": "conv_380823d5-75f4-4838-b6c4-0c638e3e2084",
+      "userId": "usr_01deb784-310e-4b84-9cdb-3e03570e3cc9",
+      "title": "Beta Confidential Notes",
+      "createdAt": "2026-09-04T15:45:22.172Z",
+      "updatedAt": "2026-09-04T15:45:22.172Z"
+    },
+    {
+      "id": "conv_19b174ac-b705-4292-8a1a-58bb79eb3aa3",
+      "userId": "usr_f5262ce4-75ae-45d8-be10-d0a7d0ea125a",
+      "title": "Alpha Project Discussion",
+      "createdAt": "2026-09-04T15:45:22.172Z",
+      "updatedAt": "2026-09-04T15:45:22.173Z"
+    },
+    {
+      "id": "conv_63eed7e1-bb9e-483d-905d-3e4c0893919f",
+      "userId": "usr_e8a4fe22-d3e7-410f-9892-191c56f02565",
+      "title": "Beta Confidential Notes",
+      "createdAt": "2026-09-04T15:44:29.687Z",
+      "updatedAt": "2026-09-04T15:44:29.687Z"
+    },
+    {
+      "id": "conv_55586ce9-0bb8-4ee8-a221-312a06b8e422",
+      "userId": "usr_820e2361-21c6-496a-87e1-857094696358",
+      "title": "Alpha Project Discussion",
+      "createdAt": "2026-09-04T15:44:29.687Z",
+      "updatedAt": "2026-09-04T15:44:29.688Z"
+    }
+  ],
+  "messages": [
+    {
+      "id": "msg_43879492-41c7-488f-8484-4967965b32ee",
+      "conversationId": "conv_55586ce9-0bb8-4ee8-a221-312a06b8e422",
+      "userId": "usr_820e2361-21c6-496a-87e1-857094696358",
+      "role": "user",
+      "content": "What are the latest system metrics?",
+      "createdAt": "2026-09-04T15:44:29.688Z"
+    },
+    {
+      "id": "msg_9ba67b47-94e4-4f40-91bf-cabc7e6395f7",
+      "conversationId": "conv_19b174ac-b705-4292-8a1a-58bb79eb3aa3",
+      "userId": "usr_f5262ce4-75ae-45d8-be10-d0a7d0ea125a",
+      "role": "user",
+      "content": "What are the latest system metrics?",
+      "createdAt": "2026-09-04T15:45:22.173Z"
+    },
+    {
+      "id": "msg_55974a8a-25f3-4e07-9a02-dd1646d50909",
+      "conversationId": "conv_0e4286a7-c63f-4439-b023-4974de2855bb",
+      "userId": "usr_7db3d9a4-6ba0-4a58-9d6a-77c87f915b7a",
+      "role": "user",
+      "content": "What are the latest system metrics?",
+      "createdAt": "2026-09-07T15:26:11.236Z"
+    },
+    {
+      "id": "msg_9030ce0e-3a51-4dab-b373-7d8ce97c4d58",
+      "conversationId": "conv_91415a52-9d2e-4c10-aa42-8bff874d44c3",
+      "userId": "usr_394580a2-6489-4bf0-9fb9-933540f5c7c6",
+      "role": "user",
+      "content": "What are the latest system metrics?",
+      "createdAt": "2026-09-07T15:27:34.499Z"
+    },
+    {
+      "id": "msg_425257e4-6edd-4148-8ea6-ae100ab66beb",
+      "conversationId": "conv_f91c8cfd-2553-48f8-a20d-0b654cddea21",
+      "userId": "usr_e645bf4c-0bcc-47a2-9bd5-9ad58ea897a6",
+      "role": "user",
+      "content": "What are the latest system metrics?",
+      "createdAt": "2026-09-07T15:27:57.791Z"
+    },
+    {
+      "id": "msg_d8f1c477-1894-4e3e-bdea-9f6e837d2c70",
+      "conversationId": "conv_07d133fc-e565-4ae8-98d0-a1276d28f93a",
+      "userId": "guest_anonymous",
+      "role": "user",
+      "content": "hello",
+      "createdAt": "2026-09-07T15:29:04.103Z"
+    },
+    {
+      "id": "msg_f110e5c5-c531-4ed4-8c40-ad34ce07ae14",
+      "conversationId": "conv_07d133fc-e565-4ae8-98d0-a1276d28f93a",
+      "userId": "guest_anonymous",
+      "role": "assistant",
+      "content": "Hello! I'm Arfa AI. What are you working on today?",
+      "createdAt": "2026-09-07T15:29:06.090Z",
+      "model": "gemini-3.1-flash-lite"
+    },
+    {
+      "id": "msg_56120168-a51f-4979-888b-833b77c39f62",
+      "conversationId": "conv_07d133fc-e565-4ae8-98d0-a1276d28f93a",
+      "userId": "guest_anonymous",
+      "role": "user",
+      "content": "i want to do something useful but m feeling very tored",
+      "createdAt": "2026-09-07T15:29:36.461Z",
+      "attachments": []
+    },
+    {
+      "id": "msg_7a142567-83a5-47cb-963b-c0fd1d42d854",
+      "conversationId": "conv_07d133fc-e565-4ae8-98d0-a1276d28f93a",
+      "userId": "guest_anonymous",
+      "role": "assistant",
+      "content": "It sounds like you're caught between wanting to be productive and needing to recharge. When you're feeling drained, the best \"useful\" thing you can do is often something that lowers your mental load rather than adding to it.\n\nWould you prefer to do something low-effort that feels like a win, like tidying up a small corner of your space, or would you rather take a guilt-free break to actually rest so you can tackle more later?",
+      "createdAt": "2026-09-07T15:29:40.711Z",
+      "model": "gemini-3.1-flash-lite"
+    },
+    {
+      "id": "msg_79101d36-27cf-425c-ad98-69cc68c1eb63",
+      "conversationId": "conv_07d133fc-e565-4ae8-98d0-a1276d28f93a",
+      "userId": "guest_anonymous",
+      "role": "user",
+      "content": "i want to create an image are u capable of that",
+      "createdAt": "2026-09-07T15:30:02.438Z",
+      "attachments": []
+    },
+    {
+      "id": "msg_babfd87f-4252-44c6-a00d-8ff8dfae7809",
+      "conversationId": "conv_07d133fc-e565-4ae8-98d0-a1276d28f93a",
+      "userId": "guest_anonymous",
+      "role": "assistant",
+      "content": "I am a text-based AI, so I can't directly generate image files like JPEGs or PNGs. However, I can help you write highly detailed, creative prompts that you can plug into tools like Midjourney, DALL-E, or Stable Diffusion to get exactly the result you’re looking for.\n\nIf you tell me what you have in mind, I can help you refine the description, lighting, style, and composition to make sure the output is high-quality. What kind of image were you thinking of creating?",
+      "createdAt": "2026-09-07T15:30:04.652Z",
+      "model": "gemini-3.1-flash-lite"
+    },
+    {
+      "id": "msg_216e6a30-346e-4990-b117-9b3d3882ca25",
+      "conversationId": "conv_07d133fc-e565-4ae8-98d0-a1276d28f93a",
+      "userId": "guest_anonymous",
+      "role": "user",
+      "content": "okay so can u speak urdu m more comfortable in that",
+      "createdAt": "2026-09-07T15:30:23.672Z",
+      "attachments": []
+    },
+    {
+      "id": "msg_e332fd4d-d9fb-49fe-9eeb-0dc756ced348",
+      "conversationId": "conv_07d133fc-e565-4ae8-98d0-a1276d28f93a",
+      "userId": "guest_anonymous",
+      "role": "assistant",
+      "content": "Bilkul, main Urdu mein baat kar sakti hoon. Aap jaisa chahein, hum waise hi baat karenge.\n\nBatayein, aap kis tarah ki tasveer (image) banana chahte hain? Agar aap mujhe uska khayal ya idea batayenge, toh main uske liye ek behtareen prompt likhne mein aapki madad karungi taake aap kisi image generator se accha result hasil kar sakein.",
+      "createdAt": "2026-09-07T15:30:26.642Z",
+      "model": "gemini-3.1-flash-lite"
+    },
+    {
+      "id": "msg_e9312f12-785c-4598-aabf-475f6d27d379",
+      "conversationId": "conv_07d133fc-e565-4ae8-98d0-a1276d28f93a",
+      "userId": "guest_anonymous",
+      "role": "user",
+      "content": "like in urdu texting",
+      "createdAt": "2026-09-07T15:30:36.191Z",
+      "attachments": []
+    },
+    {
+      "id": "msg_dbec6770-f271-4ca5-af6e-e17bddf0e68f",
+      "conversationId": "conv_07d133fc-e565-4ae8-98d0-a1276d28f93a",
+      "userId": "guest_anonymous",
+      "role": "assistant",
+      "content": "Zaroor, main isi tarah Roman Urdu mein baat kar sakti hoon. \n\nToh bataiye, aapke dimaag mein kya tasveer hai? Aap bas mujhe thoda sa idea dein ki usmein kya hona chahiye, aur main uske liye ek zabardast prompt tayyar kar doongi.",
+      "createdAt": "2026-09-07T15:30:38.745Z",
+      "model": "gemini-3.1-flash-lite"
+    },
+    {
+      "id": "msg_c982b3d9-896d-4b7e-8b03-a15d7b79905a",
+      "conversationId": "conv_07d133fc-e565-4ae8-98d0-a1276d28f93a",
+      "userId": "guest_anonymous",
+      "role": "user",
+      "content": "write urdu m not understanding this",
+      "createdAt": "2026-09-07T15:30:51.364Z",
+      "attachments": []
+    },
+    {
+      "id": "msg_6964c09b-fbb2-4e4c-86f0-caf32419595b",
+      "conversationId": "conv_07d133fc-e565-4ae8-98d0-a1276d28f93a",
+      "userId": "guest_anonymous",
+      "role": "assistant",
+      "content": "Bilkul, main Urdu script mein likh sakti hoon.\n\nAap bataiye aap kis tarah ki tasveer banana chahte hain? Aap mujhe apna khayal batayen, main uske liye ek behtareen prompt likh doongi jise aap kisi bhi image generator mein istemal kar sakte hain.",
+      "createdAt": "2026-09-07T15:30:58.439Z",
+      "model": "gemini-3.1-flash-lite"
+    },
+    {
+      "id": "msg_df6e56a1-6c8f-4e7e-b89c-8bf7d886c864",
+      "conversationId": "conv_07d133fc-e565-4ae8-98d0-a1276d28f93a",
+      "userId": "guest_anonymous",
+      "role": "user",
+      "content": "generate an image of girl kid crying",
+      "createdAt": "2026-09-07T15:31:18.405Z",
+      "attachments": []
+    },
+    {
+      "id": "msg_59ff406a-b41b-4be2-9348-25637234ea9c",
+      "conversationId": "conv_07d133fc-e565-4ae8-98d0-a1276d28f93a",
+      "userId": "guest_anonymous",
+      "role": "user",
+      "content": "generate an image of girl kid crying",
+      "createdAt": "2026-09-07T15:31:23.489Z",
+      "attachments": []
+    },
+    {
+      "id": "msg_10730d78-b16c-4f4f-85b7-84b98c18bdd6",
+      "conversationId": "conv_07d133fc-e565-4ae8-98d0-a1276d28f93a",
+      "userId": "guest_anonymous",
+      "role": "user",
+      "content": "lets talk in punjabi",
+      "createdAt": "2026-09-07T15:37:40.743Z",
+      "attachments": []
+    },
+    {
+      "id": "msg_a3314c57-80dd-451b-bf3a-87b1ef8b981c",
+      "conversationId": "conv_86cb19d1-62e7-4c42-b043-c7ce2138d97a",
+      "userId": "guest_anonymous",
+      "role": "user",
+      "content": "generate an image of a red rose on a marble table",
+      "createdAt": "2026-09-07T15:38:03.050Z"
+    },
+    {
+      "id": "msg_939eae11-554d-45a7-bd76-d3f880a3a0ba",
+      "conversationId": "conv_fef6e665-1db7-49e9-b754-88b0b93bb6f6",
+      "userId": "guest_anonymous",
+      "role": "user",
+      "content": "hello",
+      "createdAt": "2026-09-07T15:38:19.847Z"
+    },
+    {
+      "id": "msg_ed5ebe25-4123-4a7e-b597-7557c8e1f4c0",
+      "conversationId": "conv_fef6e665-1db7-49e9-b754-88b0b93bb6f6",
+      "userId": "guest_anonymous",
+      "role": "assistant",
+      "content": "Hello! I'm Arfa AI. What are you working on today?",
+      "createdAt": "2026-09-07T15:38:21.712Z",
+      "model": "gemini-3.1-flash-lite"
+    },
+    {
+      "id": "msg_ec341497-044e-4c9d-acc0-fd0867a369fd",
+      "conversationId": "conv_e48eef56-02c0-4fa3-aa74-d5aa447e8d69",
+      "userId": "guest_anonymous",
+      "role": "user",
+      "content": "generate an image of a red rose on a marble table",
+      "createdAt": "2026-09-07T15:38:27.562Z"
+    },
+    {
+      "id": "msg_5dec3bc3-0aee-459d-bebc-57fb819d9cd0",
+      "conversationId": "conv_e48eef56-02c0-4fa3-aa74-d5aa447e8d69",
+      "userId": "guest_anonymous",
+      "role": "assistant",
+      "content": "I received your image request:\n> **\"a red rose on a marble table\"**\n\n⚠️ **Google Gemini Quota Notice**: Image generation via Google Nano Banana (`gemini-3.1-flash-lite-image`) requires an active Google AI Studio project with billing or paid quota enabled (free-tier API keys have an image generation quota limit of 0).\n\n**How to enable this in your project:**\n1. In Google AI Studio, ensure your project is linked to a billing account with quota enabled.\n2. Once billing is linked, image generation with Nano Banana will activate automatically.\n3. In the meantime, you can copy the refined prompt above into your preferred image generation tool.",
+      "createdAt": "2026-09-07T15:38:27.875Z",
+      "model": "gemini-3.1-flash-lite"
+    },
+    {
+      "id": "msg_4722a516-bd75-4b3e-986c-b217cbad0130",
+      "conversationId": "conv_1a93b7e7-907b-47a4-8576-a4bfcc7abbeb",
+      "userId": "guest_anonymous",
+      "role": "user",
+      "content": "urdu me likhein mujhe ek bachay ki tasveer chahiye",
+      "createdAt": "2026-09-07T15:38:33.376Z"
+    },
+    {
+      "id": "msg_2b817436-3998-447e-b21d-427498aa7627",
+      "conversationId": "conv_1a93b7e7-907b-47a4-8576-a4bfcc7abbeb",
+      "userId": "guest_anonymous",
+      "role": "assistant",
+      "content": "جی بالکل، مجھے ایک بچے کی تصویر بنانے میں خوشی ہوگی۔ چونکہ میرے پاس براہ راست امیج جنریشن کی سہولت فی الحال محدود ہے، آپ اس پرامپٹ (prompt) کو کسی بھی AI امیج جنریٹر میں استعمال کر سکتے ہیں:\n\n**\"A beautiful, high-quality portrait of a happy young child playing in a sunlit garden, soft natural lighting, cinematic style, highly detailed.\"**\n\nاگر آپ کو کسی خاص قسم کی تصویر چاہیے (مثلاً کارٹون اسٹائل یا حقیقت پسندانہ)، تو مجھے بتائیں، میں آپ کے لیے پرامپٹ کو مزید بہتر بنا دوں گی۔",
+      "createdAt": "2026-09-07T15:38:34.531Z",
+      "model": "gemini-3.1-flash-lite"
+    },
+    {
+      "id": "msg_c8fa9ad7-c254-4149-ac4b-919b354647fa",
+      "conversationId": "conv_86cb19d1-62e7-4c42-b043-c7ce2138d97a",
+      "userId": "guest_anonymous",
+      "role": "assistant",
+      "content": "I cannot directly generate or render images in this chat, but if you have access to an image generation tool (like Midjourney, DALL-E 3, or Google's Imagen), here is an optimized prompt you can use to get a stunning result:\n\n> **Prompt:** *A close-up shot of a single, vibrant deep red rose resting gently on a polished white Carrara marble tabletop with subtle grey veining. Soft, natural morning light streaming from a nearby window, casting delicate shadows. Tiny, glistening dewdrops on the velvety petals, shallow depth of field with a soft, blurred background, hyper-realistic, 8k resolution, elegant still life photography.*",
+      "createdAt": "2026-09-07T15:38:51.510Z",
+      "model": "gemini-3.8-flash"
+    },
+    {
+      "id": "msg_b27183fd-6a21-4aac-8e10-ce337f110bd3",
+      "conversationId": "conv_8c2710f2-6776-4138-b88d-8f36a64815af",
+      "userId": "guest_anonymous",
+      "role": "user",
+      "content": "lets talk in urdu",
+      "createdAt": "2026-09-07T16:05:55.952Z"
+    },
+    {
+      "id": "msg_9ab31ae2-98f2-4c46-a541-eb6db9b648a1",
+      "conversationId": "conv_8c2710f2-6776-4138-b88d-8f36a64815af",
+      "userId": "guest_anonymous",
+      "role": "assistant",
+      "content": "جی بالکل! میں آپ سے اردو میں بات کرنے کے لیے بالکل تیار ہوں۔ بتائیے، آج میں آپ کی کس طرح مدد کر سکتی ہوں؟",
+      "createdAt": "2026-09-07T16:06:00.940Z",
+      "model": "gemini-3.1-flash-lite"
+    },
+    {
+      "id": "msg_c9e882c0-d311-4f12-a68f-7c30421bd4a0",
+      "conversationId": "conv_4d7e81d6-11a5-4f1a-ac09-d3c33930b82a",
+      "userId": "guest_anonymous",
+      "role": "user",
+      "content": "lets talk in urdu",
+      "createdAt": "2026-09-07T16:06:03.058Z"
+    },
+    {
+      "id": "msg_33af17a1-e223-4944-8f6e-c5d366ce7d64",
+      "conversationId": "conv_4d7e81d6-11a5-4f1a-ac09-d3c33930b82a",
+      "userId": "guest_anonymous",
+      "role": "assistant",
+      "content": "جی بالکل! میں آپ سے اردو میں بات کرنے کے لیے بالکل تیار ہوں۔ بتائیے، آج میں آپ کی کس طرح مدد کر سکتی ہوں؟",
+      "createdAt": "2026-09-07T16:06:06.499Z",
+      "model": "gemini-3.1-flash-lite"
+    },
+    {
+      "id": "msg_5e5ce388-4746-43f7-9e4f-e95d617c0fac",
+      "conversationId": "conv_13e78df0-c533-4072-bac0-1d578effd379",
+      "userId": "guest_anonymous",
+      "role": "user",
+      "content": "Generate a presentation on AI in Healthcare",
+      "createdAt": "2026-09-07T16:06:10.036Z"
+    },
+    {
+      "id": "msg_4218eeb8-cb92-4425-80a7-fa44bcea8270",
+      "conversationId": "conv_13e78df0-c533-4072-bac0-1d578effd379",
+      "userId": "guest_anonymous",
+      "role": "assistant",
+      "content": "AI is fundamentally reshaping the healthcare landscape, moving us from reactive treatment models to proactive, data-driven precision medicine. Below is an executive overview of how these technologies are currently being deployed to improve clinical outcomes and operational efficiency.\n\n```presentation\n{\n  \"title\": \"The AI Revolution in Healthcare\",\n  \"topic\": \"Transforming Clinical Outcomes and Operational Efficiency\",\n  \"language\": \"en\",\n  \"theme\": \"emerald\",\n  \"slides\": [\n    {\n      \"id\": \"1\",\n      \"title\": \"The New Era of Diagnostics\",\n      \"subtitle\": \"AI-Driven Imaging and Pathology\",\n      \"badge\": \"Clinical Innovation\",\n      \"bulletPoints\": [\n        \"Radiology: AI algorithms identifying anomalies in X-rays and MRIs with higher precision than human sight.\",\n        \"Pathology: Accelerated tissue analysis reducing the time-to-diagnosis for oncology patients.\",\n        \"Early Detection: Predicting disease onset before clinical symptoms manifest.\"\n      ],\n      \"metric\": { \"value\": \"30%\", \"label\": \"Increased Diagnostic Accuracy\" },\n      \"speakerNotes\": \"Focus on how AI acts as a 'second set of eyes' for radiologists, reducing fatigue-related errors.\"\n    },\n    {\n      \"id\": \"2\",\n      \"title\": \"Precision Medicine & Drug Discovery\",\n      \"subtitle\": \"Tailored Therapies and Rapid R&D\",\n      \"badge\": \"Research & Development\",\n      \"bulletPoints\": [\n        \"Genomics: Analyzing patient DNA to create hyper-personalized treatment plans.\",\n        \"Drug Discovery: AI modeling predicting molecular interactions to slash development timelines.\",\n        \"Clinical Trials: Optimized patient recruitment through automated data matching.\"\n      ],\n      \"metric\": { \"value\": \"4x\", \"label\": \"Faster Drug Candidate Identification\" },\n      \"speakerNotes\": \"Highlight the transition from 'one-size-fits-all' medicine to individualized patient care.\"\n    },\n    {\n      \"id\": \"3\",\n      \"title\": \"Operational Intelligence\",\n      \"subtitle\": \"Streamlining Hospital Systems\",\n      \"badge\": \"Healthcare Administration\",\n      \"bulletPoints\": [\n        \"Resource Allocation: Predictive analytics for bed management and staffing levels.\",\n        \"Workflow Automation: Reducing administrative burden through NLP-based clinical documentation.\",\n        \"Patient Flow: Minimizing wait times and optimizing surgical scheduling.\"\n      ],\n      \"metric\": { \"value\": \"20%\", \"label\": \"Reduced Operational Costs\" },\n      \"speakerNotes\": \"Emphasize that operational efficiency allows clinicians to spend more time with patients.\"\n    }\n  ]\n}\n```\n\nThis deck outlines the three pillars of AI integration: diagnostics, drug development, and administrative optimization. By leveraging these tools, healthcare systems can reduce costs while significantly improving the quality of patient care. Let me know if you would like me to expand on any of these areas or add specific case studies.",
+      "createdAt": "2026-09-07T16:06:14.320Z",
+      "model": "gemini-3.1-flash-lite"
+    }
+  ],
+  "mediaRecords": [
+    {
+      "id": "med_d1945882-abb5-4892-a459-89ebf8bfa682",
+      "userId": "guest_anonymous",
+      "type": "image",
+      "prompt": "a tranquil alpine lake at sunrise",
+      "model": "flux-1-schnell (Ultra HD)",
+      "status": "completed",
+      "fileName": "img_15011cba-2792-4ee2-a68b-01916fdac067.jpg",
+      "filePath": "/app/applet/data/media/guest_anonymous/img_15011cba-2792-4ee2-a68b-01916fdac067.jpg",
+      "mimeType": "image/jpeg",
+      "aspectRatio": "1:1",
+      "createdAt": "2026-09-07T16:05:46.080Z",
+      "updatedAt": "2026-09-07T16:05:46.080Z"
+    }
+  ],
+  "memories": [
+    {
+      "id": "mem_66425ca2-6303-4a0b-b026-dcae15dbf44c",
+      "userId": "usr_9a310b6f-0d3b-42a3-b550-3caeb0080809",
+      "category": "instruction",
+      "content": "User preference: Always respond in Urdu.",
+      "createdAt": "2026-09-07T15:27:57.832Z"
+    },
+    {
+      "id": "mem_6a78d479-827b-4750-a128-05911abd8ba3",
+      "userId": "usr_9a310b6f-0d3b-42a3-b550-3caeb0080809",
+      "category": "project",
+      "content": "User is working on project: ARFA AI.",
+      "createdAt": "2026-09-07T15:27:57.831Z"
+    },
+    {
+      "id": "mem_9ffc8a8c-5702-454c-95fd-b019b0e1cf86",
+      "userId": "usr_9a310b6f-0d3b-42a3-b550-3caeb0080809",
+      "category": "preference",
+      "content": "User's preferred name is Afa.",
+      "createdAt": "2026-09-07T15:27:57.830Z"
+    },
+    {
+      "id": "mem_69f7fa1b-2bc8-49c0-b0f0-8de4e2e094ce",
+      "userId": "usr_e645bf4c-0bcc-47a2-9bd5-9ad58ea897a6",
+      "category": "preference",
+      "content": "Prefers concise bulleted answers",
+      "createdAt": "2026-09-07T15:27:57.792Z"
+    },
+    {
+      "id": "mem_70ba5dde-2e6a-41fb-a349-11799640f995",
+      "userId": "usr_7139c164-2f5b-41b2-b57e-f38bba62f50e",
+      "category": "instruction",
+      "content": "User preference: Always respond in Urdu.",
+      "createdAt": "2026-09-07T15:27:34.527Z"
+    },
+    {
+      "id": "mem_53b87e3b-aef2-4c70-b515-3c8d0934aa29",
+      "userId": "usr_7139c164-2f5b-41b2-b57e-f38bba62f50e",
+      "category": "project",
+      "content": "User is working on project: ARFA AI.",
+      "createdAt": "2026-09-07T15:27:34.526Z"
+    },
+    {
+      "id": "mem_01ae7215-d1cb-4a40-a76e-1811dbbb213a",
+      "userId": "usr_7139c164-2f5b-41b2-b57e-f38bba62f50e",
+      "category": "preference",
+      "content": "User's preferred name is Afa.",
+      "createdAt": "2026-09-07T15:27:34.526Z"
+    },
+    {
+      "id": "mem_b9e5c733-33be-49cc-8e05-3676ea4b79ab",
+      "userId": "usr_394580a2-6489-4bf0-9fb9-933540f5c7c6",
+      "category": "preference",
+      "content": "Prefers concise bulleted answers",
+      "createdAt": "2026-09-07T15:27:34.500Z"
+    },
+    {
+      "id": "mem_617a7278-634a-4231-b8db-1b27b12ee390",
+      "userId": "usr_7db3d9a4-6ba0-4a58-9d6a-77c87f915b7a",
+      "category": "preference",
+      "content": "Prefers concise bulleted answers",
+      "createdAt": "2026-09-07T15:26:11.237Z"
+    },
+    {
+      "id": "mem_922fb13c-57a0-4336-91a4-e08bd37bf065",
+      "userId": "usr_f5262ce4-75ae-45d8-be10-d0a7d0ea125a",
+      "category": "preference",
+      "content": "Prefers concise bulleted answers",
+      "createdAt": "2026-09-04T15:45:22.174Z"
+    },
+    {
+      "id": "mem_1abad489-c206-4111-bd33-79b96554305e",
+      "userId": "usr_820e2361-21c6-496a-87e1-857094696358",
+      "category": "preference",
+      "content": "Prefers concise bulleted answers",
+      "createdAt": "2026-09-04T15:44:29.689Z"
+    }
+  ],
+  "userSettings": [
+    {
+      "userId": "usr_b3ec962d-54cc-479b-95f2-972756dbf7ca",
+      "theme": "light",
+      "preferredProvider": "gemini",
+      "preferredModel": "gemini-3.8-flash",
+      "customInstructions": "",
+      "temperature": 0.7,
+      "voiceEnabled": true
+    },
+    {
+      "userId": "usr_820e2361-21c6-496a-87e1-857094696358",
+      "theme": "dark",
+      "preferredProvider": "gemini",
+      "preferredModel": "gemini-3.8-flash",
+      "customInstructions": "",
+      "temperature": 0.2,
+      "voiceEnabled": true
+    },
+    {
+      "userId": "usr_e8a4fe22-d3e7-410f-9892-191c56f02565",
+      "theme": "light",
+      "preferredProvider": "gemini",
+      "preferredModel": "gemini-3.8-flash",
+      "customInstructions": "",
+      "temperature": 0.7,
+      "voiceEnabled": true
+    },
+    {
+      "userId": "usr_f5262ce4-75ae-45d8-be10-d0a7d0ea125a",
+      "theme": "dark",
+      "preferredProvider": "gemini",
+      "preferredModel": "gemini-3.8-flash",
+      "customInstructions": "",
+      "temperature": 0.2,
+      "voiceEnabled": true
+    },
+    {
+      "userId": "usr_01deb784-310e-4b84-9cdb-3e03570e3cc9",
+      "theme": "light",
+      "preferredProvider": "gemini",
+      "preferredModel": "gemini-3.8-flash",
+      "customInstructions": "",
+      "temperature": 0.7,
+      "voiceEnabled": true
+    },
+    {
+      "userId": "guest_anonymous",
+      "theme": "light",
+      "preferredProvider": "gemini",
+      "preferredModel": "gemini-3.1-flash-lite",
+      "customInstructions": "",
+      "temperature": 0.7,
+      "voiceEnabled": true
+    },
+    {
+      "userId": "usr_7db3d9a4-6ba0-4a58-9d6a-77c87f915b7a",
+      "theme": "dark",
+      "preferredProvider": "gemini",
+      "preferredModel": "gemini-3.8-flash",
+      "customInstructions": "",
+      "temperature": 0.2,
+      "voiceEnabled": true
+    },
+    {
+      "userId": "usr_5653a393-09e7-4709-8786-052447ff16b5",
+      "theme": "light",
+      "preferredProvider": "gemini",
+      "preferredModel": "gemini-3.8-flash",
+      "customInstructions": "",
+      "temperature": 0.7,
+      "voiceEnabled": true
+    },
+    {
+      "userId": "usr_394580a2-6489-4bf0-9fb9-933540f5c7c6",
+      "theme": "dark",
+      "preferredProvider": "gemini",
+      "preferredModel": "gemini-3.8-flash",
+      "customInstructions": "",
+      "temperature": 0.2,
+      "voiceEnabled": true
+    },
+    {
+      "userId": "usr_7139c164-2f5b-41b2-b57e-f38bba62f50e",
+      "theme": "light",
+      "preferredProvider": "gemini",
+      "preferredModel": "gemini-3.8-flash",
+      "customInstructions": "",
+      "temperature": 0.7,
+      "voiceEnabled": true
+    },
+    {
+      "userId": "usr_e645bf4c-0bcc-47a2-9bd5-9ad58ea897a6",
+      "theme": "dark",
+      "preferredProvider": "gemini",
+      "preferredModel": "gemini-3.8-flash",
+      "customInstructions": "",
+      "temperature": 0.2,
+      "voiceEnabled": true
+    },
+    {
+      "userId": "usr_9a310b6f-0d3b-42a3-b550-3caeb0080809",
+      "theme": "light",
+      "preferredProvider": "gemini",
+      "preferredModel": "gemini-3.8-flash",
+      "customInstructions": "",
+      "temperature": 0.7,
+      "voiceEnabled": true
+    }
+  ],
+  "usageRecords": [
+    {
+      "id": "usg_e5b1a1e5-7f0c-4c2b-975e-b9bd7decdd21",
+      "userId": "guest_anonymous",
+      "timestamp": "2026-09-07T15:29:06.091Z",
+      "model": "gemini-3.1-flash-lite",
+      "tokensEstimated": 15
+    },
+    {
+      "id": "usg_fa92fdbc-3d6c-40f6-8b08-60cffcf818b8",
+      "userId": "guest_anonymous",
+      "timestamp": "2026-09-07T15:29:40.712Z",
+      "model": "gemini-3.1-flash-lite",
+      "tokensEstimated": 128
+    },
+    {
+      "id": "usg_4da6d4bf-0cc7-4e50-8d4e-17fdd42ffda3",
+      "userId": "guest_anonymous",
+      "timestamp": "2026-09-07T15:30:04.652Z",
+      "model": "gemini-3.1-flash-lite",
+      "tokensEstimated": 136
+    },
+    {
+      "id": "usg_5cb61ef0-b86b-4594-aa50-8729b84a6741",
+      "userId": "guest_anonymous",
+      "timestamp": "2026-09-07T15:30:26.642Z",
+      "model": "gemini-3.1-flash-lite",
+      "tokensEstimated": 102
+    },
+    {
+      "id": "usg_437a948f-4b88-42dc-bca2-470d7e03ee38",
+      "userId": "guest_anonymous",
+      "timestamp": "2026-09-07T15:30:38.745Z",
+      "model": "gemini-3.1-flash-lite",
+      "tokensEstimated": 66
+    },
+    {
+      "id": "usg_be291bce-6d4e-44e2-9e2b-ff15175968d4",
+      "userId": "guest_anonymous",
+      "timestamp": "2026-09-07T15:30:58.440Z",
+      "model": "gemini-3.1-flash-lite",
+      "tokensEstimated": 74
+    },
+    {
+      "id": "usg_7655835f-3f68-4428-a4c7-85483a37f40b",
+      "userId": "guest_anonymous",
+      "timestamp": "2026-09-07T15:38:21.712Z",
+      "model": "gemini-3.1-flash-lite",
+      "tokensEstimated": 15
+    },
+    {
+      "id": "usg_b37cbeff-d719-4253-a45f-a05f6f6499dc",
+      "userId": "guest_anonymous",
+      "timestamp": "2026-09-07T15:38:34.532Z",
+      "model": "gemini-3.1-flash-lite",
+      "tokensEstimated": 140
+    },
+    {
+      "id": "usg_c8e6f776-1a1e-4c12-b871-c98efafc64a0",
+      "userId": "guest_anonymous",
+      "timestamp": "2026-09-07T15:38:51.511Z",
+      "model": "gemini-3.8-flash",
+      "tokensEstimated": 179
+    },
+    {
+      "id": "usg_d8f7c422-c3c4-4bee-b84f-5169899722da",
+      "userId": "guest_anonymous",
+      "timestamp": "2026-09-07T16:06:00.940Z",
+      "model": "gemini-3.1-flash-lite",
+      "tokensEstimated": 33
+    },
+    {
+      "id": "usg_6304586d-b5c1-4778-bc37-e62dfc8b8aec",
+      "userId": "guest_anonymous",
+      "timestamp": "2026-09-07T16:06:06.500Z",
+      "model": "gemini-3.1-flash-lite",
+      "tokensEstimated": 33
+    },
+    {
+      "id": "usg_550b84d7-18c5-4423-b42b-dbfcba0b140a",
+      "userId": "guest_anonymous",
+      "timestamp": "2026-09-07T16:06:14.321Z",
+      "model": "gemini-3.1-flash-lite",
+      "tokensEstimated": 774
+    },
+    {
+      "id": "usg_f26632b6-dc2a-455a-be3e-281c275e5a48",
+      "userId": "guest_anonymous",
+      "timestamp": "2026-09-09T15:34:13.692Z",
+      "model": "gemini-3.1-flash-lite",
+      "tokensEstimated": 49
+    },
+    {
+      "id": "usg_c9c90d31-406c-40a6-b2f4-d24db95ef146",
+      "userId": "guest_anonymous",
+      "timestamp": "2026-09-09T15:34:37.470Z",
+      "model": "gemini-3.1-flash-lite",
+      "tokensEstimated": 237
+    }
+  ]
+}

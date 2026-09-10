@@ -84,12 +84,14 @@
   }
 }
 
-/* Woven Cozy Fabric & Subtle Grain Background - Clean & Tactile */
+/* Woven Cozy Handcrafted Felt Fabric & Artisan Stitch Texture */
 .cozy-felt-bg {
-  background-color: #FBF8F5;
+  background-color: #FAF5F1;
   background-image: 
-    radial-gradient(ellipse at 50% 0%, rgba(255, 183, 213, 0.18) 0%, transparent 65%),
-    url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23D9C9BE' fill-opacity='0.15'%3E%3Cpath d='M0 16 L16 0 L32 16 L16 32 Z' fill='none' stroke='%23D9C9BE' stroke-width='0.5' /%3E%3Ccircle cx='16' cy='16' r='0.8' /%3E%3C/g%3E%3C/svg%3E");
+    radial-gradient(ellipse at 50% 10%, rgba(255, 185, 215, 0.28) 0%, transparent 60%),
+    radial-gradient(ellipse at 85% 85%, rgba(255, 215, 230, 0.18) 0%, transparent 50%),
+    radial-gradient(ellipse at 15% 90%, rgba(245, 225, 210, 0.22) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg width='48' height='48' viewBox='0 0 48 48' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23CDB4A2' fill-opacity='0.16'%3E%3Cpath d='M24 0 L48 24 L24 48 L0 24 Z' fill='none' stroke='%23CDB4A2' stroke-width='0.6' stroke-dasharray='2,3' /%3E%3Ccircle cx='24' cy='24' r='1.1' fill='%23E95D95' fill-opacity='0.14' /%3E%3Cpath d='M12 12 L36 36 M36 12 L12 36' stroke='%23CDB4A2' stroke-width='0.4' stroke-opacity='0.12' stroke-dasharray='1,4' /%3E%3C/g%3E%3C/svg%3E");
   background-attachment: fixed;
 }
 
@@ -203,67 +205,86 @@
   animation: soundWaveBounce 0.8s ease-in-out infinite 0.32s;
 }
 
-/* Fluffy 3D Needle-Felted Navigation Buttons */
+/* Tactile Claymorphism Navigation Buttons */
 .fluffy-btn-signin {
-  background: linear-gradient(145deg, #FFFFFF 0%, #FFF9FB 55%, #FDEEF4 100%);
-  color: #3D2230;
-  border: 2px solid rgba(255, 255, 255, 0.95);
+  position: relative;
+  background: linear-gradient(145deg, #FFFFFF 0%, #FFF8F6 50%, #FDEEE8 100%);
+  color: #381E29;
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
   border-radius: 9999px;
   box-shadow: 
-    inset 0px 2.5px 4px rgba(255, 255, 255, 1),
-    inset 0px -2px 3px rgba(233, 93, 149, 0.12),
-    0px 6px 14px -2px rgba(180, 120, 145, 0.18),
-    0px 2px 4px rgba(0, 0, 0, 0.03);
+    inset 1.5px 2.5px 3.5px rgba(255, 255, 255, 1),
+    inset -1.5px -2.5px 3.5px rgba(215, 160, 175, 0.22),
+    0px 6px 14px -2px rgba(185, 130, 150, 0.16),
+    0px 2px 4px rgba(0, 0, 0, 0.02);
   transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
   font-weight: 700;
   letter-spacing: -0.01em;
 }
 
+.fluffy-btn-signin::after {
+  content: '';
+  position: absolute;
+  inset: 2.5px;
+  border: 1px dashed rgba(225, 175, 195, 0.45);
+  border-radius: 9999px;
+  pointer-events: none;
+}
+
 .fluffy-btn-signin:hover {
   transform: translateY(-2px) scale(1.02);
-  color: #E95D95;
-  border-color: #FFFFFF;
+  color: #D94680;
   box-shadow: 
-    inset 0px 3px 5px rgba(255, 255, 255, 1),
-    inset 0px -2px 3px rgba(233, 93, 149, 0.18),
-    0px 10px 20px -3px rgba(180, 120, 145, 0.24);
+    inset 2px 3px 4px rgba(255, 255, 255, 1),
+    inset -1.5px -2.5px 3.5px rgba(215, 160, 175, 0.28),
+    0px 10px 20px -3px rgba(185, 130, 150, 0.22);
 }
 
 .fluffy-btn-signin:active {
   transform: translateY(1px) scale(0.97);
   box-shadow: 
-    inset 0px 2px 4px rgba(210, 100, 140, 0.2),
+    inset 1.5px 2px 3px rgba(200, 140, 160, 0.25),
     0px 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .fluffy-btn-signup {
-  background: linear-gradient(145deg, #FF7EB3 0%, #E95D95 50%, #D43E7A 100%);
+  position: relative;
+  background: linear-gradient(145deg, #FFA0C8 0%, #F06292 48%, #DF417E 100%);
   color: #FFFFFF;
-  border: 2px solid rgba(255, 255, 255, 0.7);
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
   border-radius: 9999px;
   box-shadow: 
-    inset 0px 2.5px 4px rgba(255, 255, 255, 0.85),
-    inset 0px -2.5px 4px rgba(160, 20, 75, 0.35),
-    0px 8px 18px -2px rgba(220, 80, 135, 0.38),
-    0px 3px 6px rgba(220, 80, 135, 0.2);
+    inset 1.5px 2.5px 3.5px rgba(255, 255, 255, 0.85),
+    inset -1.5px -2.5px 4px rgba(150, 15, 65, 0.38),
+    0px 8px 18px -2px rgba(225, 80, 135, 0.36),
+    0px 3px 6px rgba(225, 80, 135, 0.18);
   transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
   font-weight: 800;
   letter-spacing: -0.01em;
 }
 
+.fluffy-btn-signup::after {
+  content: '';
+  position: absolute;
+  inset: 2.5px;
+  border: 1px dashed rgba(255, 255, 255, 0.75);
+  border-radius: 9999px;
+  pointer-events: none;
+}
+
 .fluffy-btn-signup:hover {
   transform: translateY(-2px) scale(1.025);
   box-shadow: 
-    inset 0px 3px 5px rgba(255, 255, 255, 0.95),
-    inset 0px -2.5px 4px rgba(160, 20, 75, 0.4),
-    0px 12px 24px -3px rgba(220, 80, 135, 0.46);
+    inset 2px 3px 4px rgba(255, 255, 255, 0.95),
+    inset -1.5px -2.5px 4px rgba(150, 15, 65, 0.45),
+    0px 12px 24px -3px rgba(225, 80, 135, 0.44);
 }
 
 .fluffy-btn-signup:active {
   transform: translateY(1px) scale(0.97);
   box-shadow: 
-    inset 0px 2px 5px rgba(130, 10, 60, 0.45),
-    0px 3px 8px rgba(220, 80, 135, 0.2);
+    inset 1.5px 2px 4px rgba(130, 10, 60, 0.45),
+    0px 3px 8px rgba(225, 80, 135, 0.2);
 }
 
 /* 3D Claymorphism Character Cutout Effects */
@@ -628,4 +649,186 @@
 
 .mic-pulse-glow {
   animation: micGlowPulse 1.5s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* =========================================================================
+   AUTHENTIC HANDCRAFTED NEEDLE-FELTED & EMBROIDERED STYLES (MATCHING CHAT.PNG)
+   ========================================================================= */
+
+/* Clean Handcrafted Embossed Typography for "ARFA AI" - Crisp, Beautiful & Readable */
+.felt-text-puffy {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 900;
+  color: #D94680;
+  letter-spacing: 0.03em;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.95), 0 2px 3px rgba(180, 50, 90, 0.12);
+}
+
+/* Floating Navigation Bar with Running Needle-Stitch Inset */
+.felt-nav-pill {
+  position: relative;
+  background: linear-gradient(145deg, #FFFFFF 0%, #FFF9F6 50%, #FDF2EB 100%);
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  border-radius: 9999px;
+  box-shadow: 
+    inset 0px 2.5px 5px rgba(255, 255, 255, 1),
+    inset 0px -2px 3px rgba(220, 140, 165, 0.12),
+    0px 8px 24px -4px rgba(200, 130, 155, 0.16);
+}
+
+.felt-nav-pill::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 1.5px dashed rgba(225, 175, 195, 0.55);
+  border-radius: 9999px;
+  pointer-events: none;
+}
+
+/* Floating Needle-Felted Composer Bar with Running Needle-Stitches */
+.felt-composer-pill {
+  position: relative;
+  background: linear-gradient(145deg, #FFFFFF 0%, #FFFDFB 50%, #FDF4EC 100%);
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  border-radius: 9999px;
+  box-shadow: 
+    inset 0px 3px 6px rgba(255, 255, 255, 1),
+    inset 0px -2.5px 4px rgba(215, 140, 165, 0.15),
+    0px 12px 32px -4px rgba(195, 120, 148, 0.2);
+}
+
+.felt-composer-pill::after {
+  content: '';
+  position: absolute;
+  inset: 3.5px;
+  border: 1.5px dashed rgba(225, 175, 195, 0.55);
+  border-radius: 9999px;
+  pointer-events: none;
+}
+
+/* 6 Tactile Action Cards: Soft Pink Wool with Perimeter Running Stitch */
+.felt-action-pink {
+  position: relative;
+  background: linear-gradient(145deg, #FFB8D3 0%, #F597BC 45%, #EA649B 100%);
+  color: #381E29;
+  border-radius: 24px;
+  box-shadow: 
+    inset 0px 2.5px 4px rgba(255, 255, 255, 0.9),
+    inset 0px -2px 4px rgba(180, 40, 90, 0.22),
+    0px 8px 18px -2px rgba(220, 100, 150, 0.24),
+    0px 2px 4px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.felt-action-pink::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.85);
+  border-radius: 20px;
+  pointer-events: none;
+}
+
+.felt-action-pink:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 
+    inset 0px 3px 5px rgba(255, 255, 255, 0.95),
+    inset 0px -2px 4px rgba(180, 40, 90, 0.28),
+    0px 12px 24px -3px rgba(220, 100, 150, 0.32);
+}
+
+.felt-action-pink:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* 6 Tactile Action Cards: Cream/Oatmeal Wool with Perimeter Running Stitch */
+.felt-action-cream {
+  position: relative;
+  background: linear-gradient(145deg, #FFFFFF 0%, #FFF8F4 50%, #FDEEE6 100%);
+  color: #381E29;
+  border-radius: 24px;
+  box-shadow: 
+    inset 0px 2.5px 4px rgba(255, 255, 255, 1),
+    inset 0px -2px 3px rgba(210, 150, 170, 0.14),
+    0px 8px 18px -2px rgba(180, 130, 145, 0.16),
+    0px 2px 4px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.felt-action-cream::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1.5px dashed rgba(220, 160, 180, 0.55);
+  border-radius: 20px;
+  pointer-events: none;
+}
+
+.felt-action-cream:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 
+    inset 0px 3px 5px rgba(255, 255, 255, 1),
+    inset 0px -2px 3px rgba(210, 150, 170, 0.18),
+    0px 12px 24px -3px rgba(180, 130, 145, 0.24);
+}
+
+.felt-action-cream:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* 3D Circular Pink Plush Button (for composer + and send) */
+.felt-circle-pink {
+  background: linear-gradient(145deg, #FF8AB7 0%, #E95D95 50%, #D8427E 100%);
+  color: #FFFFFF;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 9999px;
+  box-shadow: 
+    inset 0px 2.5px 4px rgba(255, 255, 255, 0.85),
+    inset 0px -2.5px 4px rgba(150, 15, 65, 0.4),
+    0px 6px 14px -2px rgba(220, 70, 125, 0.38);
+  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.felt-circle-pink:hover {
+  transform: translateY(-2px) scale(1.06);
+  box-shadow: 
+    inset 0px 3px 5px rgba(255, 255, 255, 0.95),
+    inset 0px -2.5px 4px rgba(150, 15, 65, 0.45),
+    0px 10px 20px -3px rgba(220, 70, 125, 0.48);
+}
+
+.felt-circle-pink:active {
+  transform: translateY(1px) scale(0.96);
+}
+
+/* 3D Circular Cream Plush Button (for mic, menu) */
+.felt-circle-cream {
+  background: linear-gradient(145deg, #FFFFFF 0%, #FFF8F4 50%, #FDEEE6 100%);
+  color: #5A4750;
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  border-radius: 9999px;
+  box-shadow: 
+    inset 0px 2.5px 4px rgba(255, 255, 255, 1),
+    inset 0px -2px 3px rgba(210, 150, 170, 0.15),
+    0px 6px 14px -2px rgba(180, 130, 145, 0.16);
+  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.felt-circle-cream:hover {
+  transform: translateY(-2px) scale(1.06);
+  color: #E95D95;
+  box-shadow: 
+    inset 0px 3px 5px rgba(255, 255, 255, 1),
+    inset 0px -2px 3px rgba(210, 150, 170, 0.2),
+    0px 10px 20px -3px rgba(180, 130, 145, 0.24);
+}
+
+.felt-circle-cream:active {
+  transform: translateY(1px) scale(0.96);
+}
+
+/* Soft Felt Vignette to seamlessly blend hero image into cream textile canvas */
+.felt-vignette-blend {
+  mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 70%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 70%, transparent 100%);
 }

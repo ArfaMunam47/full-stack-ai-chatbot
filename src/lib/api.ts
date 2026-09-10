@@ -66,10 +66,16 @@ async function secureFetch(input: RequestInfo | URL, init?: RequestInit): Promis
 
 export const api = {
   // Auth
-  async getCurrentUser(): Promise<User> {
-    const res = await secureFetch("/api/auth/me");
-    if (!res.ok) throw new Error("Failed to load user");
-    return res.json();
+  async getCurrentUser(): Promise<User | null> {
+    try {
+      const res = await secureFetch("/api/auth/me");
+      if (!res.ok) return null;
+      const user = await res.json();
+      if (!user || user.isGuest) return null;
+      return user;
+    } catch {
+      return null;
+    }
   },
 
   async login(email: string, password: string): Promise<User> {

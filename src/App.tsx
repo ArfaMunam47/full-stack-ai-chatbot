@@ -29,6 +29,8 @@ import {
   Volume2,
   VolumeX,
   X,
+  User as UserIcon,
+  Sparkles,
 } from "lucide-react";
 
 export default function App() {
@@ -378,152 +380,102 @@ export default function App() {
 
   return (
     <div
-      className="flex flex-row h-screen w-screen overflow-hidden bg-[#FDF8F5] text-[#2B1E25] select-none"
-      style={{ height: "100vh", display: "flex", flexDirection: "row", overflow: "hidden" }}
+      className="flex flex-col h-screen w-screen overflow-hidden bg-[#FDF8F5] text-[#2B1E25] select-none"
+      style={{ height: "100vh", display: "flex", flexDirection: "column", overflow: "hidden" }}
     >
-      {/* Sidebar with Navigation, Conversation History, and Auth Options */}
-      <Sidebar
-        conversations={conversations}
-        activeConversationId={activeConversationId}
-        onSelectConversation={selectConversation}
-        onNewChat={handleNewChat}
-        onRenameConversation={(conv) => setRenameTarget(conv)}
-        onDeleteConversation={(conv) => setDeleteTarget(conv)}
-        onOpenSettings={() => setIsSettingsOpen(true)}
-        onOpenKnowledge={() => setIsKnowledgeOpen(true)}
-        onOpenTemplates={() => setIsTemplatesOpen(true)}
-        onOpenAuth={(mode) => {
-          setAuthInitialMode(mode || "login");
-          setIsAuthOpen(true);
-        }}
-        onLogout={handleLogout}
-        currentUser={currentUser}
-        isOpen={isMobileSidebarOpen}
-        onCloseMobile={() => setIsMobileSidebarOpen(false)}
-        isCollapsed={isSidebarCollapsed}
-        onToggleCollapse={() => {
-          const next = !isSidebarCollapsed;
-          setIsSidebarCollapsed(next);
-          localStorage.setItem("arfa_sidebar_collapsed", String(next));
-        }}
-      />
-
-      {/* Main Content Area */}
+      {/* Main Handcrafted Companion Workspace (Clean, Single-View, Distraction-Free) */}
       <main className="flex-1 flex flex-col min-w-0 h-full max-h-[100dvh] overflow-hidden relative cozy-felt-bg">
-        {/* Simple Professional Needle-Felted Navigation Bar */}
-        <header
-          id="main-chat-header"
-          className="shrink-0 flex items-center justify-between px-3.5 sm:px-6 h-16 sm:h-20 border-b border-[#E95D95]/12 bg-[#FFFDFB]/90 backdrop-blur-md z-20 select-none"
-        >
-          {/* LEFT SIDE: small sidebar/menu toggle + ARFA AI logo + ARFA AI wordmark + subtle "Online" status */}
-          <div className="flex items-center gap-2.5 sm:gap-4 min-w-0">
-            {/* Mobile Hamburger Toggle */}
-            <button
-              id="mobile-sidebar-toggle-btn"
-              type="button"
-              onClick={() => setIsMobileSidebarOpen(true)}
-              className="md:hidden p-2.5 rounded-2xl felt-btn-marshmallow text-[#8E7882] hover:text-[#E95D95] transition-colors cursor-pointer"
-              aria-label="Toggle navigation drawer"
-            >
-              <Menu className="w-4 h-4" />
-            </button>
+        {/* Floating Handcrafted Clay Navigation Bar */}
+        <div className="shrink-0 px-3 sm:px-6 pt-3 pb-1 z-20">
+          <header
+            id="main-chat-header"
+            className="felt-nav-pill px-3 sm:px-4 py-2 flex items-center justify-between gap-3 max-w-5xl mx-auto select-none"
+          >
+            {/* LEFT: Handcrafted Ribbon Bow + Crisp Readable ARFA AI Wordmark + Online Badge */}
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+              {/* Handcrafted 3D Needle-Felted Ribbon Bow */}
+              <NeedleFeltBow color="pink" size="sm" className="shrink-0" />
 
-            {/* Desktop Sidebar Toggle */}
-            <button
-              id="desktop-sidebar-toggle-btn"
-              type="button"
-              onClick={() => {
-                const next = !isSidebarCollapsed;
-                setIsSidebarCollapsed(next);
-                localStorage.setItem("arfa_sidebar_collapsed", String(next));
-              }}
-              title={isSidebarCollapsed ? "Open past chats" : "Collapse sidebar"}
-              className="hidden md:inline-flex p-2.5 rounded-2xl felt-btn-marshmallow text-[#8E7882] hover:text-[#E95D95] transition-colors cursor-pointer"
-              aria-label={isSidebarCollapsed ? "Open past chats" : "Collapse sidebar"}
-            >
-              <Menu className="w-4 h-4" />
-            </button>
+              {/* ARFA AI Wordmark - Clean, Handcrafted, Crisp & Readable */}
+              <span className="text-base sm:text-lg font-black tracking-tight text-[#D94680] felt-text-puffy leading-none">
+                ARFA AI
+              </span>
 
-            {/* ARFA AI Logo & Wordmark */}
-            <div className="flex items-center gap-2">
-              <ArfaLogo size="sm" showText={true} />
+              {/* Small Subtle "● Online" indicator */}
+              <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#EBF8F2] border border-[#A7E3C7] text-[11px] font-bold text-[#1E7750] shadow-2xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
+                <span>Online</span>
+              </div>
             </div>
 
-            {/* Small Subtle Status Indicator: "● Online" */}
-            <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EBF8F2] border border-[#A7E3C7]/80 text-[11.5px] font-bold text-[#1E7750] shadow-2xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
-              <span>Online</span>
+            {/* RIGHT: [Log in] (whity clay) + [Sign up] (pinkish clay) + Settings */}
+            <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+              {currentUser && !currentUser.isGuest ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setIsSettingsOpen(true)}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full felt-btn-marshmallow text-xs sm:text-sm font-bold text-[#2B1E25] cursor-pointer"
+                    title="Account Settings"
+                  >
+                    <UserAvatar user={currentUser} size="xs" />
+                    <span className="hidden sm:inline max-w-[120px] truncate">{currentUser.name}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="px-3 py-1.5 rounded-full fluffy-btn-signin text-xs sm:text-sm font-bold text-[#8E7882] hover:text-[#9B2A48] cursor-pointer transition-colors"
+                    title="Log out"
+                  >
+                    Log out
+                  </button>
+                </>
+              ) : (
+                <>
+                  {/* [Log in] = Tactile White/Cream Claymorphic Pill Button */}
+                  <button
+                    id="header-signin-btn"
+                    type="button"
+                    onClick={() => {
+                      setAuthInitialMode("login");
+                      setIsAuthOpen(true);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs sm:text-sm font-bold fluffy-btn-signin cursor-pointer shadow-sm text-[#4A2E3B] hover:text-[#D94680]"
+                  >
+                    <UserIcon className="w-3.5 h-3.5 text-[#8E7882]" />
+                    <span>Log in</span>
+                  </button>
+
+                  {/* [Sign up] = Tactile Vibrant Soft Pink Claymorphic Pill Button */}
+                  <button
+                    id="header-signup-btn"
+                    type="button"
+                    onClick={() => {
+                      setAuthInitialMode("register");
+                      setIsAuthOpen(true);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-4 sm:px-4.5 py-1.5 text-xs sm:text-sm font-black text-white fluffy-btn-signup cursor-pointer shadow-md"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-white/95" />
+                    <span>Sign up</span>
+                  </button>
+                </>
+              )}
+
+              {/* Subtle Claymorphic Settings Icon */}
+              <button
+                id="header-settings-btn"
+                type="button"
+                onClick={() => setIsSettingsOpen(true)}
+                className="w-8 h-8 sm:w-8.5 sm:h-8.5 rounded-full felt-circle-cream flex items-center justify-center text-[#8E7882] hover:text-[#E95D95] cursor-pointer transition-colors shrink-0"
+                title="Settings"
+                aria-label="Settings"
+              >
+                <Settings className="w-3.5 h-3.5" />
+              </button>
             </div>
-          </div>
-
-          {/* CENTER: Keep mostly empty. No unnecessary text or decorative cards. */}
-          <div className="flex-1" />
-
-          {/* RIGHT SIDE: Fluffy 3D Authentication actions [Sign in] [Sign up] + Optional Settings */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {currentUser ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setIsSettingsOpen(true)}
-                  className="flex items-center gap-2 px-3.5 py-1.5 rounded-full felt-btn-marshmallow text-xs sm:text-sm font-bold text-[#2B1E25] cursor-pointer"
-                  title="Account Settings"
-                >
-                  <UserAvatar user={currentUser} size="xs" />
-                  <span className="hidden sm:inline max-w-[120px] truncate">{currentUser.name}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="px-3.5 py-1.5 rounded-full fluffy-btn-signin text-xs sm:text-sm font-bold text-[#8E7882] hover:text-[#9B2A48] cursor-pointer transition-colors"
-                  title="Log out"
-                >
-                  Log out
-                </button>
-              </>
-            ) : (
-              <>
-                {/* [Sign in] = Fluffy 3D tactile marshmallow needle-felted pill button */}
-                <button
-                  id="header-signin-btn"
-                  type="button"
-                  onClick={() => {
-                    setAuthInitialMode("login");
-                    setIsAuthOpen(true);
-                  }}
-                  className="px-3.5 sm:px-5 py-2 text-xs sm:text-sm font-bold fluffy-btn-signin cursor-pointer shadow-sm"
-                >
-                  Sign in
-                </button>
-
-                {/* [Sign up] = Fluffy 3D primary plush pink needle-felted pill button */}
-                <button
-                  id="header-signup-btn"
-                  type="button"
-                  onClick={() => {
-                    setAuthInitialMode("register");
-                    setIsAuthOpen(true);
-                  }}
-                  className="px-4 sm:px-6 py-2 text-xs sm:text-sm font-extrabold text-white fluffy-btn-signup cursor-pointer shadow-md"
-                >
-                  Sign up
-                </button>
-              </>
-            )}
-
-            {/* Subtle Settings Icon beside actions */}
-            <button
-              id="header-settings-btn"
-              type="button"
-              onClick={() => setIsSettingsOpen(true)}
-              className="p-2 sm:p-2.5 rounded-full felt-btn-marshmallow text-[#8E7882] hover:text-[#E95D95] cursor-pointer transition-colors"
-              title="Settings"
-              aria-label="Settings"
-            >
-              <Settings className="w-4 h-4" />
-            </button>
-          </div>
-        </header>
+          </header>
+        </div>
 
         {/* Error Notification Banner */}
         {errorBanner && (
@@ -555,10 +507,10 @@ export default function App() {
 
         {/* Main Conversation Container & Docked Chat Bar (Zero Overlap, Clean Flow) */}
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden relative">
-          {/* Main Chat Stream: Smooth vertical scroll container with zero element overlap */}
+          {/* Main Chat Stream: Smooth vertical scroll container with generous spacing */}
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative flex flex-col">
             {messages.length === 0 && !isStreaming ? (
-              <div className="flex-1 min-h-0 flex flex-col justify-center items-center px-3 sm:px-4 py-4 sm:py-6 my-auto">
+              <div className="flex-1 min-h-0 flex flex-col justify-start items-center px-3 sm:px-6 pt-6 sm:pt-10 md:pt-12 pb-8 sm:pb-12 w-full">
                 <EmptyState
                   currentUser={currentUser}
                   onSelectPrompt={(prompt) => handleSendMessage(prompt)}
@@ -602,7 +554,7 @@ export default function App() {
           </div>
 
           {/* Clean Docked Bottom Composer Area (Zero Overlap, Clean Padding) */}
-          <div className="shrink-0 w-full px-3 sm:px-6 pt-1 pb-3 sm:pb-5 bg-gradient-to-t from-[#FBF8F5] via-[#FBF8F5]/95 to-transparent z-20">
+          <div className="shrink-0 w-full px-3 sm:px-6 pt-2 pb-3.5 sm:pb-6 bg-gradient-to-t from-[#FAF5F1] via-[#FAF5F1]/95 to-transparent z-20">
             <div className="w-full max-w-3xl mx-auto">
               <MessageComposer
                 onSend={handleSendMessage}

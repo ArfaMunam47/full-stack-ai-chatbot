@@ -2,6 +2,7 @@ import express, { Response } from "express";
 import cookieParser from "cookie-parser";
 import crypto from "crypto";
 import fs from "fs";
+import path from "path";
 import { db } from "./db.ts";
 import { executeStreamingChat, generateTitleFromMessage, formatFriendlyErrorMessage } from "./ai/aiService.ts";
 import { ARFA_PROFILE } from "./ai/arfaProfile.ts";
@@ -57,6 +58,9 @@ app.use(securityHeadersMiddleware);
 
 // 3. Safe Production Logging
 app.use(productionLogger);
+
+// Serve public static assets (including /assets/arfa-hero.png)
+app.use("/assets", express.static(path.join(process.cwd(), "public/assets")));
 
 // 4. Session & Identity Extraction
 app.use(authContextMiddleware);
@@ -132,7 +136,7 @@ app.get("/api/knowledge", (_req, res) => {
 // AUTHENTICATION ROUTES
 // ---------------------------------------------------------------------------
 
-// Get current authenticated user or generate verified guest identity
+// Get current authenticated user
 app.get("/api/auth/me", (req: AuthenticatedRequest, res: Response) => {
   if (req.user) {
     return res.json({
@@ -144,14 +148,8 @@ app.get("/api/auth/me", (req: AuthenticatedRequest, res: Response) => {
     });
   }
 
-  // Guest context
-  const guestId = req.userId && req.userId.startsWith("guest_") ? req.userId : `guest_${crypto.randomUUID()}`;
-  res.json({
-    id: guestId,
-    email: "",
-    name: "Guest",
-    isGuest: true,
-  });
+  // Real users only - no guest session
+  return res.status(401).json({ error: "Not authenticated", user: null });
 });
 
 // Register new account
@@ -1103,6 +1101,37 @@ app.post("/api/upload", (req: AuthenticatedRequest, res: Response) => {
   };
 
   res.json(attachment);
+});
+
+// ---------------------------------------------------------------------------
+// CUSTOM HERO PICTURE STORAGE & RETRIEVAL
+// ---------------------------------------------------------------------------
+const HERO_IMAGE_PATH = path.join(process.cwd(), "data", "user_hero_image.png");
+
+app.post("/api/hero-image", (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { dataUrl } = req.body;
+    if (!dataUrl || typeof dataUrl !== "string") {
+      return res.status(400).json({ error: "Invalid dataUrl" });
+    }
+    const base64Data = dataUrl.replace(/^data:image\/\w+;base64,/, "");
+    const buffer = Buffer.from(base64Data, "base64");
+    fs.mkdirSync(path.dirname(HERO_IMAGE_PATH), { recursive: true });
+    fs.writeFileSync(HERO_IMAGE_PATH, buffer);
+    res.json({ ok: true });
+  } catch (err: unknown) {
+    const error = err instanceof Error ? err.message : "Failed to save hero image";
+    res.status(500).json({ error });
+  }
+});
+
+app.get("/api/hero-image", (_req: AuthenticatedRequest, res: Response) => {
+  if (fs.existsSync(HERO_IMAGE_PATH)) {
+    res.setHeader("Content-Type", "image/png");
+    fs.createReadStream(HERO_IMAGE_PATH).pipe(res);
+  } else {
+    res.status(404).json({ error: "No custom hero image found" });
+  }
 });
 
 // Global Fallback 404 handler for API routes
