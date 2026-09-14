@@ -1,6 +1,7 @@
 {
   "name": "ARFA AI",
-  "description": "A premium multilingual AI companion designed with emotional awareness, high-contrast readability, voice dictation, and natural multilingual conversation.",
+  "description": "Cosmic personal AI assistant featuring a dark galaxy stardust aesthetic, 3D pookie jelly mascot, interactive jelly feature modules, and real-time streaming.",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
+

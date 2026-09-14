@@ -59,7 +59,8 @@ app.use(securityHeadersMiddleware);
 // 3. Safe Production Logging
 app.use(productionLogger);
 
-// Serve public static assets (including /assets/arfa-hero.png)
+// Serve public static assets (including /assets/arfa-hero.png, /bg2.png)
+app.use(express.static(path.join(process.cwd(), "public")));
 app.use("/assets", express.static(path.join(process.cwd(), "public/assets")));
 
 // 4. Session & Identity Extraction

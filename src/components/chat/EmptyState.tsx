@@ -1,280 +1,205 @@
-import React, { useState, useRef } from "react";
+import React from "react";
 import {
-  Languages,
-  PenTool,
-  Sparkles,
   Lightbulb,
+  PenTool,
+  Code2,
   FileText,
-  MessageCircleHeart,
-  ChevronRight,
-  Heart,
-  Camera,
-  Upload,
-  RotateCcw,
+  Languages,
+  Sparkles,
+  ArrowUpRight,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { User } from "../../types.ts";
-import arfaHeroCompanion from "../../assets/images/arfa_hero_companion.png";
 
 interface EmptyStateProps {
-  currentUser?: User | null;
   onSelectPrompt?: (promptText: string) => void;
 }
 
-interface QuickActionItem {
+interface JellyFeature {
   id: string;
   title: string;
-  description: string;
+  subtitle: string;
   prompt: string;
-  icon: any;
-  variant: "pink" | "cream";
+  icon: React.ComponentType<{ className?: string }>;
+  badge: string;
+  gradient: string;
+  border: string;
+  iconBg: string;
 }
 
-export const EmptyState: React.FC<EmptyStateProps> = ({
-  onSelectPrompt,
-}) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [heroSrc, setHeroSrc] = useState<string>(() => {
-    return localStorage.getItem("arfa_custom_hero_image") || arfaHeroCompanion;
-  });
-  const [isHovered, setIsHovered] = useState(false);
-  const [isDragOver, setIsDragOver] = useState(false);
-
-  const handleFileUpload = (file: File) => {
-    if (!file.type.startsWith("image/")) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      setHeroSrc(result);
-      localStorage.setItem("arfa_custom_hero_image", result);
-      // Also persist to server endpoint asynchronously
-      fetch("/api/hero-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dataUrl: result }),
-      }).catch(() => {});
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleResetToDefault = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setHeroSrc(arfaHeroCompanion);
-    localStorage.removeItem("arfa_custom_hero_image");
-  };
-
-  // 6 Tactile Claymorphic & Handcrafted Actions
-  const quickActions: QuickActionItem[] = [
+export const EmptyState: React.FC<EmptyStateProps> = ({ onSelectPrompt }) => {
+  // 6 Compact, Gelatinous / Gel Features with Pure Spring-Based Physics Animation & Deep Squishy Gel Texture
+  const features: JellyFeature[] = [
     {
-      id: "translate",
-      title: "Translate",
-      description: "Break language barriers",
-      prompt: "Can you help me translate conversational dialogue fluently and naturally?",
-      icon: Languages,
-      variant: "pink",
-    },
-    {
-      id: "write",
-      title: "Write",
-      description: "Ideas into words",
-      prompt: "Help me review, refine, and polish my writing into clear, warm prose.",
-      icon: PenTool,
-      variant: "cream",
-    },
-    {
-      id: "create",
-      title: "Create",
-      description: "Turn ideas into magic",
-      prompt: "Let's create a cozy, imaginative story or creative concept together.",
-      icon: Sparkles,
-      variant: "pink",
-    },
-    {
-      id: "brainstorm",
-      title: "Brainstorm",
-      description: "Explore new ideas",
-      prompt: "Let's brainstorm fresh, innovative ideas and structure a thoughtful plan.",
+      id: "creative-brainstorming",
+      title: "Smart Ideas",
+      subtitle: "Viral concepts & roadmaps",
+      prompt: "Brainstorm 5 innovative product concepts that combine AI, tactile interfaces, and pastel galaxy design.",
       icon: Lightbulb,
-      variant: "cream",
+      badge: "Ideate",
+      gradient:
+        "linear-gradient(145deg, rgba(245, 158, 11, 0.38) 0%, rgba(217, 70, 239, 0.32) 55%, rgba(124, 58, 237, 0.38) 100%)",
+      border: "rgba(251, 191, 36, 0.55)",
+      iconBg:
+        "radial-gradient(circle at 35% 30%, #FDE68A 0%, #F59E0B 75%, #92400E 100%)",
     },
     {
-      id: "summarize",
-      title: "Summarize",
-      description: "Get the key points",
-      prompt: "Summarize the key takeaways and main points from this text clearly.",
+      id: "editorial-studio",
+      title: "Writing Lab",
+      subtitle: "Poetic prose & essays",
+      prompt: "Write a captivating, beautifully paced short story exploring the journey of a creative thinker in a futuristic galaxy.",
+      icon: PenTool,
+      badge: "Write",
+      gradient:
+        "linear-gradient(145deg, rgba(236, 72, 153, 0.42) 0%, rgba(168, 85, 247, 0.35) 55%, rgba(99, 102, 241, 0.38) 100%)",
+      border: "rgba(244, 114, 182, 0.55)",
+      iconBg:
+        "radial-gradient(circle at 35% 30%, #FBCFE8 0%, #EC4899 75%, #831843 100%)",
+    },
+    {
+      id: "nuanced-translation",
+      title: "Urdu & Poetry",
+      subtitle: "Nastaliq & cultural nuances",
+      prompt: "Translate this thought into elegant, culturally rich Urdu poetry (اردو شاعری) and explain its subtle nuances.",
+      icon: Languages,
+      badge: "Urdu",
+      gradient:
+        "linear-gradient(145deg, rgba(244, 63, 94, 0.4) 0%, rgba(225, 29, 72, 0.35) 55%, rgba(147, 51, 234, 0.38) 100%)",
+      border: "rgba(251, 113, 133, 0.55)",
+      iconBg:
+        "radial-gradient(circle at 35% 30%, #FECDD3 0%, #F43F5E 75%, #881337 100%)",
+    },
+    {
+      id: "systems-code",
+      title: "Code & Build",
+      subtitle: "TypeScript & React systems",
+      prompt: "Show me a clean TypeScript architecture for a reactive client-side store with undo/redo capabilities.",
+      icon: Code2,
+      badge: "Code",
+      gradient:
+        "linear-gradient(145deg, rgba(6, 182, 212, 0.4) 0%, rgba(59, 130, 246, 0.35) 55%, rgba(139, 92, 246, 0.38) 100%)",
+      border: "rgba(56, 189, 248, 0.55)",
+      iconBg:
+        "radial-gradient(circle at 35% 30%, #BAE6FD 0%, #0284C7 75%, #075985 100%)",
+    },
+    {
+      id: "document-synthesis",
+      title: "Doc Synthesis",
+      subtitle: "Checklists & key summaries",
+      prompt: "Summarize the key principles of effective human-AI interaction design into 5 actionable, clear pillars.",
       icon: FileText,
-      variant: "pink",
+      badge: "Analyze",
+      gradient:
+        "linear-gradient(145deg, rgba(16, 185, 129, 0.4) 0%, rgba(20, 184, 166, 0.35) 55%, rgba(99, 102, 241, 0.38) 100%)",
+      border: "rgba(52, 211, 153, 0.55)",
+      iconBg:
+        "radial-gradient(circle at 35% 30%, #A7F3D0 0%, #059669 75%, #064E3B 100%)",
     },
     {
-      id: "ask-arfa",
-      title: "Ask ARFA",
-      description: "Anything, anytime",
-      prompt: "Hi Arfa! I have a question and would love your thoughtful advice.",
-      icon: MessageCircleHeart,
-      variant: "cream",
+      id: "ask-anything",
+      title: "Ask Anything",
+      subtitle: "Curiosity, logic & wisdom",
+      prompt: "Ask me anything! From science, space, and math to deep reasoning, coding, and creative problem solving.",
+      icon: Sparkles,
+      badge: "Ask",
+      gradient:
+        "linear-gradient(145deg, rgba(245, 158, 11, 0.42) 0%, rgba(244, 63, 94, 0.38) 55%, rgba(168, 85, 247, 0.42) 100%)",
+      border: "rgba(251, 191, 36, 0.65)",
+      iconBg:
+        "radial-gradient(circle at 35% 30%, #FEF08A 0%, #F59E0B 65%, #B45309 100%)",
     },
   ];
 
   return (
     <div
       id="arfa-empty-state"
-      className="w-full max-w-4xl mx-auto flex flex-col items-center justify-center select-none px-3 sm:px-6 relative"
+      className="w-full flex flex-col items-center justify-center select-none py-1 sm:py-2 px-2 sm:px-4 max-w-4xl mx-auto"
     >
-      {/* 
-        =======================================================================
-        TOP CENTER HERO VISUAL:
-        The exact handcrafted needle-felted character artwork (girl in knit sweater,
-        bunny on pink books holding heart with bow, pink laptop with white ribbon bow,
-        floating hearts, and soft feathered edges seamlessly blending into canvas).
-        Includes proper top margin and generous clearance.
-        =======================================================================
-      */}
+      {/* 6 SMALL GELATINOUS SQUISHY FEATURE CARDS (COMPACT & BEAUTIFULLY CENTERED) */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.97, y: 8 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full flex flex-col items-center justify-center pt-5 sm:pt-9 mb-6 sm:mb-8 relative group"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setIsDragOver(true);
-        }}
-        onDragLeave={() => setIsDragOver(false)}
-        onDrop={(e) => {
-          e.preventDefault();
-          setIsDragOver(false);
-          if (e.dataTransfer.files?.[0]) {
-            handleFileUpload(e.dataTransfer.files[0]);
-          }
-        }}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.32, ease: [0.34, 1.56, 0.64, 1] }}
+        className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5"
       >
-        {/* Soft subtle warm blush ambient glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 sm:w-96 h-40 sm:h-52 rounded-full bg-radial from-[#FFB8D5]/35 to-transparent blur-3xl pointer-events-none" />
-
-        {/* Hero Character Composition (Widescreen 16:9 with natural feathered edges) */}
-        <div className="relative z-10 max-w-full flex flex-col items-center">
-          <img
-            src={heroSrc}
-            alt="ARFA AI Handcrafted Companion"
-            className="w-full max-w-[420px] xs:max-w-[480px] sm:max-w-[540px] md:max-w-[580px] h-auto object-contain select-none drop-shadow-[0_14px_28px_rgba(220,100,150,0.18)] transition-transform duration-300 rounded-3xl"
-            referrerPolicy="no-referrer"
-          />
-
-          {/* Quick picture customization actions (appears smoothly) */}
-          <div className="mt-3 flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files?.[0]) {
-                  handleFileUpload(e.target.files[0]);
-                }
-              }}
-            />
+        {features.map((feat) => {
+          const Icon = feat.icon;
+          return (
             <button
+              key={feat.id}
               type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold fluffy-btn-signin cursor-pointer shadow-xs text-[#523340] hover:text-[#D94680]"
-              title="Upload your own picture or drop file here"
+              onClick={() => onSelectPrompt?.(feat.prompt)}
+              className="jelly-feature-card group relative text-left p-2.5 sm:p-3 cursor-pointer flex items-center justify-between gap-2.5 min-h-[64px] sm:min-h-[68px]"
+              style={{
+                background: feat.gradient,
+                border: `1.2px solid ${feat.border}`,
+                boxShadow: `
+                  inset 0 2px 3px rgba(255, 255, 255, 0.7),
+                  inset 0 -2px 3px rgba(0, 0, 0, 0.45),
+                  0 4px 14px -2px rgba(0, 0, 0, 0.5)
+                `,
+              }}
             >
-              <Camera className="w-3.5 h-3.5 text-[#D94680]" />
-              <span>Change Picture</span>
-            </button>
-            {heroSrc !== arfaHeroCompanion && (
-              <button
-                type="button"
-                onClick={handleResetToDefault}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/80 border border-[#F3CBD7] text-[#7A5A68] hover:text-[#D94680] cursor-pointer shadow-2xs"
-                title="Reset to default artwork"
+              {/* Gelatinous Curved Specular Glaze Across the Top */}
+              <div
+                className="absolute inset-x-1.5 top-0.5 h-[42%] rounded-t-xl pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity"
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.12) 65%, transparent 100%)",
+                }}
+              />
+
+              {/* 3D Jelly Icon Orb: Pure Candy Jelly Refraction (NO outer glowing halo) */}
+              <div
+                className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 group-active:scale-90 relative z-10"
+                style={{
+                  background: feat.iconBg,
+                  border: "1.2px solid rgba(255, 255, 255, 0.8)",
+                  boxShadow: `
+                    inset 0 2px 2.5px rgba(255, 255, 255, 0.85),
+                    inset 0 -1.5px 2px rgba(0, 0, 0, 0.5),
+                    0 2px 6px rgba(0, 0, 0, 0.35)
+                  `,
+                }}
               >
-                <RotateCcw className="w-3 h-3" />
-                <span>Reset</span>
-              </button>
-            )}
-          </div>
-        </div>
-      </motion.div>
+                <Icon className="w-4 h-4 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] stroke-[2.5]" />
+              </div>
 
-      {/* 
-        =======================================================================
-        "START BY" SECTION WITH 6 TACTILE CLAYMORPHIC BUTTONS
-        Proper space from both the top hero picture and bottom message bar.
-        =======================================================================
-      */}
-      <div className="w-full max-w-3xl z-10 flex flex-col items-center mb-8 sm:mb-12">
-        {/* Section Header: ♥ Start by ♥ */}
-        <div className="flex items-center justify-center gap-2 mb-3.5 sm:mb-4 select-none">
-          <Heart className="w-3 h-3 fill-[#E95D95] text-[#E95D95]" />
-          <h2 className="text-xs sm:text-[13px] font-black text-[#2B151F] tracking-widest uppercase">
-            Start by
-          </h2>
-          <Heart className="w-3 h-3 fill-[#E95D95] text-[#E95D95]" />
-        </div>
-
-        {/* 3x2 Grid of Tactile Needle-Felted / Claymorphic Action Buttons */}
-        <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-3.5">
-          {quickActions.map((action, idx) => {
-            const Icon = action.icon;
-            const isPink = action.variant === "pink";
-
-            return (
-              <motion.button
-                key={action.id}
-                id={`quick-action-${action.id}`}
-                type="button"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, delay: 0.04 * idx }}
-                onClick={() => onSelectPrompt?.(action.prompt)}
-                className={`group px-3.5 py-3 sm:px-4 sm:py-3.5 flex items-center justify-between gap-3 text-left cursor-pointer select-none transition-all ${
-                  isPink ? "felt-action-pink" : "felt-action-cream"
-                }`}
-              >
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  {/* Circular Icon Badge */}
-                  <div
-                    className={`w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-full flex items-center justify-center shrink-0 shadow-2xs border ${
-                      isPink
-                        ? "bg-[#FFF8F4] text-[#E95D95] border-white/90"
-                        : "bg-[#E95D95] text-white border-[#FFAECB]/60"
-                    }`}
+              {/* Compact Title & Subtitle */}
+              <div className="flex-1 min-w-0 relative z-10">
+                <div className="flex items-center gap-1.5">
+                  <h3 className="text-xs sm:text-[13px] font-black text-white tracking-tight leading-tight truncate drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">
+                    {feat.title}
+                  </h3>
+                  <span
+                    className="px-1.5 py-0.2 rounded-full text-[9px] font-black tracking-wider uppercase backdrop-blur-md shrink-0"
+                    style={{
+                      backgroundColor: "rgba(255, 255, 255, 0.22)",
+                      color: "#FFFFFF",
+                      border: "0.8px solid rgba(255, 255, 255, 0.4)",
+                    }}
                   >
-                    <Icon className="w-4 h-4 stroke-[2.4]" />
-                  </div>
-
-                  {/* Action Titles */}
-                  <div className="min-w-0 flex-1">
-                    <span className="text-[13px] sm:text-[13.5px] font-black text-[#2B151F] truncate block">
-                      {action.title}
-                    </span>
-                    <p
-                      className={`text-[11px] sm:text-[11.5px] font-semibold truncate ${
-                        isPink ? "text-[#4A2433]" : "text-[#7A5A68]"
-                      }`}
-                    >
-                      {action.description}
-                    </p>
-                  </div>
+                    {feat.badge}
+                  </span>
                 </div>
+                <p className="text-[11px] font-semibold text-slate-200/90 leading-tight truncate mt-0.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+                  {feat.subtitle}
+                </p>
+              </div>
 
-                {/* Right Arrow Chevron */}
-                <div
-                  className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-transform group-hover:translate-x-0.5 ${
-                    isPink
-                      ? "text-[#4A2433] group-hover:text-black"
-                      : "text-[#7A5A68] group-hover:text-[#E95D95]"
-                  }`}
-                >
-                  <ChevronRight className="w-3.5 h-3.5 stroke-[2.6]" />
-                </div>
-              </motion.button>
-            );
-          })}
-        </div>
-      </div>
+              {/* Mini Arrow Pill with Jelly Physics */}
+              <div
+                className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-110 relative z-10"
+                style={{
+                  backgroundColor: "rgba(255, 255, 255, 0.22)",
+                  border: "1px solid rgba(255, 255, 255, 0.45)",
+                }}
+              >
+                <ArrowUpRight className="w-3 h-3 text-white stroke-[2.6]" />
+              </div>
+            </button>
+          );
+        })}
+      </motion.div>
     </div>
   );
 };

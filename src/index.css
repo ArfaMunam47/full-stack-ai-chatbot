@@ -2,57 +2,50 @@
 
 @layer base {
   :root {
-    --font-sans: 'Quicksand', 'Nunito', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    --font-urdu: 'Noto Nastaliq Urdu', 'Noto Sans Arabic', serif;
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+    --font-urdu: 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', 'Urdu Typesetting', -apple-system, sans-serif;
 
-    /* 
-     * ARFA AI - 3D Needle-Felted & Soft Plush Theme
-     * Primary Accent: Bright cozy pink (#E95D95)
-     * Secondary Accent: Soft candy/blush pink (#FFB7D5)
-     * Container Fill: Creamy off-white (#FFFDFB)
-     * Background Base: Soft cream/beige base (#FDF8F5)
-     * Text Color: Deep charcoal / dark plum (#2B1E25)
-     */
-    --color-bg-canvas: #FDF8F5;        /* Soft cream/beige base */
-    --color-bg-surface: #FFFDFB;       /* Creamy off-white container fill */
-    --color-bg-subtle: #F9F1EB;        /* Soft wool hover state */
-    --color-bg-sidebar: #FAF4EE;       /* Knitted sidebar canvas */
-    --color-bg-recessed: #F3EAE1;      /* Inset felt groove */
+    /* ARFA AI Dark Galaxy Luxury Palette */
+    --color-blush-50: #FFF5F7;
+    --color-blush-100: #FFE4EC;
+    --color-blush-300: #F4CBD6;
+    --color-blush-500: #EC4899;
+    --color-blush-600: #DB2777;
+    --color-blush-900: #831843;
 
-    --color-border-subtle: rgba(233, 93, 149, 0.12); /* Delicate plush seam */
-    --color-border-strong: rgba(233, 93, 149, 0.22); /* Defined felt border */
-    --color-border-plush: rgba(255, 255, 255, 0.7);
+    --color-lilac-50: #FAF5FF;
+    --color-lilac-100: #F3E8FF;
+    --color-lilac-300: #D8B4FE;
+    --color-lilac-500: #A855F7;
+    --color-lilac-700: #7E22CE;
 
-    /* Primary Text & Deep Plum (WCAG AAA Contrast > 14:1) */
-    --color-text-primary: #2B1E25;      /* Deep charcoal / dark plum */
-    --color-text-secondary: #5A4750;    /* Muted plum / warm slate */
-    --color-text-muted: #8E7882;        /* Warm metadata & captions */
-    --color-placeholder: #B8A3AD;
+    --color-champagne-50: #FEFCE8;
+    --color-champagne-100: #FEF9C3;
+    --color-champagne-300: #FDE047;
+    --color-champagne-500: #EAB308;
 
-    /* Cozy Pink Palette */
-    --color-rose-primary: #E95D95;     /* Bright cozy pink */
-    --color-rose-secondary: #FFB7D5;   /* Soft candy/blush pink */
-    --color-rose-hover: #D84581;       /* Raspberry punch hover */
-    --color-rose-subtle: #FDF2F7;      /* Creamy strawberry milk highlight */
+    --color-mint-100: #CCFBF1;
+    --color-mint-500: #14B8A6;
 
-    /* Primary Brand Button */
-    --color-brand-primary: #E95D95;
-    --color-brand-hover: #D84581;
-    --color-brand-dark: #2B1E25;
-    --color-brand-soft: #FDF2F7;
-    --color-brand-border: #FFB7D5;
+    /* High Visibility Typography for Dark Galaxy Theme */
+    --color-text-headline: #FFFFFF;
+    --color-text-body: #F1F5F9;
+    --color-text-muted: #CBD5E1;
+    --color-text-subtle: #94A3B8;
 
-    --color-code-bg: #22151B;
-    --color-code-text: #FAF6F0;
+    /* Frosted Glass Layers */
+    --glass-surface-bg: rgba(18, 11, 34, 0.85);
+    --glass-surface-border: rgba(255, 255, 255, 0.15);
+    --glass-card-bg: rgba(15, 9, 28, 0.9);
   }
 
   html, body {
     margin: 0;
     padding: 0;
     font-family: var(--font-sans);
-    background-color: var(--color-bg-canvas);
-    color: var(--color-text-primary);
+    background-color: #07040F;
+    color: var(--color-text-headline);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     height: 100%;
@@ -64,7 +57,6 @@
     -ms-overflow-style: none !important;
   }
 
-  /* Global complete scrollbar removal for sleek, plush app feel */
   *, *::before, *::after {
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
@@ -81,395 +73,416 @@
     height: 100%;
     width: 100%;
     overflow: hidden;
+    background-color: transparent;
   }
 }
 
-/* Woven Cozy Handcrafted Felt Fabric & Artisan Stitch Texture */
-.cozy-felt-bg {
-  background-color: #FAF5F1;
-  background-image: 
-    radial-gradient(ellipse at 50% 10%, rgba(255, 185, 215, 0.28) 0%, transparent 60%),
-    radial-gradient(ellipse at 85% 85%, rgba(255, 215, 230, 0.18) 0%, transparent 50%),
-    radial-gradient(ellipse at 15% 90%, rgba(245, 225, 210, 0.22) 0%, transparent 50%),
-    url("data:image/svg+xml,%3Csvg width='48' height='48' viewBox='0 0 48 48' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23CDB4A2' fill-opacity='0.16'%3E%3Cpath d='M24 0 L48 24 L24 48 L0 24 Z' fill='none' stroke='%23CDB4A2' stroke-width='0.6' stroke-dasharray='2,3' /%3E%3Ccircle cx='24' cy='24' r='1.1' fill='%23E95D95' fill-opacity='0.14' /%3E%3Cpath d='M12 12 L36 36 M36 12 L12 36' stroke='%23CDB4A2' stroke-width='0.4' stroke-opacity='0.12' stroke-dasharray='1,4' /%3E%3C/g%3E%3C/svg%3E");
-  background-attachment: fixed;
+/* ===================================================
+   ARFA AI Modern Pastel Glassmorphic Surfaces
+   =================================================== */
+
+/* Primary Translucent Frosted Glass Card */
+.glass-surface,
+.plush-surface-ivory {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.88) 0%, rgba(253, 249, 252, 0.82) 60%, rgba(247, 241, 248, 0.78) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1.5px solid rgba(255, 255, 255, 0.95);
+  border-bottom: 1.5px solid rgba(215, 195, 215, 0.45);
+  border-left: 1px solid rgba(255, 255, 255, 0.7);
+  border-right: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.95),
+    inset 0 -1.5px 2px rgba(190, 160, 185, 0.12),
+    0 12px 32px -4px rgba(70, 35, 65, 0.08),
+    0 4px 12px -2px rgba(70, 35, 65, 0.04);
 }
 
-/* Subtle gentle mascot floating animation */
-@keyframes feltFloat {
-  0%, 100% {
-    transform: translateY(0px);
+/* Elevated Accent Glass Button / Card */
+.glass-surface-accent,
+.plush-surface-navy {
+  background: linear-gradient(160deg, #2D1A2C 0%, #1E121E 60%, #150C15 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #FFFFFF;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.28);
+  border-bottom: 1.5px solid rgba(0, 0, 0, 0.6);
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    inset 0 2px 2px rgba(255, 255, 255, 0.22),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.5),
+    0 12px 28px -4px rgba(45, 15, 40, 0.32),
+    0 4px 10px -2px rgba(45, 15, 40, 0.2);
+}
+
+/* Recessed Glass Channel (Inputs, Textarea Container) */
+.glass-inset,
+.plush-inset-groove {
+  background: linear-gradient(180deg, rgba(243, 236, 245, 0.8) 0%, rgba(248, 244, 250, 0.7) 60%, rgba(255, 255, 255, 0.85) 100%);
+  border-top: 1.5px solid rgba(185, 165, 185, 0.4);
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.95);
+  border-left: 1px solid rgba(200, 180, 200, 0.3);
+  border-right: 1px solid rgba(200, 180, 200, 0.3);
+  box-shadow: 
+    inset 0 2.5px 5px rgba(60, 20, 50, 0.06),
+    inset 0 1px 2px rgba(60, 20, 50, 0.04),
+    0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* =========================================================================
+   WHOLE PAGE BORDER LIGHTING EFFECT (Clean, Crisp, Non-Messy Luminous Frame)
+   Refined, elegant inner edge highlight without screen haze or muddy blurs
+   ========================================================================= */
+.whole-page-lighting-frame {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 45;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 1. SUNLIGHT MODE: Sleek Warm Gold Solar Frame (Clean & Non-Messy) */
+.whole-page-lighting-frame.theme-sunlight {
+  border: 1.5px solid rgba(253, 224, 71, 0.8);
+  box-shadow: 
+    inset 0 0 12px 1.5px rgba(251, 191, 36, 0.45),
+    inset 0 0 28px 2px rgba(245, 158, 11, 0.2),
+    0 0 14px rgba(251, 191, 36, 0.4);
+}
+
+/* 2. STARLIGHT NEON MODE: Clean Cosmic Rose Frame */
+.whole-page-lighting-frame.theme-starlight {
+  border: 1.5px solid rgba(244, 114, 182, 0.8);
+  box-shadow: 
+    inset 0 0 12px 1.5px rgba(236, 72, 153, 0.45),
+    inset 0 0 28px 2px rgba(217, 70, 239, 0.2),
+    0 0 14px rgba(236, 72, 153, 0.4);
+}
+
+/* 3. CYBER VIOLET MODE: Clean Violet & Sky Blue Frame */
+.whole-page-lighting-frame.theme-cyber {
+  border: 1.5px solid rgba(192, 132, 252, 0.8);
+  box-shadow: 
+    inset 0 0 12px 1.5px rgba(168, 85, 247, 0.45),
+    inset 0 0 28px 2px rgba(56, 189, 248, 0.2),
+    0 0 14px rgba(168, 85, 247, 0.4);
+}
+
+/* 4. LUNAR MOON MODE: Clean Crisp Diamond White Frame */
+.whole-page-lighting-frame.theme-lunar {
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 
+    inset 0 0 12px 1.5px rgba(255, 255, 255, 0.5),
+    inset 0 0 28px 2px rgba(186, 230, 253, 0.25),
+    0 0 14px rgba(255, 255, 255, 0.4);
+}
+
+/* Premium Lighting for Floating Navbar - Sleek and Clean */
+.premium-neon-lighting-navbar {
+  position: relative;
+  background: rgba(10, 5, 22, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.premium-neon-lighting-navbar.navbar-sunlight {
+  border: 1px solid rgba(253, 224, 71, 0.55);
+  box-shadow: 
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.6),
+    0 4px 18px -2px rgba(0, 0, 0, 0.6),
+    0 0 12px rgba(245, 158, 11, 0.25);
+}
+
+.premium-neon-lighting-navbar.navbar-starlight {
+  border: 1px solid rgba(244, 114, 182, 0.55);
+  box-shadow: 
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.6),
+    0 4px 18px -2px rgba(0, 0, 0, 0.6),
+    0 0 12px rgba(236, 72, 153, 0.25);
+}
+
+.premium-neon-lighting-navbar.navbar-cyber {
+  border: 1px solid rgba(192, 132, 252, 0.55);
+  box-shadow: 
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.6),
+    0 4px 18px -2px rgba(0, 0, 0, 0.6),
+    0 0 12px rgba(168, 85, 247, 0.25);
+}
+
+.premium-neon-lighting-navbar.navbar-lunar {
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.7),
+    0 4px 18px -2px rgba(0, 0, 0, 0.6),
+    0 0 12px rgba(255, 255, 255, 0.25);
+}
+
+/* Premium Lighting for Chat Box Composer - Clean ChatGPT-tier Floating Capsule */
+.premium-neon-lighting-chatbox {
+  position: relative;
+  background: rgba(14, 8, 30, 0.88);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-radius: 24px;
+  transition: all 0.3s ease;
+}
+
+.premium-neon-lighting-chatbox.chatbox-sunlight {
+  border: 1px solid rgba(253, 224, 71, 0.55);
+  box-shadow: 
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.5),
+    0 8px 24px -4px rgba(0, 0, 0, 0.7),
+    0 0 14px rgba(245, 158, 11, 0.25);
+}
+
+.premium-neon-lighting-chatbox.chatbox-starlight {
+  border: 1px solid rgba(244, 114, 182, 0.55);
+  box-shadow: 
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.5),
+    0 8px 24px -4px rgba(0, 0, 0, 0.7),
+    0 0 14px rgba(236, 72, 153, 0.25);
+}
+
+.premium-neon-lighting-chatbox.chatbox-cyber {
+  border: 1px solid rgba(192, 132, 252, 0.55);
+  box-shadow: 
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.5),
+    0 8px 24px -4px rgba(0, 0, 0, 0.7),
+    0 0 14px rgba(168, 85, 247, 0.25);
+}
+
+.premium-neon-lighting-chatbox.chatbox-lunar {
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.65),
+    0 8px 24px -4px rgba(0, 0, 0, 0.7),
+    0 0 14px rgba(255, 255, 255, 0.25);
+}
+
+.premium-neon-lighting-chatbox.chatbox-sunlight {
+  border: 1.5px solid rgba(254, 240, 138, 0.85);
+  box-shadow: 
+    inset 0 1.5px 2.5px rgba(255, 255, 255, 0.9),
+    inset 0 0 16px 2px rgba(245, 158, 11, 0.4),
+    0 0 22px 2px rgba(245, 158, 11, 0.45),
+    0 10px 32px -4px rgba(0, 0, 0, 0.85);
+}
+
+.premium-neon-lighting-chatbox.chatbox-starlight {
+  border: 1.5px solid rgba(244, 114, 182, 0.8);
+  box-shadow: 
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.9),
+    inset 0 0 16px 2px rgba(244, 114, 182, 0.45),
+    0 0 20px 2px rgba(236, 72, 153, 0.45),
+    0 10px 32px -4px rgba(0, 0, 0, 0.85);
+}
+
+.premium-neon-lighting-chatbox.chatbox-cyber {
+  border: 1.5px solid rgba(192, 132, 252, 0.8);
+  box-shadow: 
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.9),
+    inset 0 0 16px 2px rgba(168, 85, 247, 0.45),
+    0 0 20px 2px rgba(56, 189, 248, 0.45),
+    0 10px 32px -4px rgba(0, 0, 0, 0.85);
+}
+
+.premium-neon-lighting-chatbox.chatbox-lunar {
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.95),
+    inset 0 0 16px 2px rgba(186, 230, 253, 0.45),
+    0 0 20px 2px rgba(255, 255, 255, 0.45),
+    0 10px 32px -4px rgba(0, 0, 0, 0.85);
+}
+
+/* Moving Glitter Particles Keyframes */
+@keyframes glitterFloatUp {
+  0% {
+    transform: translate(0, 0) scale(0.85);
+    opacity: 0.3;
   }
   50% {
-    transform: translateY(-4px);
+    transform: translate(14px, -32px) scale(1.3);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate(-8px, -65px) scale(0.7);
+    opacity: 0.25;
   }
 }
 
-.animate-felt-float {
-  animation: feltFloat 4s ease-in-out infinite;
-}
-
-/* 3D Needle-Felted Wool & Plush Claymorphic Surfaces */
-.felt-card-pink {
-  background: linear-gradient(145deg, #F06E9F 0%, #E95D95 50%, #D84581 100%);
-  color: #FFFFFF;
-  border: 2px solid rgba(255, 255, 255, 0.65);
-  box-shadow: 
-    inset 0px 2px 4px rgba(255, 255, 255, 0.9), 
-    0px 8px 20px rgba(220, 100, 150, 0.22);
-  border-radius: 28px;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.felt-card-marshmallow {
-  background: linear-gradient(145deg, #FFFDFB 0%, #FFF9FB 55%, #FDF4F7 100%);
-  color: #2B1E25;
-  border: 2px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 
-    inset 0px 2px 4px rgba(255, 255, 255, 0.9), 
-    0px 8px 20px rgba(220, 100, 150, 0.12);
-  border-radius: 28px;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.felt-card-marshmallow:hover {
-  box-shadow: 
-    inset 0px 2px 4px rgba(255, 255, 255, 0.95), 
-    0px 12px 24px rgba(220, 100, 150, 0.18);
-}
-
-/* Tactile Chat Message Bubbles */
-.felt-bubble-user {
-  background: linear-gradient(145deg, #F06E9F 0%, #E95D95 65%, #D84581 100%);
-  color: #FFFFFF;
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 
-    inset 0px 2px 4px rgba(255, 255, 255, 0.85), 
-    0px 6px 18px rgba(220, 100, 150, 0.22);
-  border-radius: 26px;
-}
-
-.felt-bubble-ai {
-  background: linear-gradient(145deg, #FFFDFB 0%, #FFF9FB 60%, #FDF4F7 100%);
-  color: #2B1E25;
-  border: 2px solid rgba(255, 255, 255, 0.95);
-  box-shadow: 
-    inset 0px 2px 4px rgba(255, 255, 255, 0.95), 
-    0px 6px 18px rgba(180, 140, 155, 0.1);
-  border-radius: 26px;
-}
-
-.felt-pill-btn {
-  border-radius: 9999px;
-  border: 2px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 
-    inset 0px 2px 4px rgba(255, 255, 255, 0.9), 
-    0px 6px 16px rgba(220, 100, 150, 0.16);
-  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.felt-circle-btn {
-  border-radius: 9999px;
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 
-    inset 0px 2px 4px rgba(255, 255, 255, 0.9), 
-    0px 6px 14px rgba(220, 100, 150, 0.15);
-  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* Sound Wave Animation for Recording */
-@keyframes soundWaveBounce {
-  0%, 100% {
-    height: 6px;
-    opacity: 0.6;
+@keyframes glitterFloatDiagonal {
+  0% {
+    transform: translate(0, 0) scale(0.8);
+    opacity: 0.25;
   }
   50% {
-    height: 20px;
+    transform: translate(28px, -24px) scale(1.35);
     opacity: 1;
   }
+  100% {
+    transform: translate(52px, -48px) scale(0.75);
+    opacity: 0.2;
+  }
 }
 
-.animate-wave-1 {
-  animation: soundWaveBounce 0.8s ease-in-out infinite 0.1s;
-}
-.animate-wave-2 {
-  animation: soundWaveBounce 0.8s ease-in-out infinite 0.25s;
-}
-.animate-wave-3 {
-  animation: soundWaveBounce 0.8s ease-in-out infinite 0.4s;
-}
-.animate-wave-4 {
-  animation: soundWaveBounce 0.8s ease-in-out infinite 0.18s;
-}
-.animate-wave-5 {
-  animation: soundWaveBounce 0.8s ease-in-out infinite 0.32s;
+@keyframes glitterFloatDown {
+  0% {
+    transform: translate(0, 0) scale(0.75);
+    opacity: 0.25;
+  }
+  50% {
+    transform: translate(-16px, 28px) scale(1.25);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(10px, 58px) scale(0.8);
+    opacity: 0.2;
+  }
 }
 
-/* Tactile Claymorphism Navigation Buttons */
-.fluffy-btn-signin {
+@keyframes glitterFloatWander {
+  0% {
+    transform: translate(0, 0) scale(0.9);
+    opacity: 0.35;
+  }
+  33% {
+    transform: translate(-20px, -18px) scale(1.3);
+    opacity: 1;
+  }
+  66% {
+    transform: translate(15px, -32px) scale(1.1);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate(0, 0) scale(0.9);
+    opacity: 0.35;
+  }
+}
+
+/* Gelatinous Spring-Based Physics Animation Classes */
+.jelly-spring {
+  transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform, box-shadow;
+}
+
+.jelly-spring:hover {
+  transform: scale(1.05) translateY(-2px);
+}
+
+.jelly-spring:active {
+  transform: scale(0.92) translateY(2px);
+  transition-duration: 0.1s;
+}
+
+/* Feature Jelly Module with Spring Physics & Deep Gel Texture (No Outer Icon Lighting) */
+.jelly-feature-card {
   position: relative;
-  background: linear-gradient(145deg, #FFFFFF 0%, #FFF8F6 50%, #FDEEE8 100%);
-  color: #381E29;
-  border: 1.5px solid rgba(255, 255, 255, 0.95);
-  border-radius: 9999px;
-  box-shadow: 
-    inset 1.5px 2.5px 3.5px rgba(255, 255, 255, 1),
-    inset -1.5px -2.5px 3.5px rgba(215, 160, 175, 0.22),
-    0px 6px 14px -2px rgba(185, 130, 150, 0.16),
-    0px 2px 4px rgba(0, 0, 0, 0.02);
-  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  overflow: hidden;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease;
+  will-change: transform, box-shadow;
+  border-radius: 20px;
 }
 
-.fluffy-btn-signin::after {
-  content: '';
-  position: absolute;
-  inset: 2.5px;
-  border: 1px dashed rgba(225, 175, 195, 0.45);
-  border-radius: 9999px;
-  pointer-events: none;
+.jelly-feature-card:hover {
+  transform: scale(1.045) translateY(-3px);
 }
 
-.fluffy-btn-signin:hover {
-  transform: translateY(-2px) scale(1.02);
-  color: #D94680;
-  box-shadow: 
-    inset 2px 3px 4px rgba(255, 255, 255, 1),
-    inset -1.5px -2.5px 3.5px rgba(215, 160, 175, 0.28),
-    0px 10px 20px -3px rgba(185, 130, 150, 0.22);
+.jelly-feature-card:active {
+  transform: scale(0.93) translateY(2px);
+  transition-duration: 0.12s;
 }
 
-.fluffy-btn-signin:active {
-  transform: translateY(1px) scale(0.97);
-  box-shadow: 
-    inset 1.5px 2px 3px rgba(200, 140, 160, 0.25),
-    0px 2px 6px rgba(0, 0, 0, 0.04);
+/* Pure Gelatinous Squishy Wobble Keyframe */
+@keyframes jellyWobble {
+  0% { transform: scale(1, 1); }
+  25% { transform: scale(1.08, 0.92); }
+  50% { transform: scale(0.95, 1.05); }
+  75% { transform: scale(1.03, 0.98); }
+  100% { transform: scale(1, 1); }
 }
 
-.fluffy-btn-signup {
-  position: relative;
-  background: linear-gradient(145deg, #FFA0C8 0%, #F06292 48%, #DF417E 100%);
+.jelly-wobble-on-hover:hover {
+  animation: jellyWobble 0.48s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* User Message Bubble: Sleek ChatGPT-tier Pill on the Right */
+.plush-bubble-user {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   color: #FFFFFF;
-  border: 1.5px solid rgba(255, 255, 255, 0.75);
-  border-radius: 9999px;
-  box-shadow: 
-    inset 1.5px 2.5px 3.5px rgba(255, 255, 255, 0.85),
-    inset -1.5px -2.5px 4px rgba(150, 15, 65, 0.38),
-    0px 8px 18px -2px rgba(225, 80, 135, 0.36),
-    0px 3px 6px rgba(225, 80, 135, 0.18);
-  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
-  font-weight: 800;
-  letter-spacing: -0.01em;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  border-radius: 22px;
 }
 
-.fluffy-btn-signup::after {
-  content: '';
-  position: absolute;
-  inset: 2.5px;
-  border: 1px dashed rgba(255, 255, 255, 0.75);
-  border-radius: 9999px;
-  pointer-events: none;
-}
-
-.fluffy-btn-signup:hover {
-  transform: translateY(-2px) scale(1.025);
-  box-shadow: 
-    inset 2px 3px 4px rgba(255, 255, 255, 0.95),
-    inset -1.5px -2.5px 4px rgba(150, 15, 65, 0.45),
-    0px 12px 24px -3px rgba(225, 80, 135, 0.44);
-}
-
-.fluffy-btn-signup:active {
-  transform: translateY(1px) scale(0.97);
-  box-shadow: 
-    inset 1.5px 2px 4px rgba(130, 10, 60, 0.45),
-    0px 3px 8px rgba(225, 80, 135, 0.2);
-}
-
-/* 3D Claymorphism Character Cutout Effects */
-.clay-figure-shadow {
-  filter: 
-    drop-shadow(0px 14px 22px rgba(220, 90, 140, 0.28))
-    drop-shadow(0px 4px 8px rgba(45, 25, 35, 0.12));
-}
-
-.clay-soft-pedestal {
-  background: radial-gradient(ellipse at center, rgba(233, 93, 149, 0.22) 0%, rgba(254, 235, 244, 0.15) 50%, transparent 75%);
-}
-
-.felt-btn-pink {
-  background: linear-gradient(145deg, #F06E9F 0%, #E95D95 60%, #D84581 100%);
-  color: #FFFFFF;
-  border: 2px solid rgba(255, 255, 255, 0.6);
-  border-radius: 24px;
-  box-shadow: 
-    inset 0px 2px 4px rgba(255, 255, 255, 0.9), 
-    0px 6px 16px rgba(220, 100, 150, 0.25);
-  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.felt-btn-pink:hover {
-  transform: translateY(-1.5px) scale(1.02);
-  box-shadow: 
-    inset 0px 2px 4px rgba(255, 255, 255, 0.95), 
-    0px 10px 22px rgba(220, 100, 150, 0.32);
-}
-
-.felt-btn-pink:active {
-  transform: translateY(1px) scale(0.98);
-  box-shadow: 
-    inset 0px 2px 3px rgba(0, 0, 0, 0.2), 
-    0px 2px 6px rgba(220, 100, 150, 0.15);
-}
-
-.felt-btn-marshmallow {
-  background: linear-gradient(145deg, #FFFDFB 0%, #FFF8FA 60%, #FDF0F5 100%);
-  color: #2B1E25;
-  border: 2px solid rgba(255, 255, 255, 0.85);
-  border-radius: 24px;
-  box-shadow: 
-    inset 0px 2px 4px rgba(255, 255, 255, 0.9), 
-    0px 6px 16px rgba(220, 100, 150, 0.1);
-  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.felt-btn-marshmallow:hover {
-  transform: translateY(-1.5px) scale(1.015);
-  border-color: rgba(233, 93, 149, 0.3);
-  box-shadow: 
-    inset 0px 2px 4px rgba(255, 255, 255, 0.95), 
-    0px 8px 20px rgba(220, 100, 150, 0.16);
-}
-
-.felt-btn-marshmallow:active {
-  transform: translateY(1px) scale(0.98);
-  box-shadow: 
-    inset 0px 2px 3px rgba(220, 100, 150, 0.15), 
-    0px 2px 6px rgba(0, 0, 0, 0.04);
-}
-
-/* Subtle Embossed Stitch Accents */
-.felt-stitch-border {
-  border: 1.5px dashed rgba(255, 255, 255, 0.6);
-}
-
-.felt-stitch-pink {
-  border: 1.5px dashed rgba(236, 72, 153, 0.4);
-}
-
-/* Squishy Felt Pressed Inset */
-.felt-inset-recessed {
-  background: #F3EAE2;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.08), inset 0 -1px 2px rgba(255, 255, 255, 0.8);
-  border: 1px solid #E8DDD2;
-}
-
-/* Backward compatibility aliases */
-.saas-card {
-  background: linear-gradient(145deg, #FFFFFF 0%, #FFF8FA 100%);
-  border: 1.5px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 6px 18px -3px rgba(220, 180, 195, 0.25), inset 0 2px 3px rgba(255, 255, 255, 0.8);
-  border-radius: 1.25rem;
-}
-
-.arfa-btn-rose {
-  background: linear-gradient(145deg, #F472B6 0%, #EC4899 60%, #E11D74 100%);
-  color: #FFFFFF;
-  border: 1.5px solid rgba(255, 255, 255, 0.45);
-  box-shadow: 0 6px 16px -2px rgba(236, 72, 153, 0.4), inset 0 2px 3px rgba(255, 255, 255, 0.6), inset 0 -2.5px 4px rgba(157, 23, 77, 0.3);
-  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.arfa-pill-active {
-  background: linear-gradient(145deg, #F472B6 0%, #EC4899 100%);
-  color: #FFFFFF;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3), inset 0 1.5px 2px rgba(255, 255, 255, 0.6);
-}
-
-.saas-btn-primary {
-  background: linear-gradient(145deg, #F472B6 0%, #EC4899 100%);
-  color: #FFFFFF;
-  border: 1.5px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 4px 14px rgba(236, 72, 153, 0.35), inset 0 2px 3px rgba(255, 255, 255, 0.6);
-}
-
-.saas-btn-secondary {
-  background: #FFFFFF;
-  color: var(--color-text-primary);
-  border: 1.5px solid #EFE6DC;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-}
-
-.saas-input-bar {
-  background: #FFFFFF;
-  border: 2px solid rgba(255, 255, 255, 0.95);
-  box-shadow: 0 8px 24px -4px rgba(215, 175, 190, 0.32), inset 0 2px 3.5px rgba(255, 255, 255, 0.9);
-}
-
-/* Backward compatibility aliases */
-.tactile-card {
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border-subtle);
-}
-
-.tactile-raised {
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border-subtle);
-  transition: all 0.15s ease-in-out;
-}
-
-.tactile-raised:hover {
-  background-color: var(--color-bg-subtle);
-  border-color: var(--color-border-strong);
-}
-
-.tactile-espresso {
-  background-color: var(--color-brand-primary);
-  color: #FFFFFF;
-}
-
-.tactile-recessed {
-  background-color: var(--color-bg-subtle);
-  border: 1px solid var(--color-border-subtle);
-}
-
-.tactile-composer-bar {
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border-subtle);
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
+/* AI Message: Unboxed Open Natural Text Flow like ChatGPT */
+.plush-bubble-ai {
   background: transparent;
+  color: #F8FAFC;
+  border: none;
+  box-shadow: none;
+  padding: 0;
 }
 
-::-webkit-scrollbar-thumb {
-  background-color: var(--color-border-strong);
-  border-radius: 9999px;
+/* Luminous Action Pill Buttons */
+.arfa-pill-btn {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.92) 0%, rgba(252, 246, 250, 0.85) 100%);
+  border-top: 1.5px solid rgba(255, 255, 255, 0.95);
+  border-bottom: 1.5px solid rgba(210, 190, 210, 0.45);
+  box-shadow: 
+    inset 0 1.5px 1.5px rgba(255, 255, 255, 0.95),
+    inset 0 -1px 1.5px rgba(190, 160, 185, 0.15),
+    0 4px 12px -2px rgba(70, 30, 60, 0.07);
+  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-text-muted);
+.arfa-pill-btn:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 
+    inset 0 1.5px 2px rgba(255, 255, 255, 1),
+    0 8px 18px -2px rgba(70, 30, 60, 0.12);
+}
+
+.arfa-pill-btn:active {
+  transform: translateY(1px) scale(0.97);
+}
+
+/* Delicate Stardust Shimmer Pinpoints */
+@keyframes glitterBreathe {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.15);
+  }
+}
+
+.glitter-sparkle-pulse {
+  animation: glitterBreathe 3.5s ease-in-out infinite;
 }
 
 /* Markdown styling - ChatGPT-tier Readability & Hierarchy */
 .markdown-body {
-  font-size: 15.5px;
+  font-size: 15px;
   line-height: 1.72;
-  color: var(--color-text-primary);
+  color: var(--color-text-body);
   letter-spacing: -0.005em;
 }
 
 @media (min-width: 640px) {
   .markdown-body {
-    font-size: 16px;
+    font-size: 15.5px;
     line-height: 1.75;
   }
 }
@@ -477,14 +490,14 @@
 /* Authentic Urdu Nastaliq Typography with generous vertical clearance */
 [lang="ur"], .urdu-font, [dir="rtl"] {
   font-family: var(--font-urdu), -apple-system, sans-serif;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   line-height: 2.25 !important;
   letter-spacing: 0.01em;
   word-spacing: 0.06em;
 }
 
 .markdown-body p {
-  margin-bottom: 1rem;
+  margin-bottom: 0.95rem;
 }
 
 .markdown-body p:last-child {
@@ -492,67 +505,67 @@
 }
 
 .markdown-body h1 {
-  font-size: 1.5rem;
+  font-size: 1.45rem;
   line-height: 1.35;
-  font-weight: 700;
-  margin-top: 1.5rem;
+  font-weight: 800;
+  margin-top: 1.4rem;
   margin-bottom: 0.75rem;
-  color: var(--color-text-primary);
+  color: var(--color-text-headline);
   letter-spacing: -0.015em;
 }
 
 .markdown-body h2 {
   font-size: 1.25rem;
   line-height: 1.4;
-  font-weight: 700;
-  margin-top: 1.35rem;
+  font-weight: 750;
+  margin-top: 1.25rem;
   margin-bottom: 0.65rem;
-  color: var(--color-text-primary);
+  color: var(--color-text-headline);
   letter-spacing: -0.01em;
 }
 
 .markdown-body h3 {
   font-size: 1.1rem;
   line-height: 1.45;
-  font-weight: 600;
-  margin-top: 1.15rem;
+  font-weight: 700;
+  margin-top: 1.1rem;
   margin-bottom: 0.5rem;
-  color: var(--color-text-primary);
+  color: var(--color-text-headline);
 }
 
 .markdown-body h4 {
   font-size: 0.975rem;
   line-height: 1.5;
-  font-weight: 600;
+  font-weight: 650;
   margin-top: 1rem;
   margin-bottom: 0.4rem;
-  color: var(--color-text-primary);
+  color: var(--color-text-headline);
 }
 
 .markdown-body ul {
   list-style-type: disc;
   padding-left: 1.4rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.95rem;
 }
 
 .markdown-body ol {
   list-style-type: decimal;
   padding-left: 1.4rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.95rem;
 }
 
 .markdown-body li {
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.35rem;
   line-height: 1.7;
 }
 
 .markdown-body li::marker {
-  color: var(--color-rose-primary);
+  color: #DF92A8;
 }
 
 .markdown-body strong {
-  font-weight: 650;
-  color: var(--color-text-primary);
+  font-weight: 700;
+  color: var(--color-text-headline);
 }
 
 .markdown-body code:not(pre code) {
@@ -560,29 +573,29 @@
   border-radius: 0.375rem;
   font-family: var(--font-mono);
   font-size: 0.85em;
-  background-color: var(--color-bg-subtle);
-  border: 1px solid var(--color-border-subtle);
-  color: var(--color-text-primary);
-  font-weight: 500;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #F472B6;
+  font-weight: 600;
 }
 
 .markdown-body pre {
   margin: 1rem 0;
   padding: 1.1rem;
   border-radius: 0.875rem;
-  background-color: var(--color-code-bg);
-  color: var(--color-code-text);
+  background-color: #0D0818;
+  color: #F8FAFC;
   overflow-x: auto;
-  border: 1px solid var(--color-border-subtle);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .markdown-body blockquote {
-  border-left: 3px solid var(--color-rose-primary);
+  border-left: 3.5px solid #EC4899;
   padding: 0.6rem 1rem;
   margin: 1rem 0;
-  background-color: var(--color-rose-subtle);
+  background-color: rgba(236, 72, 153, 0.15);
   border-radius: 0 0.5rem 0.5rem 0;
-  color: var(--color-text-primary);
+  color: #FFFFFF;
   font-style: normal;
 }
 
@@ -593,242 +606,24 @@
   font-size: 0.925rem;
   border-radius: 0.75rem;
   overflow: hidden;
-  border: 1px solid var(--color-border-subtle);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .markdown-body th {
-  background-color: var(--color-bg-subtle);
-  color: var(--color-text-primary);
-  font-weight: 600;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  font-weight: 700;
   padding: 0.65rem 0.85rem;
   text-align: left;
-  border-bottom: 1px solid var(--color-border-strong);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .markdown-body td {
   padding: 0.65rem 0.85rem;
-  border-bottom: 1px solid var(--color-border-subtle);
-  color: var(--color-text-primary);
+  border-bottom: 1px solid rgba(230, 215, 235, 0.4);
+  color: var(--color-text-body);
 }
 
 .markdown-body tr:last-child td {
   border-bottom: none;
-}
-
-/* Controlled Ambient Luminous Atmosphere */
-@keyframes luminous-breathe {
-  0%, 100% {
-    opacity: 0.35;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.02);
-  }
-}
-
-.luminous-ambient {
-  animation: luminous-breathe 8s ease-in-out infinite;
-}
-
-/* Pulsing CSS Glow Animation for Active Microphone Button */
-@keyframes micGlowPulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(233, 93, 149, 0.75), inset 0px 2px 4px rgba(255, 255, 255, 0.9);
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 0 0 0 10px rgba(233, 93, 149, 0), inset 0px 2px 4px rgba(255, 255, 255, 0.9);
-    transform: scale(1.08);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(233, 93, 149, 0), inset 0px 2px 4px rgba(255, 255, 255, 0.9);
-    transform: scale(1);
-  }
-}
-
-.mic-pulse-glow {
-  animation: micGlowPulse 1.5s infinite cubic-bezier(0.4, 0, 0.6, 1);
-}
-
-/* =========================================================================
-   AUTHENTIC HANDCRAFTED NEEDLE-FELTED & EMBROIDERED STYLES (MATCHING CHAT.PNG)
-   ========================================================================= */
-
-/* Clean Handcrafted Embossed Typography for "ARFA AI" - Crisp, Beautiful & Readable */
-.felt-text-puffy {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-weight: 900;
-  color: #D94680;
-  letter-spacing: 0.03em;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.95), 0 2px 3px rgba(180, 50, 90, 0.12);
-}
-
-/* Floating Navigation Bar with Running Needle-Stitch Inset */
-.felt-nav-pill {
-  position: relative;
-  background: linear-gradient(145deg, #FFFFFF 0%, #FFF9F6 50%, #FDF2EB 100%);
-  border: 2px solid rgba(255, 255, 255, 0.95);
-  border-radius: 9999px;
-  box-shadow: 
-    inset 0px 2.5px 5px rgba(255, 255, 255, 1),
-    inset 0px -2px 3px rgba(220, 140, 165, 0.12),
-    0px 8px 24px -4px rgba(200, 130, 155, 0.16);
-}
-
-.felt-nav-pill::after {
-  content: '';
-  position: absolute;
-  inset: 3px;
-  border: 1.5px dashed rgba(225, 175, 195, 0.55);
-  border-radius: 9999px;
-  pointer-events: none;
-}
-
-/* Floating Needle-Felted Composer Bar with Running Needle-Stitches */
-.felt-composer-pill {
-  position: relative;
-  background: linear-gradient(145deg, #FFFFFF 0%, #FFFDFB 50%, #FDF4EC 100%);
-  border: 2px solid rgba(255, 255, 255, 0.95);
-  border-radius: 9999px;
-  box-shadow: 
-    inset 0px 3px 6px rgba(255, 255, 255, 1),
-    inset 0px -2.5px 4px rgba(215, 140, 165, 0.15),
-    0px 12px 32px -4px rgba(195, 120, 148, 0.2);
-}
-
-.felt-composer-pill::after {
-  content: '';
-  position: absolute;
-  inset: 3.5px;
-  border: 1.5px dashed rgba(225, 175, 195, 0.55);
-  border-radius: 9999px;
-  pointer-events: none;
-}
-
-/* 6 Tactile Action Cards: Soft Pink Wool with Perimeter Running Stitch */
-.felt-action-pink {
-  position: relative;
-  background: linear-gradient(145deg, #FFB8D3 0%, #F597BC 45%, #EA649B 100%);
-  color: #381E29;
-  border-radius: 24px;
-  box-shadow: 
-    inset 0px 2.5px 4px rgba(255, 255, 255, 0.9),
-    inset 0px -2px 4px rgba(180, 40, 90, 0.22),
-    0px 8px 18px -2px rgba(220, 100, 150, 0.24),
-    0px 2px 4px rgba(0, 0, 0, 0.03);
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.felt-action-pink::after {
-  content: '';
-  position: absolute;
-  inset: 4px;
-  border: 1.5px dashed rgba(255, 255, 255, 0.85);
-  border-radius: 20px;
-  pointer-events: none;
-}
-
-.felt-action-pink:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 
-    inset 0px 3px 5px rgba(255, 255, 255, 0.95),
-    inset 0px -2px 4px rgba(180, 40, 90, 0.28),
-    0px 12px 24px -3px rgba(220, 100, 150, 0.32);
-}
-
-.felt-action-pink:active {
-  transform: translateY(1px) scale(0.98);
-}
-
-/* 6 Tactile Action Cards: Cream/Oatmeal Wool with Perimeter Running Stitch */
-.felt-action-cream {
-  position: relative;
-  background: linear-gradient(145deg, #FFFFFF 0%, #FFF8F4 50%, #FDEEE6 100%);
-  color: #381E29;
-  border-radius: 24px;
-  box-shadow: 
-    inset 0px 2.5px 4px rgba(255, 255, 255, 1),
-    inset 0px -2px 3px rgba(210, 150, 170, 0.14),
-    0px 8px 18px -2px rgba(180, 130, 145, 0.16),
-    0px 2px 4px rgba(0, 0, 0, 0.02);
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.felt-action-cream::after {
-  content: '';
-  position: absolute;
-  inset: 4px;
-  border: 1.5px dashed rgba(220, 160, 180, 0.55);
-  border-radius: 20px;
-  pointer-events: none;
-}
-
-.felt-action-cream:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 
-    inset 0px 3px 5px rgba(255, 255, 255, 1),
-    inset 0px -2px 3px rgba(210, 150, 170, 0.18),
-    0px 12px 24px -3px rgba(180, 130, 145, 0.24);
-}
-
-.felt-action-cream:active {
-  transform: translateY(1px) scale(0.98);
-}
-
-/* 3D Circular Pink Plush Button (for composer + and send) */
-.felt-circle-pink {
-  background: linear-gradient(145deg, #FF8AB7 0%, #E95D95 50%, #D8427E 100%);
-  color: #FFFFFF;
-  border: 2px solid rgba(255, 255, 255, 0.85);
-  border-radius: 9999px;
-  box-shadow: 
-    inset 0px 2.5px 4px rgba(255, 255, 255, 0.85),
-    inset 0px -2.5px 4px rgba(150, 15, 65, 0.4),
-    0px 6px 14px -2px rgba(220, 70, 125, 0.38);
-  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.felt-circle-pink:hover {
-  transform: translateY(-2px) scale(1.06);
-  box-shadow: 
-    inset 0px 3px 5px rgba(255, 255, 255, 0.95),
-    inset 0px -2.5px 4px rgba(150, 15, 65, 0.45),
-    0px 10px 20px -3px rgba(220, 70, 125, 0.48);
-}
-
-.felt-circle-pink:active {
-  transform: translateY(1px) scale(0.96);
-}
-
-/* 3D Circular Cream Plush Button (for mic, menu) */
-.felt-circle-cream {
-  background: linear-gradient(145deg, #FFFFFF 0%, #FFF8F4 50%, #FDEEE6 100%);
-  color: #5A4750;
-  border: 2px solid rgba(255, 255, 255, 0.95);
-  border-radius: 9999px;
-  box-shadow: 
-    inset 0px 2.5px 4px rgba(255, 255, 255, 1),
-    inset 0px -2px 3px rgba(210, 150, 170, 0.15),
-    0px 6px 14px -2px rgba(180, 130, 145, 0.16);
-  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.felt-circle-cream:hover {
-  transform: translateY(-2px) scale(1.06);
-  color: #E95D95;
-  box-shadow: 
-    inset 0px 3px 5px rgba(255, 255, 255, 1),
-    inset 0px -2px 3px rgba(210, 150, 170, 0.2),
-    0px 10px 20px -3px rgba(180, 130, 145, 0.24);
-}
-
-.felt-circle-cream:active {
-  transform: translateY(1px) scale(0.96);
-}
-
-/* Soft Felt Vignette to seamlessly blend hero image into cream textile canvas */
-.felt-vignette-blend {
-  mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 70%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, black 70%, transparent 100%);
 }

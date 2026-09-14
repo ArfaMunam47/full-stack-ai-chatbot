@@ -15,9 +15,10 @@ export interface MessageAttachment {
   type: string;
   size: number;
   dataUrl?: string;
+  url?: string;
 }
 
-export type ComposerMode = "chat" | "image" | "video" | "presentation";
+export type ComposerMode = "chat" | "image" | "video" | "presentation" | "research" | "creative";
 
 export interface PresentationSlide {
   id: string;

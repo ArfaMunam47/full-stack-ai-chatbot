@@ -7,6 +7,7 @@ import {
   UsageStats,
   ArfaKnowledgeProfile,
   MessageAttachment,
+  ComposerMode,
 } from "../types.ts";
 
 const AUTH_TOKEN_KEY = "arfa_auth_token";
@@ -365,7 +366,7 @@ export const api = {
       attachments?: MessageAttachment[];
       provider?: "gemini" | "openai";
       modelName?: string;
-      mode?: "chat" | "image" | "video" | "presentation";
+      mode?: ComposerMode;
     },
     options: {
       onInit?: (data: { conversationId: string; isNewConversation: boolean; userMessageId: string }) => void;
