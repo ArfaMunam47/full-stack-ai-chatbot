@@ -1,200 +1,244 @@
-import React from "react";
+import React, { useState } from "react";
 import {
-  Lightbulb,
-  PenTool,
+  Zap,
+  Palette,
   Code2,
-  FileText,
-  Languages,
-  Sparkles,
+  BrainCircuit,
   ArrowUpRight,
+  Sparkles,
 } from "lucide-react";
 import { motion } from "motion/react";
+import { soundEffects } from "../../lib/sound.ts";
+import { PookieJellyLogo, LightingTheme } from "../ui/PookieJellyLogo.tsx";
 
 interface EmptyStateProps {
   onSelectPrompt?: (promptText: string) => void;
+  lightingTheme?: LightingTheme;
 }
 
-interface JellyFeature {
-  id: string;
-  title: string;
-  subtitle: string;
-  prompt: string;
-  icon: React.ComponentType<{ className?: string }>;
-  badge: string;
-  gradient: string;
-  border: string;
-  iconBg: string;
-}
+export const EmptyState: React.FC<EmptyStateProps> = ({
+  onSelectPrompt,
+  lightingTheme = "blush",
+}) => {
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
-export const EmptyState: React.FC<EmptyStateProps> = ({ onSelectPrompt }) => {
-  // 6 Compact, Gelatinous / Gel Features with Pure Spring-Based Physics Animation & Deep Squishy Gel Texture
-  const features: JellyFeature[] = [
-    {
-      id: "creative-brainstorming",
-      title: "Smart Ideas",
-      subtitle: "Viral concepts & roadmaps",
-      prompt: "Brainstorm 5 innovative product concepts that combine AI, tactile interfaces, and pastel galaxy design.",
-      icon: Lightbulb,
-      badge: "Ideate",
-      gradient:
-        "linear-gradient(145deg, rgba(245, 158, 11, 0.38) 0%, rgba(217, 70, 239, 0.32) 55%, rgba(124, 58, 237, 0.38) 100%)",
-      border: "rgba(251, 191, 36, 0.55)",
-      iconBg:
-        "radial-gradient(circle at 35% 30%, #FDE68A 0%, #F59E0B 75%, #92400E 100%)",
+  // Theme-aware tokens for badges, highlights, and accent colors
+  const themeTokens = {
+    blush: {
+      accentColor: "#F43F5E",
+      badgeText: "#BE123C",
+      glowRing: "rgba(244, 63, 94, 0.28)",
+      gradientIcon: "linear-gradient(135deg, #FF758F 0%, #F43F5E 55%, #BE123C 100%)",
+      pillHover: "group-hover:bg-[#F43F5E] group-hover:text-white group-hover:border-rose-400",
+      pillBg: "bg-white/90",
+      brandGlow: "0 0 32px rgba(244, 63, 94, 0.22)",
+      cardHoverGlow: "rgba(244, 63, 94, 0.2)",
     },
-    {
-      id: "editorial-studio",
-      title: "Writing Lab",
-      subtitle: "Poetic prose & essays",
-      prompt: "Write a captivating, beautifully paced short story exploring the journey of a creative thinker in a futuristic galaxy.",
-      icon: PenTool,
-      badge: "Write",
-      gradient:
-        "linear-gradient(145deg, rgba(236, 72, 153, 0.42) 0%, rgba(168, 85, 247, 0.35) 55%, rgba(99, 102, 241, 0.38) 100%)",
-      border: "rgba(244, 114, 182, 0.55)",
-      iconBg:
-        "radial-gradient(circle at 35% 30%, #FBCFE8 0%, #EC4899 75%, #831843 100%)",
+    sunlight: {
+      accentColor: "#EA580C",
+      badgeText: "#C2410C",
+      glowRing: "rgba(249, 115, 22, 0.28)",
+      gradientIcon: "linear-gradient(135deg, #FDBA74 0%, #FB923C 55%, #EA580C 100%)",
+      pillHover: "group-hover:bg-[#EA580C] group-hover:text-white group-hover:border-orange-400",
+      pillBg: "bg-white/90",
+      brandGlow: "0 0 32px rgba(249, 115, 22, 0.22)",
+      cardHoverGlow: "rgba(249, 115, 22, 0.2)",
     },
-    {
-      id: "nuanced-translation",
-      title: "Urdu & Poetry",
-      subtitle: "Nastaliq & cultural nuances",
-      prompt: "Translate this thought into elegant, culturally rich Urdu poetry (اردو شاعری) and explain its subtle nuances.",
-      icon: Languages,
-      badge: "Urdu",
-      gradient:
-        "linear-gradient(145deg, rgba(244, 63, 94, 0.4) 0%, rgba(225, 29, 72, 0.35) 55%, rgba(147, 51, 234, 0.38) 100%)",
-      border: "rgba(251, 113, 133, 0.55)",
-      iconBg:
-        "radial-gradient(circle at 35% 30%, #FECDD3 0%, #F43F5E 75%, #881337 100%)",
+    lunar: {
+      accentColor: "#9333EA",
+      badgeText: "#7E22CE",
+      glowRing: "rgba(168, 85, 247, 0.28)",
+      gradientIcon: "linear-gradient(135deg, #D8B4FE 0%, #A855F7 55%, #7E22CE 100%)",
+      pillHover: "group-hover:bg-[#9333EA] group-hover:text-white group-hover:border-purple-400",
+      pillBg: "bg-white/90",
+      brandGlow: "0 0 32px rgba(168, 85, 247, 0.22)",
+      cardHoverGlow: "rgba(168, 85, 247, 0.2)",
     },
-    {
-      id: "systems-code",
-      title: "Code & Build",
-      subtitle: "TypeScript & React systems",
-      prompt: "Show me a clean TypeScript architecture for a reactive client-side store with undo/redo capabilities.",
-      icon: Code2,
-      badge: "Code",
-      gradient:
-        "linear-gradient(145deg, rgba(6, 182, 212, 0.4) 0%, rgba(59, 130, 246, 0.35) 55%, rgba(139, 92, 246, 0.38) 100%)",
-      border: "rgba(56, 189, 248, 0.55)",
-      iconBg:
-        "radial-gradient(circle at 35% 30%, #BAE6FD 0%, #0284C7 75%, #075985 100%)",
+    emerald: {
+      accentColor: "#059669",
+      badgeText: "#047857",
+      glowRing: "rgba(16, 185, 129, 0.28)",
+      gradientIcon: "linear-gradient(135deg, #6EE7B7 0%, #10B981 55%, #047857 100%)",
+      pillHover: "group-hover:bg-[#10B981] group-hover:text-white group-hover:border-emerald-400",
+      pillBg: "bg-white/90",
+      brandGlow: "0 0 32px rgba(16, 185, 129, 0.22)",
+      cardHoverGlow: "rgba(16, 185, 129, 0.2)",
     },
+  }[lightingTheme || "blush"];
+
+  // 4 Streamlined, Compact Feature Tiles with Liquid Glassmorphism & Jelly micro-actions
+  const features = [
     {
-      id: "document-synthesis",
-      title: "Doc Synthesis",
-      subtitle: "Checklists & key summaries",
-      prompt: "Summarize the key principles of effective human-AI interaction design into 5 actionable, clear pillars.",
-      icon: FileText,
-      badge: "Analyze",
-      gradient:
-        "linear-gradient(145deg, rgba(16, 185, 129, 0.4) 0%, rgba(20, 184, 166, 0.35) 55%, rgba(99, 102, 241, 0.38) 100%)",
-      border: "rgba(52, 211, 153, 0.55)",
-      iconBg:
-        "radial-gradient(circle at 35% 30%, #A7F3D0 0%, #059669 75%, #064E3B 100%)",
-    },
-    {
-      id: "ask-anything",
-      title: "Ask Anything",
-      subtitle: "Curiosity, logic & wisdom",
-      prompt: "Ask me anything! From science, space, and math to deep reasoning, coding, and creative problem solving.",
+      id: "friendly-chat",
+      title: "Best Friend Chat",
+      subtitle: "Caring & supportive (<3s)",
+      prompt: "Hey Arfa! Can we chat like best friends? Tell me something uplifting to brighten my day.",
       icon: Sparkles,
-      badge: "Ask",
-      gradient:
-        "linear-gradient(145deg, rgba(245, 158, 11, 0.42) 0%, rgba(244, 63, 94, 0.38) 55%, rgba(168, 85, 247, 0.42) 100%)",
-      border: "rgba(251, 191, 36, 0.65)",
-      iconBg:
-        "radial-gradient(circle at 35% 30%, #FEF08A 0%, #F59E0B 65%, #B45309 100%)",
+    },
+    {
+      id: "doc-reader",
+      title: "📎 File & Doc Reader",
+      subtitle: "Attach & ask questions",
+      prompt: "How can I attach documents, notes, or code files for you to analyze and answer questions?",
+      icon: Code2,
+    },
+    {
+      id: "deep-analysis",
+      title: "🧠 Deep Analysis",
+      subtitle: "Accurate problem solving",
+      prompt: "Help me analyze a complex problem and break it down into clean, actionable steps.",
+      icon: Zap,
+    },
+    {
+      id: "fast-intelligence",
+      title: "⚡ Instant Ideas (<3s)",
+      subtitle: "Sub-second smart advice",
+      prompt: "Give me 3 clever productivity life-hacks that take less than 2 minutes each.",
+      icon: Zap,
     },
   ];
+
+  const handleFeatureClick = (prompt: string) => {
+    soundEffects.tap();
+    onSelectPrompt?.(prompt);
+  };
 
   return (
     <div
       id="arfa-empty-state"
-      className="w-full flex flex-col items-center justify-center select-none py-1 sm:py-2 px-2 sm:px-4 max-w-4xl mx-auto"
+      className="w-full flex flex-col items-center justify-center select-none py-3 px-2 sm:px-4 max-w-xl mx-auto z-10"
     >
-      {/* 6 SMALL GELATINOUS SQUISHY FEATURE CARDS (COMPACT & BEAUTIFULLY CENTERED) */}
+      {/* 1. CREATIVE ARFA AI BRANDING & WELCOMING GREETING */}
+      {/* Expanded generous padding between greeting and the 4 features */}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+        className="flex flex-col items-center text-center mb-6 sm:mb-8"
+      >
+        {/* Creative Theme-Adaptive 3D Jelly Ribbon Medallion with Squishy Hover Physics */}
+        <div className="mb-3 relative group">
+          <PookieJellyLogo
+            size="lg"
+            showText={false}
+            lightingTheme={lightingTheme}
+            className="cursor-pointer"
+            onClick={() => soundEffects.tap()}
+          />
+          {/* Ambient Glow Aura */}
+          <div
+            className="absolute inset-0 rounded-2xl pointer-events-none -z-10 transition-all duration-500 group-hover:scale-125"
+            style={{ boxShadow: themeTokens.brandGlow }}
+          />
+        </div>
+
+        {/* Premium Eye-Grabbing ARFA AI Typography */}
+        <div className="flex items-center justify-center gap-2 mb-1.5">
+          <h1
+            className="text-2xl sm:text-3xl font-black tracking-tight text-[#240A18] flex items-center gap-2"
+            style={{ letterSpacing: "-0.03em" }}
+          >
+            <span className="drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]">ARFA</span>
+            {/* Themed Jelly AI Badge */}
+            <span
+              className="relative px-2 py-0.5 rounded-lg text-white text-xs sm:text-sm font-black uppercase tracking-wider inline-flex items-center justify-center shadow-xs transition-transform duration-300 group-hover:scale-105"
+              style={{
+                background: themeTokens.gradientIcon,
+                boxShadow: `
+                  inset 0 1px 1px rgba(255, 255, 255, 0.9),
+                  inset 0 -1px 2px rgba(0, 0, 0, 0.25),
+                  0 4px 12px -2px ${themeTokens.glowRing}
+                `,
+                border: "1px solid rgba(255, 255, 255, 0.75)",
+              }}
+            >
+              <span className="absolute inset-x-1 top-0.5 h-[38%] rounded-t-[6px] bg-gradient-to-b from-white/75 to-transparent pointer-events-none" />
+              <span className="relative z-10 drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)]">AI</span>
+            </span>
+          </h1>
+          <Sparkles
+            className="w-4 h-4 transition-colors duration-300 animate-pulse shrink-0"
+            style={{ color: themeTokens.accentColor }}
+          />
+        </div>
+
+        {/* Warm, Natural Welcoming Question */}
+        <p className="text-sm sm:text-base font-extrabold text-[#320F22] mb-1">
+          Your AI Best Friend & Intelligent Companion
+        </p>
+        <p className="text-[12px] sm:text-[12.5px] text-[#8A4B6E] font-medium max-w-xs sm:max-w-sm mx-auto leading-relaxed">
+          Chat freely with sub-3s instant replies, attach any document or file for instant Q&A, and brainstorm ideas together! ✨
+        </p>
+      </motion.div>
+
+      {/* 2. FOUR COMPACT FEATURE TILES WITH ENHANCED GLASSMORPHISM & JELLY MICRO-ACTIONS */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.32, ease: [0.34, 1.56, 0.64, 1] }}
-        className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5"
+        transition={{ duration: 0.35, delay: 0.08, ease: "easeOut" }}
+        className="w-full grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3"
       >
-        {features.map((feat) => {
-          const Icon = feat.icon;
+        {features.map((item) => {
+          const Icon = item.icon;
+          const isHovered = hoveredCard === item.id;
+
           return (
             <button
-              key={feat.id}
+              key={item.id}
               type="button"
-              onClick={() => onSelectPrompt?.(feat.prompt)}
-              className="jelly-feature-card group relative text-left p-2.5 sm:p-3 cursor-pointer flex items-center justify-between gap-2.5 min-h-[64px] sm:min-h-[68px]"
+              onMouseEnter={() => setHoveredCard(item.id)}
+              onMouseLeave={() => setHoveredCard(null)}
+              onClick={() => handleFeatureClick(item.prompt)}
+              className="liquid-jelly-card group relative text-left px-3.5 py-2.5 rounded-2xl flex items-center justify-between gap-3 cursor-pointer min-h-[50px] select-none"
               style={{
-                background: feat.gradient,
-                border: `1.2px solid ${feat.border}`,
-                boxShadow: `
-                  inset 0 2px 3px rgba(255, 255, 255, 0.7),
-                  inset 0 -2px 3px rgba(0, 0, 0, 0.45),
-                  0 4px 14px -2px rgba(0, 0, 0, 0.5)
-                `,
+                boxShadow: isHovered
+                  ? `
+                      inset 0 2px 3px rgba(255, 255, 255, 1),
+                      inset 0 -2px 3px rgba(0, 0, 0, 0.04),
+                      0 14px 28px -6px ${themeTokens.cardHoverGlow},
+                      0 2px 6px rgba(0, 0, 0, 0.03)
+                    `
+                  : undefined,
               }}
             >
-              {/* Gelatinous Curved Specular Glaze Across the Top */}
-              <div
-                className="absolute inset-x-1.5 top-0.5 h-[42%] rounded-t-xl pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity"
-                style={{
-                  background:
-                    "linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.12) 65%, transparent 100%)",
-                }}
-              />
+              {/* Specular Curved Highlight Glaze for Liquid Depth */}
+              <div className="specular-top-glaze" />
 
-              {/* 3D Jelly Icon Orb: Pure Candy Jelly Refraction (NO outer glowing halo) */}
-              <div
-                className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 group-active:scale-90 relative z-10"
-                style={{
-                  background: feat.iconBg,
-                  border: "1.2px solid rgba(255, 255, 255, 0.8)",
-                  boxShadow: `
-                    inset 0 2px 2.5px rgba(255, 255, 255, 0.85),
-                    inset 0 -1.5px 2px rgba(0, 0, 0, 0.5),
-                    0 2px 6px rgba(0, 0, 0, 0.35)
-                  `,
-                }}
-              >
-                <Icon className="w-4 h-4 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] stroke-[2.5]" />
-              </div>
+              {/* Left: 3D Squishy Jelly Icon Pad + Typography */}
+              <div className="flex items-center gap-2.5 min-w-0 flex-1 relative z-10">
+                {/* 3D Jelly Elastic Squish Capsule */}
+                <div
+                  className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0 relative transition-transform duration-200 group-hover:scale-110 group-active:scale-90 shadow-2xs"
+                  style={{
+                    background: themeTokens.gradientIcon,
+                    border: "1.2px solid rgba(255, 255, 255, 0.9)",
+                    boxShadow: `
+                      inset 0 1.5px 2px rgba(255, 255, 255, 0.85),
+                      inset 0 -1.5px 2px rgba(0, 0, 0, 0.25),
+                      0 4px 10px -2px ${themeTokens.glowRing}
+                    `,
+                  }}
+                >
+                  <div className="absolute inset-x-0.5 top-0.5 h-[40%] rounded-t-[8px] bg-gradient-to-b from-white/80 to-transparent pointer-events-none" />
+                  <Icon className="w-3.5 h-3.5 text-white relative z-10 drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)]" />
+                </div>
 
-              {/* Compact Title & Subtitle */}
-              <div className="flex-1 min-w-0 relative z-10">
-                <div className="flex items-center gap-1.5">
-                  <h3 className="text-xs sm:text-[13px] font-black text-white tracking-tight leading-tight truncate drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">
-                    {feat.title}
-                  </h3>
-                  <span
-                    className="px-1.5 py-0.2 rounded-full text-[9px] font-black tracking-wider uppercase backdrop-blur-md shrink-0"
-                    style={{
-                      backgroundColor: "rgba(255, 255, 255, 0.22)",
-                      color: "#FFFFFF",
-                      border: "0.8px solid rgba(255, 255, 255, 0.4)",
-                    }}
-                  >
-                    {feat.badge}
+                {/* Title & Micro Subtitle */}
+                <div className="flex flex-col min-w-0 flex-1">
+                  <span className="font-extrabold text-[12.5px] sm:text-[13px] text-[#240A18] tracking-tight truncate group-hover:text-black transition-colors">
+                    {item.title}
+                  </span>
+                  <span className="text-[10.5px] text-[#8A4B6E] font-medium truncate leading-tight">
+                    {item.subtitle}
                   </span>
                 </div>
-                <p className="text-[11px] font-semibold text-slate-200/90 leading-tight truncate mt-0.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
-                  {feat.subtitle}
-                </p>
               </div>
 
-              {/* Mini Arrow Pill with Jelly Physics */}
+              {/* Right: Small Tactile Arrow Pill with Jelly Flex */}
               <div
-                className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-110 relative z-10"
-                style={{
-                  backgroundColor: "rgba(255, 255, 255, 0.22)",
-                  border: "1px solid rgba(255, 255, 255, 0.45)",
-                }}
+                className={`w-5.5 h-5.5 rounded-full flex items-center justify-center shrink-0 border border-pink-200/80 bg-white/95 text-[#361427] transition-all relative z-10 shadow-2xs group-hover:scale-110 ${themeTokens.pillHover}`}
               >
-                <ArrowUpRight className="w-3 h-3 text-white stroke-[2.6]" />
+                <ArrowUpRight className="w-3 h-3 stroke-[2.5] transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </div>
             </button>
           );

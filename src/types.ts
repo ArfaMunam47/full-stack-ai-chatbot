@@ -1,3 +1,5 @@
+export type LightingTheme = "blush" | "sunlight" | "lunar" | "emerald";
+
 export interface User {
   id: string;
   email: string;
@@ -18,7 +20,7 @@ export interface MessageAttachment {
   url?: string;
 }
 
-export type ComposerMode = "chat" | "image" | "video" | "presentation" | "research" | "creative";
+export type ComposerMode = "chat" | "document" | "research" | "creative";
 
 export interface PresentationSlide {
   id: string;

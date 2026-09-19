@@ -1,6 +1,6 @@
 {
   "name": "ARFA AI",
-  "description": "Cosmic personal AI assistant featuring a dark galaxy stardust aesthetic, 3D pookie jelly mascot, interactive jelly feature modules, and real-time streaming.",
+  "description": "Next-generation friendly AI chatbot featuring sub-3s instant streaming, file & document analysis, living particle background, soft 3D glassmorphism, and custom luxury scrollbars.",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

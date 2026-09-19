@@ -84,34 +84,38 @@ export const MessageItem: React.FC<MessageItemProps> = ({
     return (
       <div
         id={`message-user-${message.id}`}
-        className="group w-full flex justify-end py-2 px-1 sm:px-2 select-text"
+        className="group w-full flex justify-end py-1.5 px-1 sm:px-2 select-text"
       >
         <div
           dir={isRtl ? "rtl" : "ltr"}
-          className={`max-w-[85%] sm:max-w-[76%] rounded-[24px] px-4.5 py-3.5 plush-bubble-user text-white shadow-md ${
-            isRtl ? "text-right urdu-font text-[17px] leading-[2.2]" : "text-left text-sm sm:text-[15px] leading-relaxed font-medium"
+          className={`relative max-w-[82%] sm:max-w-[72%] rounded-[22px] px-4 sm:px-5 pt-3 sm:pt-3.5 pb-2.5 sm:pb-3 soft3d-user-bubble shadow-md overflow-hidden ${
+            isRtl ? "text-right urdu-font text-[16px] leading-[2.1]" : "text-left text-[13.5px] sm:text-[14px] leading-relaxed font-medium"
           }`}
         >
+          {/* 3D Glass Specular Curved Lens (Liquid Glass Claymorphism) */}
+          <div className="absolute inset-x-1.5 top-0.5 h-[38%] rounded-t-[20px] bg-gradient-to-b from-white/55 via-white/15 to-transparent pointer-events-none" />
+          <div className="absolute top-1 left-3.5 w-12 h-1.5 rounded-full bg-white/45 blur-[0.6px] pointer-events-none" />
+
           {/* Attached Files */}
           {message.attachments && message.attachments.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-2.5">
+            <div className="flex flex-wrap gap-1.5 mb-2 relative z-10">
               {message.attachments.map((att) => (
                 <div
                   key={att.id}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs bg-white/15 text-white border border-white/20"
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] bg-white/20 text-white border border-white/30 font-bold shadow-2xs"
                 >
-                  <FileText className="w-3.5 h-3.5 text-white/90" />
-                  <span className="truncate max-w-[140px] font-semibold">{att.name}</span>
+                  <FileText className="w-3 h-3 text-rose-200" />
+                  <span className="truncate max-w-[120px]">{att.name}</span>
                 </div>
               ))}
             </div>
           )}
 
-          <p className="whitespace-pre-wrap select-text m-0 text-white/95 font-medium tracking-tight">
+          <p className="whitespace-pre-wrap select-text m-0 text-white font-medium tracking-tight relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,0.38)]">
             {message.content}
           </p>
 
-          <div className="flex items-center justify-end gap-1 mt-1.5 text-[10px] text-white/70 select-none font-medium">
+          <div className="flex items-center justify-end gap-1 mt-1 text-[9.5px] text-white/90 select-none font-semibold relative z-10">
             <span>{messageTime}</span>
           </div>
         </div>
@@ -122,33 +126,37 @@ export const MessageItem: React.FC<MessageItemProps> = ({
   return (
     <div
       id={`message-assistant-${message.id}`}
-      className="group w-full flex items-start gap-3 sm:gap-3.5 py-3 px-1 sm:px-2 select-text"
+      className="group w-full flex items-start gap-2.5 py-2 px-1 sm:px-2 select-text"
     >
-      {/* 3D Pookie Jelly Avatar Emblem */}
+      {/* 3D Soft Emblem Avatar */}
       <div className="shrink-0 mt-0.5">
-        <PookieJellyLogo size="sm" showText={false} isAnimated={isStreaming} />
+        <PookieJellyLogo size="xs" showText={false} isAnimated={isStreaming} />
       </div>
 
-      {/* Assistant Message: Open Natural Flow (No Enclosing Box, exactly like ChatGPT) */}
+      {/* Assistant Message: 3D Frosted Liquid-Glass Chassis Container */}
       <div
         dir={isRtl ? "rtl" : "ltr"}
-        className={`flex-1 min-w-0 text-[#F8FAFC] pt-0.5 ${
+        className={`soft3d-ai-container flex-1 min-w-0 p-3.5 sm:p-4 relative overflow-hidden ${
           isRtl ? "text-right urdu-font" : "text-left"
         }`}
       >
-        {/* Markdown Content with Clean Editorial Typography */}
-        <div className="markdown-body min-h-[28px] text-[15px] leading-relaxed font-normal text-[#F1F5F9]">
+        {/* 3D Frosted Glass Specular Curved Lens (Claymorphism Sheen) */}
+        <div className="absolute inset-x-2 top-0.5 h-[32%] rounded-t-[22px] bg-gradient-to-b from-white/80 via-white/20 to-transparent pointer-events-none" />
+        <div className="absolute top-1 left-4 w-16 h-1.5 rounded-full bg-white/60 blur-[0.8px] pointer-events-none" />
+
+        {/* Markdown Content with Crystal-Clear Editorial Typography */}
+        <div className="markdown-body min-h-[26px] text-[13.5px] sm:text-[14px] leading-relaxed font-normal text-[#3D1429] relative z-10">
           {isStreaming && (!message.content || message.content.trim().length === 0) ? (
-            /* Thinking State: Luminous stardust dots + pulse */
-            <div className="flex items-center gap-3 py-2 text-xs select-none">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#EC4899] animate-ping" />
-                <span className="w-2.5 h-2.5 rounded-full bg-[#A855F7] shadow-[0_0_12px_rgba(168,85,247,0.8)] animate-pulse" />
-                <span className="w-2 h-2 rounded-full bg-[#38BDF8] animate-bounce" />
+            /* Thinking State: Luminous amber-rose pulse */
+            <div className="flex items-center gap-2.5 py-1.5 text-xs select-none">
+              <div className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#FB7185] animate-ping" />
+                <span className="w-2 h-2 rounded-full bg-[#F472B6] shadow-[0_0_8px_rgba(244,114,182,0.8)] animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#F43F5E] animate-bounce" />
               </div>
-              <span className="font-bold text-xs tracking-tight text-[#E9D5FF] animate-pulse flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#F472B6]" />
-                ARFA AI is synthesizing through the cosmos...
+              <span className="font-bold text-[11.5px] tracking-tight text-rose-500 animate-pulse flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3 text-[#FB7185]" />
+                ARFA AI is thinking... 💕
               </span>
             </div>
           ) : (
@@ -177,7 +185,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
 
                     if (isInline) {
                       return (
-                        <code className="px-1.5 py-0.5 rounded-md bg-white/10 text-pink-300 font-mono text-xs border border-white/20" {...rest}>
+                        <code className="px-1.5 py-0.5 rounded-md bg-pink-100/90 text-[#BE123C] font-mono text-xs border border-pink-200" {...rest}>
                           {children}
                         </code>
                       );
@@ -197,7 +205,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
 
               {/* Streaming Cursor */}
               {isStreaming && (
-                <span className="inline-block w-2 h-4.5 ml-1 bg-[#EC4899] animate-pulse align-middle rounded-full" />
+                <span className="inline-block w-1.5 h-3.5 ml-1 bg-[#F472B6] animate-pulse align-middle rounded-full" />
               )}
             </>
           )}
@@ -208,39 +216,43 @@ export const MessageItem: React.FC<MessageItemProps> = ({
           )}
         </div>
 
-        {/* Action Toolbar - Minimalist ChatGPT style */}
+        {/* Action Toolbar - Floating Minimalist Bar */}
         {!isStreaming && (
-          <div className="flex items-center gap-1.5 mt-2.5 text-slate-400">
-            <button
-              type="button"
-              onClick={handleCopy}
-              title={copied ? "Copied to clipboard" : "Copy response"}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs hover:bg-white/10 text-slate-400 hover:text-white cursor-pointer transition-all active:scale-95"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[2.5]" /> : <Copy className="w-3.5 h-3.5" />}
-              <span className="text-[11px] font-medium">{copied ? "Copied" : "Copy"}</span>
-            </button>
-            <button
-              type="button"
-              onClick={handleSpeak}
-              title={speaking ? "Stop reading aloud" : "Read response aloud"}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs hover:bg-white/10 text-slate-400 hover:text-white cursor-pointer transition-all active:scale-95"
-            >
-              {speaking ? <VolumeX className="w-3.5 h-3.5 text-[#F472B6]" /> : <Volume2 className="w-3.5 h-3.5" />}
-              <span className="text-[11px] font-medium">{speaking ? "Stop" : "Listen"}</span>
-            </button>
+          <div className="flex items-center gap-1.5 mt-2.5 pt-2 border-t border-pink-100 text-[#8A4B6E] relative z-10">
+            {message.content && message.content.trim().length > 0 && (
+              <>
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  title={copied ? "Copied to clipboard" : "Copy response"}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs bg-pink-50 hover:bg-pink-100 text-[#3D1429] hover:text-[#BE123C] border border-pink-200/80 cursor-pointer transition-all active:scale-95 shadow-2xs"
+                >
+                  {copied ? <Check className="w-3 h-3 text-emerald-600 stroke-[2.5]" /> : <Copy className="w-3 h-3 text-rose-500" />}
+                  <span className="text-[10.5px] font-bold">{copied ? "Copied" : "Copy"}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSpeak}
+                  title={speaking ? "Stop reading aloud" : "Read response aloud"}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs bg-pink-50 hover:bg-pink-100 text-[#3D1429] hover:text-[#BE123C] border border-pink-200/80 cursor-pointer transition-all active:scale-95 shadow-2xs"
+                >
+                  {speaking ? <VolumeX className="w-3 h-3 text-rose-600" /> : <Volume2 className="w-3 h-3 text-rose-500" />}
+                  <span className="text-[10.5px] font-bold">{speaking ? "Stop" : "Listen"}</span>
+                </button>
+              </>
+            )}
             {onRegenerate && (
               <button
                 type="button"
                 onClick={onRegenerate}
                 title="Regenerate response"
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs hover:bg-white/10 text-slate-400 hover:text-white cursor-pointer transition-all active:scale-95"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs bg-pink-50 hover:bg-pink-100 text-[#3D1429] hover:text-[#BE123C] border border-pink-200/80 cursor-pointer transition-all active:scale-95 shadow-2xs"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span className="text-[11px] font-medium">Retry</span>
+                <RotateCcw className="w-3 h-3 text-rose-500" />
+                <span className="text-[10.5px] font-bold">Retry</span>
               </button>
             )}
-            <span className="ml-auto text-[10.5px] text-slate-500 select-none font-medium">
+            <span className="ml-auto text-[10px] text-[#8A4B6E] select-none font-semibold">
               {messageTime}
             </span>
           </div>

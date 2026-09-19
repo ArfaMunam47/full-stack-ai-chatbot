@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import type { ChatMessage, StreamCallbacks } from "./types.ts";
+import type { ChatMessage, StreamCallbacks, AttachmentItem } from "./types.ts";
 
 let openaiInstance: OpenAI | null = null;
 
@@ -36,10 +36,48 @@ export async function streamOpenAIChat(
   history: ChatMessage[],
   latestPrompt: string,
   callbacks: StreamCallbacks,
-  modelName: string = process.env.OPENAI_MODEL || "gpt-4o"
+  modelName: string = process.env.OPENAI_MODEL || "gpt-4o",
+  attachments?: AttachmentItem[]
 ): Promise<void> {
   const openai = getOpenAIClient();
   const effectiveModel = sanitizeOpenAIModelName(modelName);
+
+  let userText = latestPrompt || "";
+  const contentParts: any[] = [];
+
+  if (attachments && attachments.length > 0) {
+    for (const att of attachments) {
+      if (!att.dataUrl) continue;
+      const mimeType = att.type || "";
+      if (mimeType.startsWith("image/")) {
+        contentParts.push({
+          type: "image_url",
+          image_url: { url: att.dataUrl },
+        });
+      } else {
+        try {
+          let textContent = "";
+          if (att.dataUrl.startsWith("data:")) {
+            const commaIdx = att.dataUrl.indexOf(",");
+            const meta = att.dataUrl.slice(0, commaIdx);
+            const raw = att.dataUrl.slice(commaIdx + 1);
+            if (meta.includes(";base64")) {
+              textContent = Buffer.from(raw, "base64").toString("utf-8");
+            } else {
+              textContent = decodeURIComponent(raw);
+            }
+          } else {
+            textContent = att.dataUrl;
+          }
+          userText += `\n\n--- [Attached File: "${att.name || "document"}"] ---\n\`\`\`\n${textContent.slice(0, 60000)}\n\`\`\`\n`;
+        } catch {
+          // ignore
+        }
+      }
+    }
+  }
+
+  contentParts.push({ type: "text", text: userText.trim() || "Please analyze the attached file." });
 
   const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
     { role: "system", content: systemInstruction },
@@ -47,7 +85,7 @@ export async function streamOpenAIChat(
       role: h.role as "user" | "assistant" | "system",
       content: h.content,
     })),
-    { role: "user", content: latestPrompt },
+    { role: "user", content: contentParts.length === 1 && contentParts[0].type === "text" ? contentParts[0].text : contentParts },
   ];
 
   let chunkEmitted = false;

@@ -1,3 +1,11 @@
+export interface AttachmentItem {
+  id?: string;
+  name?: string;
+  type?: string;
+  size?: number;
+  dataUrl?: string;
+}
+
 export interface ChatMessage {
   role: "user" | "assistant" | "system";
   content: string;

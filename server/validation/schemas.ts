@@ -47,11 +47,11 @@ export const ChatAttachmentSchema = z.object({
 
 export const ChatRequestSchema = z.object({
   conversationId: z.string().trim().max(100).optional(),
-  message: z.string().trim().min(1, "Message content cannot be empty").max(35000, "Message exceeds 35,000 character limit"),
+  message: z.string().max(35000, "Message exceeds 35,000 character limit").default(""),
   attachments: z.array(ChatAttachmentSchema).max(5, "Maximum of 5 attachments allowed per message").optional(),
-  provider: z.enum(["gemini", "openai"]).optional(),
+  provider: z.string().optional(),
   modelName: z.string().trim().max(100).optional(),
-  mode: z.enum(["chat", "image", "video"]).optional(),
+  mode: z.string().optional(),
 });
 
 export const GenerateImageSchema = z.object({

@@ -172,37 +172,7 @@ export function detectIntent(params: {
     }
   }
 
-  // 5. Image Generation detection
-  const isCodingOrTextQuery =
-    /\b(code|react|component|html|css|jsx|tsx|svg|ascii|diagram|prompt|idea|script|function|api|regex|template|markdown)\b/i.test(
-      rawText
-    );
-
-  const isUrduImagePrompt =
-    /\b(tasveer\s+banao|tasweer\s+banao|tasveer\s+banado|tasveer\s+chahiye|تصویر\s+بناؤ|تصویر\s+بنائیں|تصویر\s+چاہیے)\b/i.test(rawText);
-
-  const isImageGenerationPrompt =
-    !isCodingOrTextQuery &&
-    (isUrduImagePrompt ||
-      /^(generate|create|draw|paint|sketch|illustrate|render|make)\s+(an?\s+)?(image|picture|photo|illustration|drawing|artwork|portrait|render|painting|wallpaper)\b/i.test(
-        rawText
-      ) ||
-      /\b(generate|create|render)\s+(an?\s+)?(image|picture|illustration|photo)\s+(of|depicting|showing|with)\b/i.test(
-        rawText
-      ) ||
-      /^(draw|paint)\s+(me\s+)?(a|an)\s+[a-z]/i.test(rawText) ||
-      /^(a\s+photo\s+of|an\s+image\s+of|a\s+rendering\s+of|digital\s+art\s+of)\b/i.test(rawText));
-
-  if (isImageGenerationPrompt) {
-    return {
-      intent: "image_generation",
-      cleanedPrompt: cleanPrompt(rawText),
-      aspectRatio: detectedAspectRatio || "1:1",
-      confidence: 0.92,
-    };
-  }
-
-  // 6. Default to standard conversational chat
+  // 5. Default to conversational chat & document analysis
   return {
     intent: "chat",
     cleanedPrompt: rawText,
@@ -211,12 +181,7 @@ export function detectIntent(params: {
 }
 
 function cleanPrompt(text: string): string {
-  // Strip common request prefixes while preserving prompt fidelity
   return text
-    .replace(
-      /^(please\s+)?(generate|create|make|render|produce|draw|paint|illustrate)\s+(an?\s+)?(cinematic\s+)?(video|image|picture|photo|illustration|animation|clip)\s+(of|about|depicting|showing)?\s*/i,
-      ""
-    )
     .replace(/^["']|["']$/g, "")
     .trim() || text;
 }

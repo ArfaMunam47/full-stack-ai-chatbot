@@ -153,12 +153,11 @@ const ImageCard: React.FC<ImageCardProps> = ({ item, onOpenLightbox, onPromptAct
   return (
     <div className="group rounded-2xl overflow-hidden bg-white border border-[#EFE9E6] shadow-xs transition-all">
       {/* Visual Header / Metadata */}
-      <div className="flex items-center justify-between px-3 py-2 bg-[#F8F6F4] border-b border-[#EFE9E6] text-xs">
-        <div className="flex items-center gap-1.5 font-medium text-[#1A1718]">
+      <div className="flex items-center justify-between px-3 py-1.5 bg-[#F8F6F4] border-b border-[#EFE9E6] text-xs">
+        <div className="flex items-center gap-1.5 font-medium text-[#7E7779]">
           <Sparkles className="w-3.5 h-3.5 text-[#D84A70]" />
-          <span className="text-[11px] font-semibold">{item.model || "Gemini Studio Pro (8K)"}</span>
           {item.aspectRatio && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white border border-[#EFE9E6] text-[#5A5456]">
+            <span className="text-[10.5px] px-1.5 py-0.5 rounded-md bg-white border border-[#EFE9E6] text-[#5A5456] font-medium">
               {item.aspectRatio}
             </span>
           )}

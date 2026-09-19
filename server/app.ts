@@ -425,6 +425,12 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
   const { conversationId, message, attachments, provider, modelName } = parsed.data;
   const userId = req.userId!;
 
+  if (!message.trim() && (!attachments || attachments.length === 0)) {
+    return res.status(400).json({
+      error: "Please provide a message or attachment.",
+    });
+  }
+
   // 1. Verify or create conversation with strict ownership check
   let conv = conversationId ? db.getConversation(conversationId, userId) : undefined;
   let isNewConversation = false;
@@ -506,7 +512,7 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
     (res as any).flush();
   }
 
-  // 7. MULTIMODAL INTENT ROUTING (Real Gemini Nano Banana & Veo Generation)
+  // 7. MULTIMODAL INTENT ROUTING (Fast Conversational Chat & Document Processing)
   const isChatMode = parsed.data.mode === "chat";
   const lastImage = isChatMode ? undefined : db.getLastImageMedia(conv.id, userId);
   const intentResult = isChatMode
@@ -530,7 +536,7 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
       res.write(
         `data: ${JSON.stringify({
           type: "status",
-          status: intentResult.intent === "image_edit" ? "Editing image with Gemini Nano Banana..." : "Generating image with Gemini Nano Banana...",
+          status: intentResult.intent === "image_edit" ? "Editing image..." : "Creating your image...",
         })}\n\n`
       );
       if (typeof (res as any).flush === "function") (res as any).flush();
@@ -558,13 +564,12 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
         aspectRatio: (intentResult.aspectRatio as any) || "1:1",
       });
 
+      // Save assistant message with pure image output (no text clutter, strictly matching user specification)
       const assistantMsg = db.addMessage(
         conv.id,
         userId,
         "assistant",
-        intentResult.intent === "image_edit"
-          ? `I've edited the image based on your instruction:\n\n*"${intentResult.cleanedPrompt}"*`
-          : `I've generated this image based on your request:\n\n*"${intentResult.cleanedPrompt}"*`,
+        "", // Pure image: strictly no text generated or written
         undefined,
         imgResult.model,
         [
@@ -585,7 +590,7 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
         `data: ${JSON.stringify({
           type: "done",
           messageId: assistantMsg.id,
-          fullText: assistantMsg.content,
+          fullText: "",
           model: imgResult.model,
           media: assistantMsg.media,
         })}\n\n`
@@ -593,24 +598,13 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
       res.end();
       return;
     } catch (imgErr: unknown) {
-      console.warn("[Multimodal Notice - Image Generation Quota/Error]:", (imgErr as any)?.message || imgErr);
-      const isUrduScript = /[\u0600-\u06FF]/.test(intentResult.cleanedPrompt) || /[\u0600-\u06FF]/.test(message);
-      const isRomanUrdu = /\b(tasveer|tasweer|banao|kardo|banado|mujhe|chahiye|karo|likho|aap|hai|yeh|woh)\b/i.test(message);
-
-      let helpfulMessage = "";
-      if (isUrduScript) {
-        helpfulMessage = `تصویر بنانے کی درخواست:\n> **"${intentResult.cleanedPrompt}"**\n\n⚠️ **کوٹہ اور بلنگ کی معلومات**: گوگل کے نینو بنانا (Nano Banana / \`gemini-3.1-flash-lite-image\`) کے لیے فعال بلنگ پروجیکٹ درکار ہوتا ہے (فری ٹائر پر امیج ماڈلز کا کوٹہ 0 ہوتا ہے)۔\n\n**حل:**\n1. اپنے گوگل اے آئی اسٹوڈیو پروجیکٹ میں بلنگ فعال کریں۔\n2. اس دوران آپ اوپر دیا گیا تفصیلی پرامپٹ کسی بھی امیج جنریٹر میں استعمال کر سکتے ہیں۔`;
-      } else if (isRomanUrdu) {
-        helpfulMessage = `Image generation request:\n> **"${intentResult.cleanedPrompt}"**\n\n⚠️ **Quota & Billing Notice**: Google Nano Banana image models (\`gemini-3.1-flash-lite-image\`) ke liye billing-enabled project zaroori hai (Google free tier par image models ki quota limit 0 hoti hai).\n\n**Ise kaise enable karein:**\n1. Google AI Studio par apne project mein billing link karein.\n2. Tab tak aap oopar diye gaye prompt ko kisi bhi image generator tool mein use kar sakte hain.`;
-      } else {
-        helpfulMessage = `I received your image request:\n> **"${intentResult.cleanedPrompt}"**\n\n⚠️ **Google Gemini Quota Notice**: Image generation via Google Nano Banana (\`gemini-3.1-flash-lite-image\`) requires an active Google AI Studio project with billing or paid quota enabled (free-tier API keys have an image generation quota limit of 0).\n\n**How to enable this in your project:**\n1. In Google AI Studio, ensure your project is linked to a billing account with quota enabled.\n2. Once billing is linked, image generation with Nano Banana will activate automatically.\n3. In the meantime, you can copy the refined prompt above into your preferred image generation tool.`;
-      }
-
+      console.error("[Multimodal Error]:", (imgErr as any)?.message || imgErr);
+      const friendlyMsg = "I couldn't generate that image just now. Please try with a slightly different description!";
       const assistantMsg = db.addMessage(
         conv.id,
         userId,
         "assistant",
-        helpfulMessage,
+        friendlyMsg,
         undefined,
         "gemini-3.1-flash-lite"
       );
@@ -618,14 +612,14 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
       res.write(
         `data: ${JSON.stringify({
           type: "chunk",
-          chunk: helpfulMessage,
+          chunk: friendlyMsg,
         })}\n\n`
       );
       res.write(
         `data: ${JSON.stringify({
           type: "done",
           messageId: assistantMsg.id,
-          fullText: helpfulMessage,
+          fullText: friendlyMsg,
           model: "gemini-3.1-flash-lite",
         })}\n\n`
       );
@@ -786,7 +780,8 @@ app.post("/api/chat", chatLimiter, async (req: AuthenticatedRequest, res: Respon
       {
         history,
         message: message.trim(),
-        provider: provider || settings.preferredProvider,
+        attachments: mappedAttachments,
+        provider: (provider as "gemini" | "openai") || settings.preferredProvider,
         modelName: modelName || settings.preferredModel,
         promptOptions: {
           userName: user?.name,

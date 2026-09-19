@@ -154,7 +154,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         {/* Tab Content Area */}
-        <div className="flex-1 p-5 sm:p-6 overflow-y-auto bg-white text-[#32121E]">
+        <div className="flex-1 p-5 sm:p-6 overflow-y-auto themed-scrollbar bg-white text-[#32121E]">
           {saveStatus && (
             <div className="flex items-center gap-2 p-2.5 mb-4 rounded-xl bg-emerald-50 text-emerald-800 text-xs border border-emerald-200 font-medium">
               <Check className="w-3.5 h-3.5" />
@@ -217,31 +217,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <label className="block text-xs font-semibold text-[#1A1718] mb-2">
                     Model Selection
                   </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <button
-                      onClick={() =>
-                        handleUpdateSettings({
-                          preferredProvider: "gemini",
-                          preferredModel: "gemini-3.8-flash",
-                        })
-                      }
-                      className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
-                        settings?.preferredProvider === "gemini" && settings?.preferredModel !== "gemini-3.1-flash-lite"
-                          ? "border-[#D84A70] bg-[#FDF2F5] ring-1 ring-[#D84A70]"
-                          : "border-[#EFE9E6] bg-white hover:border-[#D84A70]/50"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-semibold text-xs sm:text-sm text-[#1A1718]">Gemini 3.8 Flash</span>
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#F6F3F1] text-[#5A5456]">
-                          Default
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-[#5A5456] mt-1">
-                        Ultra-fast streaming intelligence and complex reasoning.
-                      </p>
-                    </button>
-
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <button
                       onClick={() =>
                         handleUpdateSettings({
@@ -256,13 +232,70 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold text-xs sm:text-sm text-[#1A1718]">Flash Lite</span>
+                        <span className="font-semibold text-xs sm:text-sm text-[#1A1718] flex items-center gap-1.5">
+                          <span>⚡</span>
+                          <span>Flash Lite (&lt;2s)</span>
+                        </span>
                         <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#FDF2F5] text-[#D84A70]">
-                          Sub-second
+                          Ultra-Fast
                         </span>
                       </div>
                       <p className="text-[11px] text-[#5A5456] mt-1">
-                        Zero-wait response time for instant typing.
+                        Blazing fast sub-second token streaming. Amazingly responsive.
+                      </p>
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        handleUpdateSettings({
+                          preferredProvider: "gemini",
+                          preferredModel: "gemini-3.8-flash",
+                        })
+                      }
+                      className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
+                        settings?.preferredProvider === "gemini" && settings?.preferredModel === "gemini-3.8-flash"
+                          ? "border-[#D84A70] bg-[#FDF2F5] ring-1 ring-[#D84A70]"
+                          : "border-[#EFE9E6] bg-white hover:border-[#D84A70]/50"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-xs sm:text-sm text-[#1A1718] flex items-center gap-1.5">
+                          <span>✨</span>
+                          <span>Gemini 3.8 Flash (&lt;5s)</span>
+                        </span>
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#F6F3F1] text-[#5A5456]">
+                          Deep Thinking
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-[#5A5456] mt-1">
+                        High capacity reasoning, STEM, and complex problem solving.
+                      </p>
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        handleUpdateSettings({
+                          preferredProvider: "gemini",
+                          preferredModel: "gemini-flash-latest",
+                        })
+                      }
+                      className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
+                        settings?.preferredProvider === "gemini" && settings?.preferredModel === "gemini-flash-latest"
+                          ? "border-[#D84A70] bg-[#FDF2F5] ring-1 ring-[#D84A70]"
+                          : "border-[#EFE9E6] bg-white hover:border-[#D84A70]/50"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-xs sm:text-sm text-[#1A1718] flex items-center gap-1.5">
+                          <span>🚀</span>
+                          <span>Gemini Flash Latest</span>
+                        </span>
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#F6F3F1] text-[#5A5456]">
+                          Adaptive
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-[#5A5456] mt-1">
+                        General multimodal generation with rapid response times.
                       </p>
                     </button>
 

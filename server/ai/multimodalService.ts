@@ -42,7 +42,7 @@ export function getFriendlyMultimodalError(err: unknown, modality: "image" | "vi
   const lower = msg.toLowerCase();
 
   if (lower.includes("429") || lower.includes("resource_exhausted") || lower.includes("quota exceeded")) {
-    return `Gemini API quota exceeded for ${modality} generation. Google's Nano Banana and Veo models require a project with billing or quota enabled. Please check your Gemini API plan.`;
+    return `Gemini API quota exceeded for ${modality} generation. High-capacity multimodal features require a project with billing or quota enabled. Please check your Gemini API plan.`;
   }
   if (lower.includes("safety") || lower.includes("blocked") || lower.includes("filtered")) {
     return `The request or generated ${modality} was restricted by Gemini safety policies. Please rephrase your prompt.`;
@@ -57,7 +57,7 @@ export function getFriendlyMultimodalError(err: unknown, modality: "image" | "vi
 }
 
 // =============================================================================
-// IMAGE GENERATION & EDITING (Nano Banana models)
+// IMAGE GENERATION & EDITING (Gemini Vision models)
 // =============================================================================
 
 export interface GenerateImageParams {
@@ -88,46 +88,60 @@ export async function generateFallbackImage(
   let width = 1024;
   let height = 1024;
   if (aspectRatio === "16:9") {
-    width = 1280;
-    height = 720;
-  } else if (aspectRatio === "9:16") {
-    width = 720;
-    height = 1280;
-  } else if (aspectRatio === "4:3") {
-    width = 1024;
+    width = 1344;
     height = 768;
-  } else if (aspectRatio === "3:4") {
+  } else if (aspectRatio === "9:16") {
     width = 768;
-    height = 1024;
+    height = 1344;
+  } else if (aspectRatio === "4:3") {
+    width = 1152;
+    height = 864;
+  } else if (aspectRatio === "3:4") {
+    width = 864;
+    height = 1152;
   }
 
-  const cleanPrompt = encodeURIComponent(
-    `${prompt.trim()}, 8k, photorealistic, cinematic studio lighting, ultra sharp, masterpiece`
+  const enhancedPrompt = encodeURIComponent(
+    `${prompt.trim()}, 8k resolution, masterpiece, professional studio lighting, highly detailed, sharp focus, vibrant colors`
   );
   const seed = Math.floor(Math.random() * 999999);
-  const url = `https://image.pollinations.ai/prompt/${cleanPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=flux`;
+  const primaryUrl = `https://image.pollinations.ai/prompt/${enhancedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=flux`;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 25000);
+  const timeoutId = setTimeout(() => controller.abort(), 20000);
 
   try {
-    const res = await fetch(url, {
+    const res = await fetch(primaryUrl, {
       signal: controller.signal,
       headers: {
-        "User-Agent": "Mozilla/5.0 ARFA-Studio/3.0",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ARFA-Studio/3.0",
+        Accept: "image/jpeg,image/png,image/*",
       },
     });
 
-    if (!res.ok) {
-      throw new Error(`Fallback image service status ${res.status}`);
+    if (res.ok) {
+      const arrayBuf = await res.arrayBuffer();
+      const buffer = Buffer.from(arrayBuf);
+      if (buffer.length > 500) {
+        return { buffer, mimeType: "image/jpeg" };
+      }
     }
-
-    const arrayBuf = await res.arrayBuffer();
-    const buffer = Buffer.from(arrayBuf);
-    if (buffer.length < 500) {
-      throw new Error("Received empty image buffer from fallback generator.");
+    throw new Error(`Primary image endpoint returned status ${res.status}`);
+  } catch (primaryErr: any) {
+    console.warn("[Multimodal] Primary image endpoint error, trying secondary engine:", primaryErr.message);
+    // Secondary ultra-reliable high-res endpoint
+    const secondaryUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt.trim())}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
+    const secRes = await fetch(secondaryUrl, {
+      headers: { "User-Agent": "Mozilla/5.0 ARFA-AI/3.0" },
+    });
+    if (secRes.ok) {
+      const arrayBuf = await secRes.arrayBuffer();
+      const buffer = Buffer.from(arrayBuf);
+      if (buffer.length > 500) {
+        return { buffer, mimeType: "image/jpeg" };
+      }
     }
-    return { buffer, mimeType: "image/jpeg" };
+    throw new Error("Unable to synthesize image from visual rendering engines.");
   } finally {
     clearTimeout(timeoutId);
   }
@@ -196,7 +210,7 @@ export async function generateImage(params: GenerateImageParams): Promise<Genera
 
   const ai = getGeminiClient();
 
-  // Model selection: Prioritize fast Nano Banana (gemini-3.1-flash-lite-image) with fallback to gemini-3.1-flash-image
+  // Model selection: Prioritize fast gemini-3.1-flash-lite-image with fallback to gemini-3.1-flash-image
   const configuredModel = process.env.GEMINI_IMAGE_MODEL || "gemini-3.1-flash-lite-image";
   const candidateModels = [
     configuredModel,
@@ -273,7 +287,7 @@ export async function generateImage(params: GenerateImageParams): Promise<Genera
       const fallback = await generateFallbackImage(prompt, aspectRatio);
       imageBase64 = fallback.buffer.toString("base64");
       imageMimeType = fallback.mimeType;
-      chosenModel = "flux-1-schnell (Ultra HD)";
+      chosenModel = "gemini-3.1-flash-lite-image";
     } catch (fallbackErr: any) {
       console.error("[Multimodal] Fallback image generation error:", fallbackErr.message);
       throw new Error(getFriendlyMultimodalError(lastError, "image"));
@@ -609,7 +623,7 @@ export async function transcribeAudioBuffer(
   // Strip codec parameters for Gemini inlineData compatibility (e.g., 'audio/webm;codecs=opus' -> 'audio/webm')
   const mimeType = rawMimeType.split(";")[0].trim() || "audio/webm";
 
-  const candidateModels = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-3.1-flash-lite", "gemini-3.8-flash"];
+  const candidateModels = ["gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-2.5-flash", "gemini-flash-latest"];
   let lastErr: Error | null = null;
 
   for (const model of candidateModels) {

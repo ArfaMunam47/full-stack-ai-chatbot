@@ -166,7 +166,7 @@ export const TemplatesModal: React.FC<TemplatesModalProps> = ({
         </div>
 
         {/* Template List */}
-        <div className="flex-1 overflow-y-auto pr-1 space-y-2.5">
+        <div className="flex-1 overflow-y-auto themed-scrollbar pr-1 space-y-2.5">
           {filtered.length === 0 ? (
             <div className="text-center py-10 text-xs text-[#B298A1] font-medium">
               No templates found matching "{search}"

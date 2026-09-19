@@ -1,15 +1,15 @@
 import { streamGeminiChat, formatFriendlyErrorMessage } from "./geminiClient.ts";
 import { streamOpenAIChat, isOpenAIConfigured } from "./openaiClient.ts";
-import type { ChatMessage, StreamCallbacks } from "./types.ts";
+import type { ChatMessage, StreamCallbacks, AttachmentItem } from "./types.ts";
 import type { SystemPromptOptions } from "./systemPrompt.ts";
 import { buildArfaSystemPrompt } from "./systemPrompt.ts";
 
 export { formatFriendlyErrorMessage };
 
-
 export interface ChatRequestOptions {
   history: ChatMessage[];
   message: string;
+  attachments?: AttachmentItem[];
   provider?: "gemini" | "openai";
   modelName?: string;
   promptOptions?: SystemPromptOptions;
@@ -19,7 +19,7 @@ export async function executeStreamingChat(
   options: ChatRequestOptions,
   callbacks: StreamCallbacks
 ): Promise<void> {
-  const { history, message, provider, modelName, promptOptions } = options;
+  const { history, message, attachments, provider, modelName, promptOptions } = options;
 
   // Build the structured system prompt
   const systemInstruction = buildArfaSystemPrompt(promptOptions);
@@ -35,7 +35,7 @@ export async function executeStreamingChat(
     const selectedModel = modelName || process.env.OPENAI_MODEL || "gpt-4o";
     try {
       console.log(`Attempting chat with OpenAI (${selectedModel})...`);
-      await streamOpenAIChat(systemInstruction, history, message, callbacks, selectedModel);
+      await streamOpenAIChat(systemInstruction, history, message, callbacks, selectedModel, attachments);
       return;
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : String(err);
@@ -44,7 +44,7 @@ export async function executeStreamingChat(
       );
       // Fallback to Gemini
       const geminiModel = "gemini-3.1-flash-lite";
-      await streamGeminiChat(systemInstruction, history, message, callbacks, geminiModel);
+      await streamGeminiChat(systemInstruction, history, message, callbacks, geminiModel, attachments);
       return;
     }
   }
@@ -52,7 +52,7 @@ export async function executeStreamingChat(
   // Gemini primary flow (high-speed streaming)
   const selectedGeminiModel = (modelName && modelName !== "gemini-2.5-flash") ? modelName : "gemini-3.1-flash-lite";
   try {
-    await streamGeminiChat(systemInstruction, history, message, callbacks, selectedGeminiModel);
+    await streamGeminiChat(systemInstruction, history, message, callbacks, selectedGeminiModel, attachments);
   } catch (geminiErr: unknown) {
     if (isOpenAIConfigured()) {
       const geminiMsg = geminiErr instanceof Error ? geminiErr.message : String(geminiErr);
@@ -60,7 +60,7 @@ export async function executeStreamingChat(
         `Gemini stream failed (${geminiMsg}). Seamlessly falling back to OpenAI...`
       );
       const openAiModel = process.env.OPENAI_MODEL || "gpt-4o";
-      await streamOpenAIChat(systemInstruction, history, message, callbacks, openAiModel);
+      await streamOpenAIChat(systemInstruction, history, message, callbacks, openAiModel, attachments);
       return;
     }
     throw geminiErr;

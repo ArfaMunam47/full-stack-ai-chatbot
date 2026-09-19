@@ -1,5 +1,5 @@
-import { GoogleGenAI } from "@google/genai";
-import type { ChatMessage, StreamCallbacks } from "./types.ts";
+import { GoogleGenAI, ThinkingLevel } from "@google/genai";
+import type { ChatMessage, StreamCallbacks, AttachmentItem } from "./types.ts";
 
 let geminiInstance: GoogleGenAI | null = null;
 
@@ -71,7 +71,8 @@ export async function streamGeminiChat(
   history: ChatMessage[],
   latestPrompt: string,
   callbacks: StreamCallbacks,
-  modelName: string = "gemini-3.8-flash"
+  modelName: string = "gemini-3.8-flash",
+  attachments?: AttachmentItem[]
 ): Promise<void> {
   const ai = getGeminiClient();
 
@@ -87,22 +88,71 @@ export async function streamGeminiChat(
     }
   }
 
-  // Append current prompt
+  // Construct user parts with multimodal file handling
+  const userParts: any[] = [];
+  let userText = latestPrompt || "";
+
+  if (attachments && attachments.length > 0) {
+    for (const att of attachments) {
+      if (!att.dataUrl) continue;
+      const mimeType = att.type || "application/octet-stream";
+
+      // Native Gemini inline binary support for images & PDFs
+      if (mimeType.startsWith("image/") || mimeType === "application/pdf") {
+        const base64Data = att.dataUrl.includes(",")
+          ? att.dataUrl.split(",")[1]
+          : att.dataUrl;
+        userParts.push({
+          inlineData: {
+            mimeType: mimeType,
+            data: base64Data,
+          },
+        });
+      } else {
+        // Document & code file extraction
+        try {
+          let textContent = "";
+          if (att.dataUrl.startsWith("data:")) {
+            const commaIdx = att.dataUrl.indexOf(",");
+            const meta = att.dataUrl.slice(0, commaIdx);
+            const raw = att.dataUrl.slice(commaIdx + 1);
+            if (meta.includes(";base64")) {
+              textContent = Buffer.from(raw, "base64").toString("utf-8");
+            } else {
+              textContent = decodeURIComponent(raw);
+            }
+          } else {
+            textContent = att.dataUrl;
+          }
+          userText += `\n\n--- [Attached File: "${att.name || "document"}"] ---\n\`\`\`\n${textContent.slice(0, 60000)}\n\`\`\`\n`;
+        } catch (decErr) {
+          console.warn("Could not decode text attachment:", decErr);
+        }
+      }
+    }
+  }
+
+  userParts.push({ text: userText.trim() || "Please analyze the attached document or file." });
+
+  // Append current prompt with multimodal contents
   contents.push({
     role: "user",
-    parts: [{ text: latestPrompt }],
+    parts: userParts,
   });
 
   // Construct prioritized fallback list:
   // 1. Primary: gemini-3.1-flash-lite (fastest sub-second TTFT and response generation)
-  // 2. High-capacity fallback: gemini-3.8-flash
-  // 3. Robust fallbacks: gemini-3.6-flash, gemini-flash-latest
-  const requestedModel = (modelName && modelName !== "gemini-2.5-flash") ? modelName : "gemini-3.1-flash-lite";
+  // 2. High-capacity fallback: gemini-3.8-flash (with ThinkingLevel.LOW)
+  // 3. Robust fallback: gemini-flash-latest
+  let requestedModel = (modelName && modelName !== "gemini-2.5-flash") ? modelName : "gemini-3.1-flash-lite";
+  if (requestedModel.includes("image")) {
+    requestedModel = "gemini-3.1-flash-lite";
+  }
+
   const candidatePool = [
     requestedModel,
     "gemini-3.1-flash-lite",
     "gemini-3.8-flash",
-    "gemini-3.6-flash",
     "gemini-flash-latest",
   ];
 
@@ -135,14 +185,18 @@ export async function streamGeminiChat(
     let fullAccumulated = "";
     let firstTokenTime: number | null = null;
 
-    // Low-latency configuration: set thinkingBudget to 0 so flash models stream tokens immediately
+    // Ultra-low-latency configuration:
+    // - gemini-3.1-flash-lite: ThinkingLevel.MINIMAL (sub-second TTFT ~1s)
+    // - gemini-3.8-flash / flash-latest: ThinkingLevel.LOW (low-latency reasoning ~2-4s)
     const modelConfig: any = {
       systemInstruction,
       temperature: 0.7,
     };
 
-    if (candidate.includes("flash") || candidate.includes("lite")) {
-      modelConfig.thinkingConfig = { thinkingBudget: 0 };
+    if (candidate === "gemini-3.1-flash-lite" || candidate.includes("lite")) {
+      modelConfig.thinkingConfig = { thinkingLevel: ThinkingLevel.MINIMAL };
+    } else if (candidate.includes("3.8") || candidate.includes("flash")) {
+      modelConfig.thinkingConfig = { thinkingLevel: ThinkingLevel.LOW };
     }
 
     try {

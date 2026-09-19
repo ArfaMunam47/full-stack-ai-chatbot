@@ -121,7 +121,7 @@ export const KnowledgeModal: React.FC<KnowledgeModalProps> = ({ isOpen, onClose 
         </form>
 
         {/* Knowledge List */}
-        <div className="flex-1 overflow-y-auto pr-1 space-y-2 mt-2">
+        <div className="flex-1 overflow-y-auto themed-scrollbar pr-1 space-y-2 mt-2">
           {memories.length === 0 ? (
             <div className="text-center py-10 text-xs text-[#B298A1] font-medium">
               No saved knowledge yet. Add rules or personal preferences above!

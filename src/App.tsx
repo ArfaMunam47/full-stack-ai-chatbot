@@ -10,7 +10,7 @@ import { ConfirmDeleteModal } from "./components/modals/ConfirmDeleteModal.tsx";
 import { RenameModal } from "./components/modals/RenameModal.tsx";
 import { TemplatesModal } from "./components/modals/TemplatesModal.tsx";
 import { KnowledgeModal } from "./components/modals/KnowledgeModal.tsx";
-import { GalaxyGlitterBackground } from "./components/ui/GalaxyGlitterBackground.tsx";
+import { Soft3DBackground } from "./components/ui/Soft3DBackground.tsx";
 import { api } from "./lib/api.ts";
 import { Conversation, Message, User, MessageAttachment, ComposerMode } from "./types.ts";
 import { AlertCircle, RefreshCw, X } from "lucide-react";
@@ -28,16 +28,29 @@ export default function App() {
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidePreviewOpen, setIsSidePreviewOpen] = useState(false);
-  const [lightingTheme, setLightingTheme] = useState<LightingTheme>("sunlight");
+  const [lightingTheme, setLightingTheme] = useState<LightingTheme>("blush");
+  const [selectedModel, setSelectedModel] = useState<string>("gemini-3.1-flash-lite");
 
-  // One-Click Lighting Theme Switcher
+  // One-Click Lighting Theme Switcher (Rose Quartz, Peach Satin, Lavender Dream, Mint Opal)
   const cycleLightingTheme = () => {
     setLightingTheme((curr) => {
-      if (curr === "sunlight") return "starlight";
-      if (curr === "starlight") return "cyber";
-      if (curr === "cyber") return "lunar";
-      return "sunlight";
+      if (curr === "blush") return "sunlight";
+      if (curr === "sunlight") return "lunar";
+      if (curr === "lunar") return "emerald";
+      return "blush";
     });
+  };
+
+  const handleSelectModel = async (modelId: string) => {
+    setSelectedModel(modelId);
+    try {
+      await api.updateSettings({
+        preferredProvider: "gemini",
+        preferredModel: modelId,
+      });
+    } catch (err) {
+      console.error("Failed to update preferred model:", err);
+    }
   };
 
   // Modals
@@ -57,6 +70,11 @@ export default function App() {
   useEffect(() => {
     loadUser();
     loadConversations();
+    api.getSettings().then((s) => {
+      if (s?.preferredModel) {
+        setSelectedModel(s.preferredModel);
+      }
+    }).catch(() => {});
   }, []);
 
   // Search filter
@@ -171,6 +189,7 @@ export default function App() {
           message: userPrompt,
           attachments,
           mode: mode || activeMode,
+          modelName: selectedModel,
         },
         {
           onInit: (data) => {
@@ -308,28 +327,26 @@ export default function App() {
   return (
     <div
       id="arfa-root-app"
-      className="flex h-screen w-screen overflow-hidden text-white relative select-none font-sans"
+      data-theme={lightingTheme}
+      className="flex h-screen w-screen overflow-hidden text-[#3D1429] relative select-none font-sans"
     >
-      {/* Dark Galaxy Cosmic Sparkle Background */}
-      <GalaxyGlitterBackground />
-
-      {/* Whole Page Border Lighting (Sunlight Warm Inner Glow, No Gaps or Corners Left Out) */}
-      <div
-        id="arfa-whole-page-border"
-        className={`whole-page-lighting-frame theme-${lightingTheme}`}
-        aria-hidden="true"
-      />
+      {/* 2026 Soft 3D Claymorphism & Frosted Glass Background with Non-Bright Eye-Safe Palette */}
+      <Soft3DBackground lightingTheme={lightingTheme} />
 
       {/* Main Experience Canvas */}
       <div className="flex-1 flex flex-col h-full overflow-hidden relative w-full z-10 p-2 sm:p-3 md:p-4">
         <div className="flex-1 min-h-0 w-full max-w-5xl mx-auto flex flex-col relative overflow-hidden">
-          {/* 1. Integrated Navbar with Clean Outline Lighting */}
+          {/* 1. Integrated Double-Glass Navbar */}
           <TactileHeader
             onNewChat={handleNewChat}
             onToggleSidePreview={() => setIsSidePreviewOpen((prev) => !prev)}
             isSidePreviewOpen={isSidePreviewOpen}
             lightingTheme={lightingTheme}
             onCycleLighting={cycleLightingTheme}
+            onSelectLightingTheme={setLightingTheme}
+            selectedModel={selectedModel}
+            onSelectModel={handleSelectModel}
+            onOpenSettings={() => setIsSettingsOpen(true)}
             onOpenAuth={(mode) => {
               setAuthInitialMode(mode || "login");
               setIsAuthOpen(true);
@@ -374,15 +391,22 @@ export default function App() {
           )}
 
           {/* 2. Scrollable Conversation History or Tactile Empty State */}
-          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden relative flex flex-col px-2 sm:px-4 pt-1 sm:pt-2 pb-2">
+          <div
+            className={`flex-1 min-h-0 relative flex flex-col px-2 sm:px-4 pt-3.5 sm:pt-4.5 pb-2 ${
+              messages.length === 0 && !isStreaming
+                ? "overflow-hidden"
+                : "overflow-y-auto chat-scroll-container"
+            }`}
+          >
             {messages.length === 0 && !isStreaming ? (
-              <div className="w-full flex flex-col justify-end items-center mt-auto mb-1 pt-3 sm:pt-4 pb-0 max-w-4xl mx-auto">
+              <div className="w-full flex-1 flex flex-col justify-center items-center my-auto py-2 sm:py-3 max-w-2xl mx-auto">
                 <EmptyState
                   onSelectPrompt={(prompt) => handleSendMessage(prompt)}
+                  lightingTheme={lightingTheme}
                 />
               </div>
             ) : (
-              <div className="w-full space-y-3 sm:space-y-4 max-w-4xl mx-auto">
+              <div className="w-full space-y-2.5 sm:space-y-3 max-w-3xl mx-auto">
                 {messages.map((msg, index) => (
                   <MessageItem
                     key={msg.id || index}
@@ -420,8 +444,8 @@ export default function App() {
             )}
           </div>
 
-          {/* 3. Bottom Docked Tactile Composer Deck with Clean Margin */}
-          <div className="shrink-0 w-full pt-1 sm:pt-2 pb-0.5 px-2 sm:px-4 max-w-4xl mx-auto">
+          {/* 3. Bottom Docked Tactile Composer Deck with Clean Compact Margin */}
+          <div className="shrink-0 w-full pt-1 pb-1 px-2 sm:px-4 max-w-3xl mx-auto">
             <MessageComposer
               onSend={handleSendMessage}
               isStreaming={isStreaming}
@@ -466,8 +490,11 @@ export default function App() {
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
         initialMode={authInitialMode}
+        lightingTheme={lightingTheme}
+        onSelectLightingTheme={setLightingTheme}
         onSuccess={() => {
           loadUser();
+          loadConversations();
           setIsAuthOpen(false);
         }}
       />
